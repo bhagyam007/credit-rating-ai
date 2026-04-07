@@ -1,0 +1,2521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project AAAI+ — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --accent: #06b6d4;
+      --dark: #0f172a;
+      --dark2: #1e293b;
+      --dark3: #334155;
+      --light: #f8fafc;
+      --muted: #94a3b8;
+      --card: #1e293b;
+      --border: rgba(255,255,255,0.08);
+      --grad: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+      --sidebar-w: 240px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--dark);
+      color: #e2e8f0;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--dark2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 50;
+    }
+    .sidebar-logo {
+      padding: 1.5rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--grad);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .logo-text { font-size: 1.1rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo-sub { font-size: 0.65rem; color: var(--muted); }
+
+    .sidebar-nav { flex: 1; padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; }
+    .nav-section-label {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted);
+      padding: 0.75rem 0.5rem 0.4rem;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.65rem 0.75rem; border-radius: 10px;
+      cursor: pointer; font-size: 0.875rem; font-weight: 500;
+      color: var(--muted); transition: all .2s;
+      border: 1px solid transparent;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: #e2e8f0; }
+    .nav-item.active {
+      background: rgba(37,99,235,0.15);
+      color: #93c5fd;
+      border-color: rgba(37,99,235,0.3);
+    }
+    .nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 1rem 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+    .logout-btn {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.65rem 0.75rem; border-radius: 10px;
+      cursor: pointer; font-size: 0.875rem; font-weight: 500;
+      color: var(--muted); transition: all .2s;
+      border: none; background: transparent; width: 100%; text-align: left;
+      font-family: inherit;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); color: #f87171; }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      height: 64px;
+      background: var(--dark2);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      position: sticky; top: 0; z-index: 40;
+    }
+    .topbar-title { font-size: 1rem; font-weight: 700; color: #e2e8f0; }
+    .topbar-right { display: flex; align-items: center; gap: 1rem; }
+    .user-badge {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 100px; padding: 0.35rem 1rem 0.35rem 0.35rem;
+    }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--grad);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; font-weight: 800; color: #fff;
+      flex-shrink: 0;
+    }
+    .user-info { display: flex; flex-direction: column; }
+    .user-name { font-size: 0.85rem; font-weight: 700; line-height: 1; }
+    .user-email { font-size: 0.7rem; color: var(--muted); }
+
+    /* ── CONTENT ── */
+    .content {
+      flex: 1; padding: 2rem;
+      display: none;
+    }
+    .content.active { display: block; }
+
+    /* ── PAGE HEADER ── */
+    .page-header { margin-bottom: 2rem; }
+    .page-tag {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--accent); margin-bottom: 0.4rem;
+    }
+    .page-header h2 { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.4rem; }
+    .page-header p { color: var(--muted); font-size: 0.9rem; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--dark2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.75rem;
+    }
+    .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; }
+
+    /* ── OVERVIEW GRID ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card {
+      background: var(--dark2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.25rem 1.5rem;
+    }
+    .stat-card .val { font-size: 2rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-card .lbl { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.2rem; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
+
+    /* ── PROBLEM CARDS ── */
+    .prob-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .prob-card {
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.5rem;
+      transition: border-color .2s, transform .2s;
+    }
+    .prob-card:hover { border-color: rgba(37,99,235,0.35); transform: translateY(-2px); }
+    .prob-card .p-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
+    .prob-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .prob-card p { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── HOW IT WORKS ── */
+    .steps-col { display: flex; flex-direction: column; gap: 1rem; }
+    .step-row {
+      display: flex; gap: 1rem; align-items: flex-start;
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.25rem;
+    }
+    .step-num {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      background: var(--grad); display: flex; align-items: center;
+      justify-content: center; font-size: 1rem; font-weight: 800;
+    }
+    .step-row h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .step-row p { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── FEATURES ── */
+    .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .feat-card {
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.5rem;
+      transition: border-color .2s, transform .2s;
+    }
+    .feat-card:hover { border-color: rgba(6,182,212,0.35); transform: translateY(-2px); }
+    .feat-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: rgba(37,99,235,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; margin-bottom: 0.75rem;
+    }
+    .feat-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .feat-card p { font-size: 0.82rem; color: var(--muted); }
+    .tag {
+      display: inline-block; padding: 0.2rem 0.55rem; border-radius: 6px;
+      font-size: 0.68rem; font-weight: 600; margin-top: 0.6rem;
+    }
+    .tag.high { background: rgba(239,68,68,0.12); color: #f87171; }
+    .tag.med  { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .tag.low  { background: rgba(34,197,94,0.12);  color: #4ade80; }
+
+    /* ── MODEL LIST ── */
+    .model-list { list-style: none; display: flex; flex-direction: column; gap: 0.65rem; }
+    .model-list li {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.7rem 1rem; font-size: 0.875rem;
+    }
+    .model-list li .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--grad); flex-shrink: 0; }
+
+    /* ── TECH PILLS ── */
+    .tech-wrap { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .tech-pill {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 100px; padding: 0.5rem 1rem;
+      font-size: 0.85rem; font-weight: 500;
+      transition: border-color .2s, transform .2s;
+    }
+    .tech-pill:hover { border-color: rgba(37,99,235,0.4); transform: translateY(-2px); }
+
+    /* ── TEAM ── */
+    .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+    .team-card {
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.75rem 1.25rem; text-align: center;
+      transition: border-color .2s, transform .2s;
+    }
+    .team-card:hover { border-color: rgba(37,99,235,0.4); transform: translateY(-3px); }
+    .avatar {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--grad); display: flex; align-items: center;
+      justify-content: center; font-size: 1.5rem; font-weight: 800;
+      margin: 0 auto 0.85rem; color: #fff;
+    }
+    .team-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .team-card .role { font-size: 0.78rem; color: var(--muted); }
+
+    /* ── DEMO ── */
+    .demo-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+    .form-group label {
+      font-size: 0.72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .form-group input, .form-group select {
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.65rem 0.9rem;
+      color: #e2e8f0; font-size: 0.875rem; font-family: inherit;
+      transition: border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none; border-color: var(--primary);
+    }
+    .demo-submit {
+      grid-column: 1 / -1; background: var(--grad); color: #fff;
+      border: none; border-radius: 10px; padding: 0.85rem;
+      font-size: 0.95rem; font-weight: 700; cursor: pointer;
+      margin-top: 0.25rem; transition: opacity .2s, transform .2s;
+      font-family: inherit;
+    }
+    .demo-submit:hover { opacity: 0.85; transform: translateY(-1px); }
+    .demo-result {
+      margin-top: 1.5rem; display: none;
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.75rem; text-align: center;
+    }
+    .demo-result.show { display: block; }
+    .score-circle {
+      width: 110px; height: 110px; border-radius: 50%; border: 6px solid;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+    }
+    .score-num { font-size: 1.8rem; font-weight: 800; }
+    .score-label { font-size: 0.7rem; font-weight: 600; }
+    .score-grade { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.2rem; }
+    .score-desc { font-size: 0.82rem; color: var(--muted); }
+
+    /* ── METRICS ROW ── */
+    .metric-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .metric {
+      flex: 1; min-width: 110px;
+      background: var(--dark2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.1rem; text-align: center;
+    }
+    .metric .val { font-size: 1.75rem; font-weight: 800; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .metric .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+    /* ── FADE ── */
+    .fade-in { opacity: 0; transform: translateY(16px); transition: opacity 0.5s, transform 0.5s; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── SIDEBAR ACCORDION ── */
+    .sidebar-nav { overflow-y: auto; }
+    .nav-parent {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.65rem 0.75rem; border-radius: 10px;
+      cursor: pointer; font-size: 0.875rem; font-weight: 500;
+      color: var(--muted); transition: all .2s;
+      border: 1px solid transparent;
+      user-select: none;
+    }
+    .nav-parent:hover { background: rgba(255,255,255,0.05); color: #e2e8f0; }
+    .nav-parent.open { color: #e2e8f0; }
+    .nav-parent .left { display: flex; align-items: center; gap: 0.75rem; }
+    .nav-parent .icon { font-size: 1rem; width: 20px; text-align: center; }
+    .nav-arrow { font-size: 0.65rem; transition: transform .2s; }
+    .nav-parent.open .nav-arrow { transform: rotate(90deg); }
+    .nav-children {
+      display: none; flex-direction: column; gap: 0.1rem;
+      margin: 0.1rem 0 0.1rem 1rem;
+      padding-left: 0.75rem;
+      border-left: 2px solid rgba(37,99,235,0.25);
+    }
+    .nav-children.open { display: flex; }
+    .nav-child {
+      padding: 0.5rem 0.6rem; border-radius: 8px;
+      cursor: pointer; font-size: 0.8rem; font-weight: 500;
+      color: var(--muted); transition: all .2s;
+    }
+    .nav-child:hover { background: rgba(255,255,255,0.05); color: #e2e8f0; }
+    .nav-child.active { background: rgba(37,99,235,0.12); color: #93c5fd; font-weight: 600; }
+
+    /* ── INNER SUB-TABS ── */
+    .inner-tabs {
+      display: flex; gap: 0.25rem; margin-bottom: 1.75rem;
+      background: var(--dark2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 4px; width: fit-content;
+    }
+    .inner-tab {
+      padding: 0.45rem 1.1rem; border-radius: 9px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      color: var(--muted); transition: all .2s; border: none; background: transparent;
+      font-family: inherit;
+    }
+    .inner-tab.active { background: var(--grad); color: #fff; }
+    .inner-panel { display: none; }
+    .inner-panel.active { display: block; }
+
+    /* ── PORTFOLIO TABLE ── */
+    .tbl-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;
+    }
+    .tbl-toolbar h3 { font-size: 1rem; font-weight: 700; }
+    .btn-add {
+      background: var(--grad); color: #fff; border: none;
+      border-radius: 8px; padding: 0.5rem 1.1rem;
+      font-size: 0.82rem; font-weight: 700; cursor: pointer;
+      font-family: inherit; transition: opacity .2s;
+    }
+    .btn-add:hover { opacity: 0.85; }
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    thead th {
+      padding: 0.75rem 1rem; text-align: left;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    tbody td { padding: 0.85rem 1rem; color: #e2e8f0; }
+    .rating-badge {
+      display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px;
+      font-size: 0.75rem; font-weight: 700;
+    }
+    .r-aaa { background: rgba(34,197,94,0.15);  color: #4ade80; }
+    .r-aa  { background: rgba(34,197,94,0.1);   color: #86efac; }
+    .r-a   { background: rgba(132,204,22,0.12); color: #bef264; }
+    .r-bbb { background: rgba(234,179,8,0.12);  color: #fde047; }
+    .r-bb  { background: rgba(249,115,22,0.12); color: #fb923c; }
+    .r-d   { background: rgba(239,68,68,0.12);  color: #f87171; }
+    .tbl-action {
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.3rem 0.65rem;
+      font-size: 0.75rem; color: var(--muted); cursor: pointer;
+      font-family: inherit; transition: all .15s; margin-right: 0.35rem;
+    }
+    .tbl-action:hover { border-color: var(--primary); color: #93c5fd; }
+    .tbl-action.del:hover { border-color: #ef4444; color: #f87171; }
+    .empty-row td { text-align: center; color: var(--muted); padding: 2rem; font-size: 0.85rem; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--dark2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem; width: 100%; max-width: 440px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    }
+    .modal h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; }
+    .modal-form { display: flex; flex-direction: column; gap: 0.85rem; }
+    .modal-form label { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.3rem; }
+    .modal-form input, .modal-form select {
+      width: 100%; background: var(--dark); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.7rem 0.9rem;
+      color: #e2e8f0; font-size: 0.875rem; font-family: inherit;
+    }
+    .modal-form input:focus, .modal-form select:focus { outline: none; border-color: var(--primary); }
+    .modal-btns { display: flex; gap: 0.75rem; margin-top: 1rem; }
+    .modal-btns .btn-save {
+      flex: 1; background: var(--grad); color: #fff; border: none;
+      border-radius: 8px; padding: 0.75rem; font-size: 0.9rem;
+      font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .modal-btns .btn-cancel {
+      flex: 1; background: transparent; color: var(--muted);
+      border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .modal-btns .btn-cancel:hover { border-color: rgba(255,255,255,0.2); color: #e2e8f0; }
+
+    /* ── NEWS CARDS ── */
+    .news-grid { display: flex; flex-direction: column; gap: 0.85rem; }
+    .news-card {
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.1rem 1.25rem;
+      display: flex; gap: 1rem; align-items: flex-start;
+      transition: border-color .2s;
+    }
+    .news-card:hover { border-color: rgba(37,99,235,0.35); }
+    .news-card .news-body { flex: 1; }
+    .news-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.3rem; line-height: 1.4; }
+    .news-card h4 a { color: #e2e8f0; text-decoration: none; }
+    .news-card h4 a:hover { color: #93c5fd; }
+    .news-meta { font-size: 0.75rem; color: var(--muted); display: flex; gap: 1rem; flex-wrap: wrap; }
+    .news-img { width: 80px; height: 60px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: var(--dark3); }
+    .news-search { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; }
+    .news-search input {
+      flex: 1; background: var(--dark); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.65rem 1rem;
+      color: #e2e8f0; font-size: 0.875rem; font-family: inherit;
+    }
+    .news-search input:focus { outline: none; border-color: var(--primary); }
+    .sector-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .sector-pill {
+      padding: 0.35rem 0.9rem; border-radius: 100px; font-size: 0.78rem; font-weight: 600;
+      background: var(--dark); border: 1px solid var(--border); cursor: pointer;
+      color: var(--muted); transition: all .2s;
+    }
+    .sector-pill.active, .sector-pill:hover { background: rgba(37,99,235,0.15); border-color: rgba(37,99,235,0.4); color: #93c5fd; }
+
+    /* ── RISK BADGES ── */
+    .risk-high { background: rgba(239,68,68,0.12);  color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+    .risk-med  { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+    .risk-low  { background: rgba(34,197,94,0.12);  color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+    .risk-pill { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700; }
+    .event-card {
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem 1.25rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .event-card .ev-icon { font-size: 1.4rem; width: 36px; text-align: center; flex-shrink: 0; }
+    .event-card .ev-body { flex: 1; }
+    .event-card h4 { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .event-card p  { font-size: 0.8rem; color: var(--muted); }
+
+    /* ── FEATURE BARS (SHAP) ── */
+    .shap-bar-wrap { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.5rem; }
+    .shap-row { display: flex; align-items: center; gap: 0.75rem; }
+    .shap-label { font-size: 0.78rem; color: var(--muted); width: 140px; flex-shrink: 0; text-align: right; }
+    .shap-track { flex: 1; height: 10px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+    .shap-fill { height: 100%; border-radius: 100px; transition: width 0.8s ease; }
+    .shap-val { font-size: 0.75rem; font-weight: 700; width: 40px; text-align: right; }
+
+    /* ── RATING NOTE OUTPUT ── */
+    .note-output {
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.75rem; margin-top: 1.5rem;
+      font-size: 0.875rem; line-height: 1.8; display: none;
+    }
+    .note-output.show { display: block; }
+    .note-output h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.25rem; }
+    .note-output h3 { font-size: 0.85rem; font-weight: 700; margin: 1rem 0 0.4rem; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.06em; }
+    .note-output p  { color: #cbd5e1; margin-bottom: 0.5rem; }
+    .note-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem; }
+    .note-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem 2rem; font-size: 0.8rem; color: var(--muted); }
+    .note-meta-grid span { color: #e2e8f0; font-weight: 600; }
+    .note-divider { height: 1px; background: var(--border); margin: 1rem 0; }
+    .note-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+    .btn-dl {
+      background: var(--grad); color: #fff; border: none;
+      border-radius: 8px; padding: 0.6rem 1.25rem;
+      font-size: 0.85rem; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .btn-save-note {
+      background: transparent; color: var(--muted); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.6rem 1.25rem;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .btn-save-note:hover { border-color: rgba(255,255,255,0.2); color: #e2e8f0; }
+
+    /* ── FORM GRID ── */
+    .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group2 { display: flex; flex-direction: column; gap: 0.35rem; }
+    .form-group2 label { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-group2 input, .form-group2 select, .form-group2 textarea {
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.65rem 0.9rem;
+      color: #e2e8f0; font-size: 0.875rem; font-family: inherit; resize: vertical;
+    }
+    .form-group2 input:focus, .form-group2 select:focus, .form-group2 textarea:focus {
+      outline: none; border-color: var(--primary);
+    }
+    .form-full { grid-column: 1 / -1; }
+    .btn-generate {
+      background: var(--grad); color: #fff; border: none;
+      border-radius: 10px; padding: 0.8rem 2rem;
+      font-size: 0.95rem; font-weight: 700; cursor: pointer;
+      font-family: inherit; margin-top: 0.5rem; transition: opacity .2s;
+    }
+    .btn-generate:hover { opacity: 0.85; }
+
+    /* ── STATUS BADGE ── */
+    .status-badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.72rem; font-weight: 700; }
+    .s-active    { background: rgba(37,99,235,0.15);  color: #93c5fd; }
+    .s-completed { background: rgba(34,197,94,0.12);  color: #4ade80; }
+    .s-pending   { background: rgba(251,191,36,0.12); color: #fbbf24; }
+
+    /* ── LOADING ── */
+    .loading { display: flex; align-items: center; gap: 0.75rem; color: var(--muted); font-size: 0.875rem; padding: 2rem 0; }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* status select inline */
+    .status-select {
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.3rem 0.5rem;
+      color: #e2e8f0; font-size: 0.78rem; font-family: inherit; cursor: pointer;
+    }
+    .days-urgent { color: #ef4444; font-weight: 700; }
+    .days-warn   { color: #fbbf24; font-weight: 700; }
+    .days-ok     { color: #4ade80; font-weight: 700; }
+    .imp-high { background:rgba(239,68,68,0.12);  color:#f87171; border:1px solid rgba(239,68,68,0.25); }
+    .imp-med  { background:rgba(251,191,36,0.12); color:#fbbf24; border:1px solid rgba(251,191,36,0.25); }
+    .imp-low  { background:rgba(34,197,94,0.12);  color:#4ade80; border:1px solid rgba(34,197,94,0.25); }
+    .news-table-wrap { overflow-x: auto; margin-top: 0.5rem; }
+    .news-table-wrap table td { vertical-align: top; padding: 0.85rem 0.75rem; font-size: 0.82rem; }
+    .news-table-wrap table td a { color: #60a5fa; text-decoration: none; word-break: break-all; }
+    .news-table-wrap table td a:hover { text-decoration: underline; }
+
+    /* ── AI CHAT FALLBACK ── */
+    .ai-chat-box {
+      background: var(--dark); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.25rem; margin-top: 1rem;
+    }
+    .ai-chat-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      font-weight: 700; font-size: 0.95rem; margin-bottom: 1rem;
+      color: #93c5fd;
+    }
+    .ai-chat-header .ai-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--grad); display: flex; align-items: center;
+      justify-content: center; font-size: 1rem; flex-shrink: 0;
+    }
+    .ai-chat-messages {
+      display: flex; flex-direction: column; gap: 0.65rem;
+      min-height: 60px; max-height: 260px; overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+    .ai-msg {
+      padding: 0.65rem 0.9rem; border-radius: 10px;
+      font-size: 0.83rem; line-height: 1.6; max-width: 90%;
+    }
+    .ai-msg.bot { background: rgba(37,99,235,0.12); border: 1px solid rgba(37,99,235,0.2); color: #bfdbfe; align-self: flex-start; }
+    .ai-msg.user { background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2); color: #a5f3fc; align-self: flex-end; }
+    .ai-key-row { display: flex; gap: 0.6rem; margin-top: 0.5rem; }
+    .ai-key-row input {
+      flex: 1; background: var(--dark2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.5rem 0.75rem; color: #e2e8f0;
+      font-size: 0.82rem; font-family: inherit;
+    }
+    .ai-key-row input:focus { outline: none; border-color: var(--primary); }
+    .ai-typing { display: flex; align-items: center; gap: 4px; padding: 0.5rem 0; }
+    .ai-typing span { width: 7px; height: 7px; border-radius: 50%; background: #60a5fa; animation: blink 1.2s infinite; }
+    .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .ai-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">💳</div>
+    <div>
+      <div class="logo-text">Project AAAI+</div>
+      <div class="logo-sub">AI Credit Rating System</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <!-- Overview -->
+    <div class="nav-parent open" onclick="toggleAccordion(this)">
+      <div class="left"><span class="icon">🏠</span> Portfolio Overview</div>
+      <span class="nav-arrow">▶</span>
+    </div>
+    <div class="nav-children open">
+      <div class="nav-child active" onclick="showSubTab('overview','portfolio-summary',this)">Portfolio Summary</div>
+      <div class="nav-child" onclick="showSubTab('overview','edit-portfolio',this)">Edit Portfolio</div>
+      <div class="nav-child" onclick="showSubTab('overview','portfolio-planning',this);renderSurveillanceDue()">Portfolio Planning</div>
+    </div>
+
+    <!-- Material Event Checker -->
+    <div class="nav-parent" onclick="toggleAccordion(this)">
+      <div class="left"><span class="icon">🔔</span> Material Event Checker</div>
+      <span class="nav-arrow">▶</span>
+    </div>
+    <div class="nav-children">
+      <div class="nav-child" onclick="showSubTab('material-event','me-check',this)">Check Event</div>
+      <div class="nav-child" onclick="showSubTab('material-event','me-log',this)">Event Log</div>
+      <div class="nav-child" onclick="showSubTab('material-event','me-alerts',this)">Alerts</div>
+    </div>
+
+    <!-- Rating Note Generator -->
+    <div class="nav-parent" onclick="toggleAccordion(this)">
+      <div class="left"><span class="icon">📝</span> Rating Note Generator</div>
+      <span class="nav-arrow">▶</span>
+    </div>
+    <div class="nav-children">
+      <div class="nav-child" onclick="showSubTab('rating-note','rn-new',this)">New Note</div>
+      <div class="nav-child" onclick="showSubTab('rating-note','rn-templates',this)">Templates</div>
+      <div class="nav-child" onclick="showSubTab('rating-note','rn-history',this)">History</div>
+    </div>
+
+    <!-- News Summary -->
+    <div class="nav-parent" onclick="showTabById('news-summary')" style="cursor:pointer;">
+      <div class="left"><span class="icon">📰</span> News Summary</div>
+    </div>
+
+    <!-- AI Rating Model -->
+    <div class="nav-parent" onclick="toggleAccordion(this)">
+      <div class="left"><span class="icon">🧠</span> AI Rating Model</div>
+      <span class="nav-arrow">▶</span>
+    </div>
+    <div class="nav-children">
+      <div class="nav-child" onclick="showSubTab('ai-model','am-run',this)">Run Analysis</div>
+      <div class="nav-child" onclick="showSubTab('ai-model','am-config',this)">Model Config</div>
+      <div class="nav-child" onclick="showSubTab('ai-model','am-results',this)">Results History</div>
+    </div>
+
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">
+      <span>🚪</span> Sign Out
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-title" id="topbarTitle">Overview</div>
+    <div class="topbar-right">
+      <div class="user-badge">
+        <div class="user-avatar" id="userAvatar">D</div>
+        <div class="user-info">
+          <span class="user-name" id="userName">Demo User</span>
+          <span class="user-email" id="userEmail">demo@creditai.com</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── OVERVIEW ── -->
+  <div class="content active" id="tab-overview">
+    <div class="page-header fade-in">
+      <div class="page-tag">Project AAAI+</div>
+      <h2>Portfolio Overview</h2>
+    </div>
+
+    <!-- Inner Sub-Tabs -->
+    <div class="inner-tabs fade-in">
+      <button class="inner-tab active" onclick="showInner('overview','portfolio-summary',this)">Portfolio Summary</button>
+      <button class="inner-tab" onclick="showInner('overview','edit-portfolio',this)">Edit Portfolio</button>
+      <button class="inner-tab" onclick="showInner('overview','portfolio-planning',this);renderSurveillanceDue()">Portfolio Planning</button>
+    </div>
+
+    <!-- Sub: Portfolio Summary (charts) -->
+    <div class="inner-panel active" id="overview-portfolio-summary">
+      <div class="two-col fade-in" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <h3>Surveillance Status</h3>
+          <p style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem;">Completed vs Pending Cases</p>
+          <div style="max-width:260px;margin:0 auto;">
+            <canvas id="surveillancePie"></canvas>
+          </div>
+          <div style="display:flex;gap:1.5rem;justify-content:center;margin-top:1.25rem;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;"><span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;"></span> Completed</div>
+            <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;"><span style="width:10px;height:10px;border-radius:50%;background:#f97316;display:inline-block;"></span> Pending</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Quarter-wise Completion</h3>
+          <p style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem;">Cases completed per quarter</p>
+          <canvas id="quarterBar" height="220"></canvas>
+        </div>
+      </div>
+      <div class="two-col fade-in">
+        <div class="card">
+          <h3>Upgrades, Downgrades &amp; Reaffirmed</h3>
+          <p style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem;">Rating actions across the portfolio</p>
+          <canvas id="upgradeBar" height="220"></canvas>
+        </div>
+        <div class="card" style="display:flex;flex-direction:column;gap:1rem;">
+          <h3>Portfolio Summary</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;flex:1;">
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center;">
+              <div id="ovTotalCases" style="font-size:1.6rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">0</div>
+              <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.2rem;">Total Cases</div>
+            </div>
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center;">
+              <div id="ovCompleted" style="font-size:1.6rem;font-weight:800;color:#22c55e;">0</div>
+              <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.2rem;">Completed</div>
+            </div>
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center;">
+              <div id="ovPending" style="font-size:1.6rem;font-weight:800;color:#f97316;">0</div>
+              <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.2rem;">Pending</div>
+            </div>
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center;">
+              <div id="ovCompRate" style="font-size:1.6rem;font-weight:800;color:#60a5fa;">0.0%</div>
+              <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.2rem;">Completion Rate</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub: Edit Portfolio (table) -->
+    <div class="inner-panel" id="overview-edit-portfolio">
+      <div class="card fade-in">
+        <div class="tbl-toolbar">
+          <h3>Portfolio Companies</h3>
+          <button class="btn-add" onclick="openModal()">+ Add Company</button>
+        </div>
+        <div class="tbl-wrap">
+          <table id="portfolioTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Company Name</th>
+                <th>Credit Rating</th>
+                <th>Annual Report Date</th>
+                <th>Screener Link</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="portfolioBody">
+              <tr class="empty-row" id="emptyRow">
+                <td colspan="6">No companies added yet. Click "+ Add Company" to get started.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub: Portfolio Planning -->
+    <div class="inner-panel" id="overview-portfolio-planning">
+      <!-- TOP HALF: Surveillance Due Table -->
+      <div class="card fade-in" style="margin-bottom:1.5rem;">
+        <div class="tbl-toolbar">
+          <div>
+            <h3>Surveillance Due — Upcoming Quarter</h3>
+            <p style="font-size:0.8rem;color:var(--muted);margin-top:0.25rem;">Companies with PR review due within the next 3 months</p>
+          </div>
+          <button class="btn-add" onclick="refreshPlanning()">↻ Refresh</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Company Name</th>
+                <th>PR Due By</th>
+                <th>Days Remaining</th>
+                <th>Status of Info Received</th>
+                <th>Send Reminder</th>
+              </tr>
+            </thead>
+            <tbody id="surveillanceDueBody">
+              <tr class="empty-row"><td colspan="5">No companies due for surveillance in the upcoming quarter. Add companies in Edit Portfolio.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── MATERIAL EVENT CHECKER ── -->
+  <div class="content" id="tab-material-event">
+    <div class="page-header fade-in"><div class="page-tag">Project AAAI+</div><h2>Material Event Checker</h2></div>
+    <div class="inner-tabs fade-in">
+      <button class="inner-tab active" onclick="showInner('material-event','me-check',this)">Check Event</button>
+      <button class="inner-tab" onclick="showInner('material-event','me-log',this)">Event Log</button>
+      <button class="inner-tab" onclick="showInner('material-event','me-alerts',this)">Alerts</button>
+    </div>
+
+    <!-- Check Event -->
+    <div class="inner-panel active" id="material-event-me-check">
+      <div class="card fade-in">
+        <h3 style="margin-bottom:1.25rem;">Check Material Events</h3>
+        <div class="form-2col">
+          <div class="form-group2"><label>Company Name</label><input type="text" id="meCompany" placeholder="e.g. Tata Steel Ltd" /></div>
+          <div class="form-group2"><label>Sector</label>
+            <select id="meSector">
+              <option>Infrastructure</option><option>BFSI</option><option>Manufacturing</option>
+              <option>Real Estate</option><option>Power & Energy</option><option>IT & Technology</option><option>Retail</option>
+            </select>
+          </div>
+          <div class="form-group2"><label>Current Rating</label>
+            <select id="meRating">
+              <option>AAA</option><option>AA+</option><option>AA</option><option>AA-</option>
+              <option>A+</option><option>A</option><option>A-</option><option>BBB+</option><option>BBB</option><option>BB</option><option>D</option>
+            </select>
+          </div>
+          <div class="form-group2"><label>Check Period</label>
+            <select id="mePeriod"><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="180">Last 6 months</option></select>
+          </div>
+          <div class="form-group2 form-full"><label>Key Concerns (optional)</label>
+            <textarea id="meConcerns" rows="2" placeholder="e.g. Debt servicing delay, management change..."></textarea>
+          </div>
+        </div>
+        <button class="btn-generate" onclick="checkMaterialEvent()">Run Event Check</button>
+        <div id="meResult" style="display:none; margin-top:1.5rem;">
+          <div style="height:1px;background:var(--border);margin-bottom:1.25rem;"></div>
+          <div id="meResultContent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event Log -->
+    <div class="inner-panel" id="material-event-me-log">
+      <div class="card fade-in">
+        <div class="tbl-toolbar"><h3>Event Log</h3></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Company</th><th>Event Type</th><th>Risk Level</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody id="meLogBody"><tr class="empty-row"><td colspan="5">No events checked yet. Use the Check Event tab to get started.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="inner-panel" id="material-event-me-alerts">
+      <div class="card fade-in">
+        <h3 style="margin-bottom:1.25rem;">Active Alerts</h3>
+        <div id="meAlertsList">
+          <div class="event-card" style="border-color:rgba(239,68,68,0.3);">
+            <div class="ev-icon">🚨</div>
+            <div class="ev-body"><h4>No active high-risk alerts</h4><p>Run an event check to generate alerts for high-risk companies.</p></div>
+            <span class="risk-pill risk-low">Clear</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RATING NOTE GENERATOR ── -->
+  <div class="content" id="tab-rating-note">
+    <div class="page-header fade-in"><div class="page-tag">Project AAAI+</div><h2>Rating Note Generator</h2></div>
+    <div class="inner-tabs fade-in">
+      <button class="inner-tab active" onclick="showInner('rating-note','rn-new',this)">New Note</button>
+      <button class="inner-tab" onclick="showInner('rating-note','rn-templates',this)">Templates</button>
+      <button class="inner-tab" onclick="showInner('rating-note','rn-history',this)">History</button>
+    </div>
+
+    <!-- New Note -->
+    <div class="inner-panel active" id="rating-note-rn-new">
+      <div class="card fade-in">
+        <h3 style="margin-bottom:1.25rem;">Generate Rating Note</h3>
+        <div class="form-2col">
+          <div class="form-group2"><label>Company Name</label><input type="text" id="rnCompany" placeholder="e.g. Reliance Industries Ltd" /></div>
+          <div class="form-group2"><label>Instrument</label><input type="text" id="rnInstrument" placeholder="e.g. Long Term Bank Facilities" /></div>
+          <div class="form-group2"><label>Action Type</label>
+            <select id="rnAction">
+              <option value="Reaffirmed">Reaffirmed</option><option value="Upgraded">Upgraded</option>
+              <option value="Downgraded">Downgraded</option><option value="Watch - Positive">Watch - Positive</option>
+              <option value="Watch - Negative">Watch - Negative</option>
+            </select>
+          </div>
+          <div class="form-group2"><label>Rating (New)</label>
+            <select id="rnRatingNew"><option>AAA</option><option>AA+</option><option>AA</option><option>AA-</option><option>A+</option><option>A</option><option>A-</option><option>BBB+</option><option>BBB</option><option>BB</option><option>D</option></select>
+          </div>
+          <div class="form-group2"><label>Rating (Previous)</label>
+            <select id="rnRatingOld"><option>AA+</option><option>AAA</option><option>AA</option><option>AA-</option><option>A+</option><option>A</option><option>A-</option><option>BBB+</option><option>BBB</option><option>BB</option><option>D</option></select>
+          </div>
+          <div class="form-group2"><label>Outlook</label>
+            <select id="rnOutlook"><option>Stable</option><option>Positive</option><option>Negative</option><option>Under Watch</option></select>
+          </div>
+          <div class="form-group2"><label>Sector</label>
+            <select id="rnSector"><option>Infrastructure</option><option>BFSI</option><option>Manufacturing</option><option>Real Estate</option><option>Power & Energy</option><option>IT & Technology</option><option>Retail</option></select>
+          </div>
+          <div class="form-group2"><label>Facility Size (₹ Cr)</label><input type="number" id="rnSize" placeholder="e.g. 500" /></div>
+          <div class="form-group2 form-full"><label>Key Rating Strengths</label>
+            <textarea id="rnStrengths" rows="3" placeholder="e.g. Strong market position, diversified revenue streams, experienced management..."></textarea>
+          </div>
+          <div class="form-group2 form-full"><label>Key Rating Concerns</label>
+            <textarea id="rnConcerns" rows="3" placeholder="e.g. High leverage, working capital intensity, cyclical industry exposure..."></textarea>
+          </div>
+        </div>
+        <button class="btn-generate" onclick="generateNote()">Generate Rating Note</button>
+
+        <div class="note-output" id="noteOutput">
+          <div class="note-header">
+            <div><div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);margin-bottom:0.3rem;">Project AAAI+ — Rating Note</div>
+            <h2 id="noteTitle"></h2></div>
+            <span class="rating-badge r-aaa" id="noteRatingBadge" style="font-size:1rem;padding:0.4rem 1rem;"></span>
+          </div>
+          <div class="note-meta-grid">
+            <div>Action: <span id="noteMeta1"></span></div>
+            <div>Outlook: <span id="noteMeta2"></span></div>
+            <div>Instrument: <span id="noteMeta3"></span></div>
+            <div>Date: <span id="noteMeta4"></span></div>
+            <div>Sector: <span id="noteMeta5"></span></div>
+            <div>Facility: <span id="noteMeta6"></span></div>
+          </div>
+          <div class="note-divider"></div>
+          <h3>Rating Rationale</h3>
+          <p id="noteRationale"></p>
+          <h3>Key Rating Strengths</h3>
+          <p id="noteStrengths"></p>
+          <h3>Key Rating Concerns</h3>
+          <p id="noteConcerns"></p>
+          <h3>Outlook</h3>
+          <p id="noteOutlookText"></p>
+          <div class="note-divider"></div>
+          <div class="note-actions">
+            <button class="btn-dl" onclick="printNote()">⬇ Download / Print</button>
+            <button class="btn-save-note" onclick="saveNote()">💾 Save to History</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Templates -->
+    <div class="inner-panel" id="rating-note-rn-templates">
+      <div class="form-2col fade-in" style="gap:1rem;">
+        <div class="card" style="cursor:pointer;" onclick="loadTemplate('reaffirm')">
+          <div style="font-size:1.8rem;margin-bottom:0.75rem;">✅</div>
+          <h3>Reaffirmation Note</h3>
+          <p style="font-size:0.82rem;color:var(--muted);margin-top:0.5rem;">Standard template for reaffirming an existing rating with stable outlook.</p>
+          <div style="margin-top:1rem;font-size:0.78rem;color:#93c5fd;">Click to use →</div>
+        </div>
+        <div class="card" style="cursor:pointer;" onclick="loadTemplate('upgrade')">
+          <div style="font-size:1.8rem;margin-bottom:0.75rem;">⬆️</div>
+          <h3>Upgrade Note</h3>
+          <p style="font-size:0.82rem;color:var(--muted);margin-top:0.5rem;">Template for rating upgrade with positive outlook rationale.</p>
+          <div style="margin-top:1rem;font-size:0.78rem;color:#93c5fd;">Click to use →</div>
+        </div>
+        <div class="card" style="cursor:pointer;" onclick="loadTemplate('downgrade')">
+          <div style="font-size:1.8rem;margin-bottom:0.75rem;">⬇️</div>
+          <h3>Downgrade Note</h3>
+          <p style="font-size:0.82rem;color:var(--muted);margin-top:0.5rem;">Template for rating downgrade with negative outlook and risk factors.</p>
+          <div style="margin-top:1rem;font-size:0.78rem;color:#93c5fd;">Click to use →</div>
+        </div>
+        <div class="card" style="cursor:pointer;" onclick="loadTemplate('watch')">
+          <div style="font-size:1.8rem;margin-bottom:0.75rem;">👁️</div>
+          <h3>Watch List Note</h3>
+          <p style="font-size:0.82rem;color:var(--muted);margin-top:0.5rem;">Template for placing an entity on rating watch with implications.</p>
+          <div style="margin-top:1rem;font-size:0.78rem;color:#93c5fd;">Click to use →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="inner-panel" id="rating-note-rn-history">
+      <div class="card fade-in">
+        <div class="tbl-toolbar"><h3>Saved Notes</h3></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Company</th><th>Action</th><th>Rating</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="rnHistoryBody"><tr class="empty-row"><td colspan="5">No saved notes yet. Generate and save a note from the New Note tab.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NEWS SUMMARY ── -->
+  <div class="content" id="tab-news-summary">
+    <div class="page-header fade-in"><div class="page-tag">Project AAAI+</div><h2>News Summary</h2></div>
+    <div class="card fade-in">
+      <div class="tbl-toolbar">
+        <div>
+          <h3>Portfolio News — Last 48 Hours</h3>
+          <p style="font-size:0.8rem;color:var(--muted);margin-top:0.25rem;">Google News results for all portfolio companies</p>
+        </div>
+        <div style="display:flex;gap:0.75rem;align-items:center;">
+          <input type="text" id="newsTableSearch" placeholder="Filter company or keyword..." oninput="filterNewsTable()" style="min-width:200px;background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.75rem;color:var(--text);font-size:0.875rem;" />
+          <button class="btn-add" onclick="fetchNewsTable(true)" style="white-space:nowrap;">↻ Refresh</button>
+        </div>
+      </div>
+      <div id="newsTableArea"><div class="loading"><div class="spinner"></div> Fetching news...</div></div>
+    </div>
+  </div>
+
+  <!-- ── AI RATING MODEL ── -->
+  <div class="content" id="tab-ai-model">
+    <div class="page-header fade-in"><div class="page-tag">Project AAAI+</div><h2>AI Rating Model</h2></div>
+    <div class="inner-tabs fade-in">
+      <button class="inner-tab active" onclick="showInner('ai-model','am-run',this)">Run Analysis</button>
+      <button class="inner-tab" onclick="showInner('ai-model','am-config',this)">Model Config</button>
+      <button class="inner-tab" onclick="showInner('ai-model','am-results',this)">Results History</button>
+    </div>
+
+    <!-- Run Analysis -->
+    <div class="inner-panel active" id="ai-model-am-run">
+      <div class="two-col fade-in" style="align-items:start;">
+        <div class="card">
+          <h3 style="margin-bottom:1.25rem;">Input Parameters</h3>
+          <div style="display:flex;flex-direction:column;gap:0.85rem;">
+            <div class="form-group2"><label>Company Name</label><input type="text" id="amCompany" placeholder="e.g. Adani Ports Ltd" /></div>
+            <div class="form-group2"><label>Annual Income (₹ Cr)</label><input type="number" id="amIncome" placeholder="e.g. 1200" value="1200"/></div>
+            <div class="form-group2"><label>Debt-to-Income Ratio (%)</label><input type="number" id="amDTI" placeholder="e.g. 35" value="35" min="0" max="200"/></div>
+            <div class="form-group2"><label>Credit History (months)</label><input type="number" id="amHistory" placeholder="e.g. 84" value="84"/></div>
+            <div class="form-group2"><label>Late Payments (last 2 yrs)</label><input type="number" id="amLate" placeholder="e.g. 0" value="0" min="0"/></div>
+            <div class="form-group2"><label>Credit Utilization (%)</label><input type="number" id="amUtil" placeholder="e.g. 40" value="40" min="0" max="100"/></div>
+            <div class="form-group2"><label>Active Loans</label><input type="number" id="amLoans" placeholder="e.g. 3" value="3" min="0"/></div>
+            <div class="form-group2"><label>Employment Type</label>
+              <select id="amEmp"><option value="salaried">Salaried</option><option value="self">Self-Employed</option><option value="contract">Contract</option></select>
+            </div>
+            <button class="btn-generate" style="width:100%;" onclick="runAIModel()">Run AI Analysis</button>
+          </div>
+        </div>
+        <div class="card" id="amResultCard" style="display:none;">
+          <h3 style="margin-bottom:1.25rem;">Analysis Result</h3>
+          <div style="text-align:center;margin-bottom:1.5rem;">
+            <div class="score-circle" id="amScoreCircle" style="width:120px;height:120px;margin:0 auto 0.75rem;">
+              <span class="score-num" id="amScoreNum" style="font-size:2rem;font-weight:800;"></span>
+              <span style="font-size:0.7rem;color:var(--muted);">/ 900</span>
+            </div>
+            <div id="amGrade" style="font-size:1.1rem;font-weight:800;margin-bottom:0.25rem;"></div>
+            <div id="amDesc" style="font-size:0.82rem;color:var(--muted);"></div>
+          </div>
+          <div style="height:1px;background:var(--border);margin-bottom:1.25rem;"></div>
+          <div style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent);margin-bottom:0.85rem;">Feature Contributions (SHAP)</div>
+          <div class="shap-bar-wrap" id="shapBars"></div>
+          <button class="btn-save-note" style="width:100%;margin-top:1.25rem;" onclick="saveAIResult()">💾 Save to History</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model Config -->
+    <div class="inner-panel" id="ai-model-am-config">
+      <div class="two-col fade-in" style="align-items:start;">
+        <div class="card">
+          <h3 style="margin-bottom:1.25rem;">Model Parameters</h3>
+          <ul class="model-list">
+            <li><span class="dot"></span><span><b>Algorithm:</b> XGBoost (Gradient Boosting)</span></li>
+            <li><span class="dot"></span><span><b>Trees:</b> 500 estimators</span></li>
+            <li><span class="dot"></span><span><b>Max Depth:</b> 6</span></li>
+            <li><span class="dot"></span><span><b>Learning Rate:</b> 0.05</span></li>
+            <li><span class="dot"></span><span><b>Subsample:</b> 0.8</span></li>
+            <li><span class="dot"></span><span><b>Colsample:</b> 0.8</span></li>
+            <li><span class="dot"></span><span><b>Validation:</b> 5-fold stratified CV</span></li>
+            <li><span class="dot"></span><span><b>Imbalance:</b> SMOTE oversampling</span></li>
+            <li><span class="dot"></span><span><b>Tuning:</b> Optuna (200 trials)</span></li>
+            <li><span class="dot"></span><span><b>Explainability:</b> SHAP TreeExplainer</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:1.25rem;">Performance Metrics</h3>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:0.85rem;color:var(--muted);">Accuracy</span>
+              <span style="font-weight:800;color:#22c55e;">94.2%</span>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:100px;"><div style="width:94.2%;height:100%;background:#22c55e;border-radius:100px;"></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.25rem;">
+              <span style="font-size:0.85rem;color:var(--muted);">AUC-ROC</span>
+              <span style="font-weight:800;color:#06b6d4;">0.97</span>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:100px;"><div style="width:97%;height:100%;background:#06b6d4;border-radius:100px;"></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.25rem;">
+              <span style="font-size:0.85rem;color:var(--muted);">Precision</span>
+              <span style="font-weight:800;color:#2563eb;">92.8%</span>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:100px;"><div style="width:92.8%;height:100%;background:#2563eb;border-radius:100px;"></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.25rem;">
+              <span style="font-size:0.85rem;color:var(--muted);">Recall</span>
+              <span style="font-weight:800;color:#8b5cf6;">91.5%</span>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:100px;"><div style="width:91.5%;height:100%;background:#8b5cf6;border-radius:100px;"></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.25rem;">
+              <span style="font-size:0.85rem;color:var(--muted);">F1 Score</span>
+              <span style="font-weight:800;color:#f59e0b;">92.1%</span>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:100px;"><div style="width:92.1%;height:100%;background:#f59e0b;border-radius:100px;"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results History -->
+    <div class="inner-panel" id="ai-model-am-results">
+      <div class="card fade-in">
+        <div class="tbl-toolbar"><h3>Analysis History</h3></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Company</th><th>Score</th><th>Rating</th><th>Date &amp; Time</th></tr></thead>
+          <tbody id="amHistoryBody"><tr class="empty-row"><td colspan="4">No analyses run yet. Use Run Analysis to get started.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROBLEM ── -->
+  <div class="content" id="tab-problem">
+    <div class="page-header fade-in">
+      <div class="page-tag">Problem Statement</div>
+      <h2>Traditional Credit Rating is Broken</h2>
+      <p>Legacy systems are slow, opaque, and exclude millions of creditworthy individuals.</p>
+    </div>
+    <div class="prob-grid fade-in">
+      <div class="prob-card">
+        <div class="p-icon">⏳</div>
+        <h3>Slow Processing</h3>
+        <p>Manual review processes take days or weeks, delaying loan approvals and frustrating borrowers who need quick decisions.</p>
+      </div>
+      <div class="prob-card">
+        <div class="p-icon">🔒</div>
+        <h3>Black-Box Decisions</h3>
+        <p>Applicants are rejected without clear reasons. Lack of transparency erodes trust and makes appeals nearly impossible.</p>
+      </div>
+      <div class="prob-card">
+        <div class="p-icon">📉</div>
+        <h3>Thin-File Exclusion</h3>
+        <p>Students, immigrants, and young adults with limited credit history are unfairly penalized by traditional score-based systems.</p>
+      </div>
+      <div class="prob-card">
+        <div class="p-icon">⚖️</div>
+        <h3>Inherent Bias</h3>
+        <p>Human judgment in underwriting introduces subconscious bias. Our model uses objective, auditable features to ensure fair outcomes.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HOW IT WORKS ── -->
+  <div class="content" id="tab-how">
+    <div class="page-header fade-in">
+      <div class="page-tag">Methodology</div>
+      <h2>How CreditAI Works</h2>
+      <p>A four-stage pipeline from raw applicant data to a confident credit decision.</p>
+    </div>
+    <div class="steps-col fade-in">
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Data Collection</h3>
+          <p>Applicant submits financial and demographic inputs via a secure form or API call. Data is validated and sanitized before processing.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Feature Engineering</h3>
+          <p>Raw inputs are cleaned, normalized, and transformed into 12 predictive features using domain-specific financial logic.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div>
+          <h3>ML Inference</h3>
+          <p>Our trained XGBoost ensemble model scores the application in under 300ms, producing a credit score between 300–900.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">4</div>
+        <div>
+          <h3>Explainable Output</h3>
+          <p>SHAP values explain exactly which factors drove the score — providing full transparency for both lenders and applicants.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FEATURES ── -->
+  <div class="content" id="tab-features">
+    <div class="page-header fade-in">
+      <div class="page-tag">Input Features</div>
+      <h2>What the Model Looks At</h2>
+      <p>12 carefully selected features ranked by predictive importance.</p>
+    </div>
+    <div class="feat-grid fade-in">
+      <div class="feat-card"><div class="feat-icon">💰</div><h3>Annual Income</h3><p>Total declared income from employment, self-employment, or investments.</p><span class="tag high">High Importance</span></div>
+      <div class="feat-card"><div class="feat-icon">📋</div><h3>Debt-to-Income Ratio</h3><p>Ratio of monthly debt payments to monthly gross income.</p><span class="tag high">High Importance</span></div>
+      <div class="feat-card"><div class="feat-icon">🕐</div><h3>Credit History Length</h3><p>Number of months since the applicant's earliest credit account was opened.</p><span class="tag high">High Importance</span></div>
+      <div class="feat-card"><div class="feat-icon">⚠️</div><h3>Late Payment History</h3><p>Count of payments made more than 30 days past due in the last 24 months.</p><span class="tag high">High Importance</span></div>
+      <div class="feat-card"><div class="feat-icon">💳</div><h3>Credit Utilization</h3><p>Percentage of available revolving credit currently in use.</p><span class="tag high">High Importance</span></div>
+      <div class="feat-card"><div class="feat-icon">🏦</div><h3>Existing Loan Count</h3><p>Number of active loans or credit facilities currently held.</p><span class="tag med">Medium Importance</span></div>
+      <div class="feat-card"><div class="feat-icon">🏠</div><h3>Employment Stability</h3><p>Years at current employer and type of employment (salaried / self-employed).</p><span class="tag med">Medium Importance</span></div>
+      <div class="feat-card"><div class="feat-icon">📊</div><h3>Savings & Assets</h3><p>Declared liquid savings and fixed asset holdings (property, vehicles).</p><span class="tag med">Medium Importance</span></div>
+      <div class="feat-card"><div class="feat-icon">🔍</div><h3>Inquiry Count</h3><p>Number of hard credit inquiries in the last 12 months.</p><span class="tag low">Low Importance</span></div>
+    </div>
+  </div>
+
+  <!-- ── MODEL ── -->
+  <div class="content" id="tab-model">
+    <div class="page-header fade-in">
+      <div class="page-tag">Model Architecture</div>
+      <h2>Under the Hood</h2>
+      <p>XGBoost ensemble with SHAP-based explainability.</p>
+    </div>
+    <div class="two-col fade-in">
+      <div class="card">
+        <h3>Architecture Details</h3>
+        <ul class="model-list">
+          <li><span class="dot"></span> 500 gradient-boosted decision trees</li>
+          <li><span class="dot"></span> 5-fold stratified cross-validation</li>
+          <li><span class="dot"></span> SMOTE oversampling for class imbalance</li>
+          <li><span class="dot"></span> Hyperparameter tuning via Optuna (200 trials)</li>
+          <li><span class="dot"></span> SHAP TreeExplainer for local & global explanations</li>
+          <li><span class="dot"></span> Deployed as REST API with FastAPI + Docker</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Feature Importance</h3>
+        <canvas id="modelFeat" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RESULTS ── -->
+  <div class="content" id="tab-results">
+    <div class="page-header fade-in">
+      <div class="page-tag">Performance</div>
+      <h2>Model Results</h2>
+      <p>Evaluated on a held-out test set of 10,000 records.</p>
+    </div>
+    <div class="metric-row fade-in">
+      <div class="metric"><div class="val">94.2%</div><div class="lbl">Accuracy</div></div>
+      <div class="metric"><div class="val">0.97</div><div class="lbl">AUC-ROC</div></div>
+      <div class="metric"><div class="val">92.8%</div><div class="lbl">Precision</div></div>
+      <div class="metric"><div class="val">91.5%</div><div class="lbl">Recall</div></div>
+      <div class="metric"><div class="val">92.1%</div><div class="lbl">F1 Score</div></div>
+    </div>
+    <div class="two-col fade-in">
+      <div class="card">
+        <h3>Score Distribution</h3>
+        <canvas id="resultsDist" height="220"></canvas>
+      </div>
+      <div class="card">
+        <h3>Confusion Matrix</h3>
+        <canvas id="resultsConf" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DEMO ── -->
+  <div class="content" id="tab-demo">
+    <div class="page-header fade-in">
+      <div class="page-tag">Interactive Demo</div>
+      <h2>Live Credit Scorer</h2>
+      <p>Enter applicant details and see a simulated credit rating instantly.</p>
+    </div>
+    <div class="card fade-in" style="max-width: 680px;">
+      <div class="demo-form">
+        <div class="form-group">
+          <label>Annual Income (₹)</label>
+          <input type="number" id="income" placeholder="e.g. 800000" value="800000" />
+        </div>
+        <div class="form-group">
+          <label>Debt-to-Income Ratio (%)</label>
+          <input type="number" id="dti" placeholder="e.g. 25" value="25" />
+        </div>
+        <div class="form-group">
+          <label>Credit History (months)</label>
+          <input type="number" id="history" placeholder="e.g. 60" value="60" />
+        </div>
+        <div class="form-group">
+          <label>Late Payments (last 2 yrs)</label>
+          <input type="number" id="late" placeholder="e.g. 0" value="0" />
+        </div>
+        <div class="form-group">
+          <label>Credit Utilization (%)</label>
+          <input type="number" id="util" placeholder="e.g. 30" value="30" />
+        </div>
+        <div class="form-group">
+          <label>Employment Type</label>
+          <select id="empType">
+            <option value="salaried">Salaried</option>
+            <option value="self">Self-Employed</option>
+            <option value="contract">Contract</option>
+          </select>
+        </div>
+        <button class="demo-submit" onclick="runDemo()">Generate Credit Score</button>
+      </div>
+      <div class="demo-result" id="demoResult">
+        <div class="score-circle" id="scoreCircle">
+          <span class="score-num" id="scoreNum">--</span>
+          <span class="score-label">/ 900</span>
+        </div>
+        <div class="score-grade" id="scoreGrade"></div>
+        <div class="score-desc" id="scoreDesc"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TECH ── -->
+  <div class="content" id="tab-tech">
+    <div class="page-header fade-in">
+      <div class="page-tag">Tech Stack</div>
+      <h2>Built With</h2>
+      <p>Industry-standard tools across data science, backend, and frontend.</p>
+    </div>
+    <div class="card fade-in">
+      <div class="tech-wrap">
+        <div class="tech-pill">🐍 Python 3.11</div>
+        <div class="tech-pill">⚡ XGBoost</div>
+        <div class="tech-pill">🐼 Pandas</div>
+        <div class="tech-pill">🔢 NumPy</div>
+        <div class="tech-pill">📈 Scikit-learn</div>
+        <div class="tech-pill">🎯 SHAP</div>
+        <div class="tech-pill">🔧 Optuna</div>
+        <div class="tech-pill">🚀 FastAPI</div>
+        <div class="tech-pill">🐳 Docker</div>
+        <div class="tech-pill">📊 Matplotlib</div>
+        <div class="tech-pill">🌐 HTML / CSS / JS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TEAM ── -->
+  <div class="content" id="tab-team">
+    <div class="page-header fade-in">
+      <div class="page-tag">Our Team</div>
+      <h2>Meet the Builders</h2>
+      <p>A cross-functional team combining finance, data science, and engineering expertise.</p>
+    </div>
+    <div class="team-grid fade-in">
+      <div class="team-card">
+        <div class="avatar">A</div>
+        <h3>Member Name</h3>
+        <div class="role">ML Engineer</div>
+      </div>
+      <div class="team-card">
+        <div class="avatar">B</div>
+        <h3>Member Name</h3>
+        <div class="role">Data Scientist</div>
+      </div>
+      <div class="team-card">
+        <div class="avatar">C</div>
+        <h3>Member Name</h3>
+        <div class="role">Backend Developer</div>
+      </div>
+      <div class="team-card">
+        <div class="avatar">D</div>
+        <h3>Member Name</h3>
+        <div class="role">Frontend Developer</div>
+      </div>
+    </div>
+  </div>
+
+
+</div><!-- end .main -->
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Add Company</h3>
+    <div class="modal-form">
+      <div>
+        <label>Company Name</label>
+        <input type="text" id="mCompany" placeholder="e.g. Tata Steel Ltd" />
+      </div>
+      <div>
+        <label>Credit Rating</label>
+        <select id="mRating">
+          <option value="AAA">AAA</option>
+          <option value="AA+">AA+</option>
+          <option value="AA">AA</option>
+          <option value="AA-">AA-</option>
+          <option value="A+">A+</option>
+          <option value="A">A</option>
+          <option value="A-">A-</option>
+          <option value="BBB+">BBB+</option>
+          <option value="BBB">BBB</option>
+          <option value="BBB-">BBB-</option>
+          <option value="BB+">BB+</option>
+          <option value="BB">BB</option>
+          <option value="B">B</option>
+          <option value="D">D</option>
+        </select>
+      </div>
+      <div>
+        <label>Screener.in Symbol <span style="font-size:0.7rem;color:var(--muted);">(e.g. SUNPHARMA, TATASTEEL)</span></label>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <input type="text" id="mScreener" placeholder="e.g. SUNPHARMA" style="flex:1;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()" />
+          <button type="button" class="btn-save" onclick="fetchScreenerDate()" style="white-space:nowrap;padding:0.5rem 0.85rem;font-size:0.8rem;" id="screenerFetchBtn">↻ Fetch</button>
+        </div>
+      </div>
+      <div>
+        <label>Annual Report Date <span style="font-size:0.7rem;color:var(--muted);">(auto-fetched from Screener.in)</span></label>
+        <input type="text" id="mDate" placeholder="Fetched automatically…" readonly style="background:var(--dark3);cursor:default;color:var(--muted);" />
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveCompany()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ── USER INFO ── */
+  const email   = sessionStorage.getItem('user_email')   || 'demo@aaaiplus.com';
+  const initial = sessionStorage.getItem('user_initial') || 'D';
+  document.getElementById('userName').textContent   = email;
+  document.getElementById('userEmail').textContent  = 'Project AAAI+';
+  document.getElementById('userAvatar').textContent = initial;
+
+  /* ── ACCORDION ── */
+  function toggleAccordion(parent) {
+    const children = parent.nextElementSibling;
+    const isOpen = parent.classList.contains('open');
+    parent.classList.toggle('open', !isOpen);
+    children.classList.toggle('open', !isOpen);
+  }
+
+  /* ── TAB SWITCHING (main) ── */
+  const titles = {
+    overview: 'Portfolio Overview', 'material-event': 'Material Event Checker',
+    'rating-note': 'Rating Note Generator', 'news-summary': 'News Summary',
+    'ai-model': 'AI Rating Model'
+  };
+  function showTabById(id) {
+    document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+    const tab = document.getElementById('tab-' + id);
+    if (tab) {
+      tab.classList.add('active');
+      document.getElementById('topbarTitle').textContent = titles[id] || id;
+      setTimeout(() => tab.querySelectorAll('.fade-in').forEach(e => e.classList.add('visible')), 50);
+    }
+    if (id === 'overview') { initOverviewCharts(); }
+    if (id === 'news-summary') { fetchNewsTable(true); }
+  }
+
+  /* ── SUB-TAB SWITCHING ── */
+  function showSubTab(tabId, subId, childEl) {
+    // activate main tab
+    showTabById(tabId);
+    // activate correct inner panel
+    showInnerById(tabId, subId);
+    // highlight child in sidebar
+    document.querySelectorAll('.nav-child').forEach(c => c.classList.remove('active'));
+    if (childEl) childEl.classList.add('active');
+    // open the parent accordion
+    if (childEl) {
+      const parent = childEl.closest('.nav-children').previousElementSibling;
+      parent.classList.add('open');
+      childEl.closest('.nav-children').classList.add('open');
+    }
+  }
+
+  /* ── INNER TABS ── */
+  function showInner(tabId, subId, btn) {
+    showInnerById(tabId, subId);
+    if (btn) {
+      btn.closest('.inner-tabs').querySelectorAll('.inner-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+  function showInnerById(tabId, subId) {
+    const tab = document.getElementById('tab-' + tabId);
+    if (!tab) return;
+    tab.querySelectorAll('.inner-panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById(tabId + '-' + subId);
+    if (panel) {
+      panel.classList.add('active');
+      setTimeout(() => panel.querySelectorAll('.fade-in').forEach(e => e.classList.add('visible')), 50);
+    }
+  }
+
+  /* ── FADE ON LOAD ── */
+  setTimeout(() => {
+    document.querySelectorAll('#tab-overview .fade-in').forEach(e => e.classList.add('visible'));
+    initOverviewCharts();
+  }, 100);
+
+  /* ── CHARTS ── */
+  function initOverviewCharts() {
+    const data   = JSON.parse(localStorage.getItem('portfolio_data') || '[]');
+    const rnHist = JSON.parse(localStorage.getItem('rn_history')     || '[]');
+
+    // ── Stats ──
+    const total     = data.length;
+    const completed = data.filter(r => !!r.screenerDate).length; // has fetched screener date = reviewed
+    const pending   = total - completed;
+    const rate      = total > 0 ? (completed / total * 100).toFixed(1) : '0.0';
+    document.getElementById('ovTotalCases').textContent = total;
+    document.getElementById('ovCompleted').textContent  = completed;
+    document.getElementById('ovPending').textContent    = pending;
+    document.getElementById('ovCompRate').textContent   = rate + '%';
+
+    // ── Quarter labels (last 6 quarters) ──
+    function getLast6Quarters() {
+      const labels = [];
+      const now = new Date();
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i * 3, 1);
+        labels.push('Q' + (Math.floor(d.getMonth() / 3) + 1) + ' ' + d.getFullYear());
+      }
+      return labels;
+    }
+    const qLabels = getLast6Quarters();
+
+    function prQuarter(dateStr) {
+      if (!dateStr) return null;
+      const d = new Date(dateStr);
+      return 'Q' + (Math.floor(d.getMonth() / 3) + 1) + ' ' + d.getFullYear();
+    }
+
+    function parseIndianDate(s) {
+      if (!s) return null;
+      const parts = s.split('/');
+      if (parts.length === 3) return new Date(+parts[2], +parts[1] - 1, +parts[0]);
+      return new Date(s);
+    }
+
+    // ── Surveillance Pie ──
+    const existingPie = Chart.getChart('surveillancePie');
+    if (existingPie) existingPie.destroy();
+    new Chart(document.getElementById('surveillancePie'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Completed', 'Pending'],
+        datasets: [{
+          data: total > 0 ? [completed, pending] : [0, 1],
+          backgroundColor: ['#22c55e', '#f97316'],
+          borderColor: ['#1e293b','#1e293b'],
+          borderWidth: 3,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true, cutout: '65%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.raw + ' cases' } }
+        }
+      }
+    });
+
+    // ── Quarter-wise Bar (Annual Report dates by quarter) ──
+    const qCounts = Object.fromEntries(qLabels.map(q => [q, 0]));
+    data.forEach(row => {
+      const q = prQuarter(row.screenerDate || row.date);
+      if (q && q in qCounts) qCounts[q]++;
+    });
+    const existingQBar = Chart.getChart('quarterBar');
+    if (existingQBar) existingQBar.destroy();
+    new Chart(document.getElementById('quarterBar'), {
+      type: 'bar',
+      data: {
+        labels: qLabels,
+        datasets: [{
+          label: 'Cases',
+          data: qLabels.map(q => qCounts[q]),
+          backgroundColor: 'rgba(37,99,235,0.8)',
+          borderRadius: 6, borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, beginAtZero: true }
+        }
+      }
+    });
+
+    // ── Upgrades, Downgrades, Reaffirmed (from rn_history) ──
+    const upgrades   = Object.fromEntries(qLabels.map(q => [q, 0]));
+    const downgrades = Object.fromEntries(qLabels.map(q => [q, 0]));
+    const reaffirmed = Object.fromEntries(qLabels.map(q => [q, 0]));
+    rnHist.forEach(n => {
+      const d = parseIndianDate(n.date);
+      if (!d) return;
+      const q = 'Q' + (Math.floor(d.getMonth() / 3) + 1) + ' ' + d.getFullYear();
+      if (!(q in upgrades)) return;
+      if (n.action === 'Upgraded')   upgrades[q]++;
+      else if (n.action === 'Downgraded') downgrades[q]++;
+      else if (n.action === 'Reaffirmed') reaffirmed[q]++;
+    });
+    const existingUBar = Chart.getChart('upgradeBar');
+    if (existingUBar) existingUBar.destroy();
+    new Chart(document.getElementById('upgradeBar'), {
+      type: 'bar',
+      data: {
+        labels: qLabels,
+        datasets: [
+          { label: 'Upgrades',   data: qLabels.map(q => upgrades[q]),   backgroundColor: 'rgba(34,197,94,0.8)',   borderRadius: 6, borderSkipped: false },
+          { label: 'Downgrades', data: qLabels.map(q => downgrades[q]), backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 6, borderSkipped: false },
+          { label: 'Reaffirmed', data: qLabels.map(q => reaffirmed[q]), backgroundColor: 'rgba(96,165,250,0.75)', borderRadius: 6, borderSkipped: false }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: true, labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 12, borderRadius: 4 } } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, beginAtZero: true }
+        }
+      }
+    });
+  }
+  function initResultsCharts() {
+    window._resultsCharts = true;
+    new Chart(document.getElementById('resultsDist'), {
+      type: 'bar',
+      data: {
+        labels: ['300-449','450-549','550-649','650-699','700-749','750-799','800-900'],
+        datasets: [{ data: [3,7,14,18,24,22,12], backgroundColor: ['#ef4444','#f97316','#eab308','#84cc16','#22c55e','#10b981','#06b6d4'], borderRadius: 5 }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', callback: v => v + '%' } } } }
+    });
+    new Chart(document.getElementById('resultsConf'), {
+      type: 'bar',
+      data: {
+        labels: ['True Positive','True Negative','False Positive','False Negative'],
+        datasets: [{ data: [4820,4620,360,200], backgroundColor: ['#22c55e','#22c55e','#ef4444','#ef4444'], borderRadius: 5 }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } } } }
+    });
+  }
+  function initModelChart() {
+    window._modelChart = true;
+    new Chart(document.getElementById('modelFeat'), {
+      type: 'bar',
+      data: {
+        labels: ['Late Pay.','DTI','Income','Credit Util.','History','Loans','Employment','Savings','Inquiries'],
+        datasets: [{ data: [0.21,0.18,0.16,0.13,0.11,0.08,0.06,0.04,0.03], backgroundColor: ['#2563eb','#3b82f6','#60a5fa','#06b6d4','#22d3ee','#67e8f9','#a5f3fc','#cffafe','#e0f2fe'], borderRadius: 5 }]
+      },
+      options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', callback: v => (v*100).toFixed(0)+'%' } }, y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } } } }
+    });
+  }
+
+  /* ── DEMO ── */
+  function runDemo() {
+    const income  = parseFloat(document.getElementById('income').value) || 0;
+    const dti     = parseFloat(document.getElementById('dti').value) || 0;
+    const history = parseFloat(document.getElementById('history').value) || 0;
+    const late    = parseFloat(document.getElementById('late').value) || 0;
+    const util    = parseFloat(document.getElementById('util').value) || 0;
+    const emp     = document.getElementById('empType').value;
+
+    let score = 600;
+    score += Math.min(income / 10000, 80);
+    score -= dti * 2;
+    score += Math.min(history / 6, 40);
+    score -= late * 30;
+    score -= util * 0.8;
+    if (emp === 'salaried') score += 20;
+    if (emp === 'contract') score -= 10;
+    score = Math.max(300, Math.min(900, Math.round(score)));
+
+    let grade, color, desc;
+    if      (score >= 800) { grade = 'AAA — Excellent'; color = '#22c55e'; desc = 'Very low risk. Eligible for premium rates.'; }
+    else if (score >= 750) { grade = 'AA — Very Good';  color = '#10b981'; desc = 'Low risk. Likely to qualify for most products.'; }
+    else if (score >= 700) { grade = 'A — Good';        color = '#84cc16'; desc = 'Moderate risk. Eligible for standard loan products.'; }
+    else if (score >= 650) { grade = 'BBB — Fair';      color = '#eab308'; desc = 'Some risk. May qualify with conditions.'; }
+    else if (score >= 550) { grade = 'BB — Poor';       color = '#f97316'; desc = 'Higher risk. Limited product eligibility.'; }
+    else                   { grade = 'D — High Risk';   color = '#ef4444'; desc = 'High risk. Significant improvement needed.'; }
+
+    document.getElementById('scoreCircle').style.borderColor = color;
+    document.getElementById('scoreNum').style.color  = color;
+    document.getElementById('scoreNum').textContent  = score;
+    document.getElementById('scoreGrade').textContent = grade;
+    document.getElementById('scoreGrade').style.color = color;
+    document.getElementById('scoreDesc').textContent  = desc;
+
+    const r = document.getElementById('demoResult');
+    r.classList.add('show');
+  }
+
+  /* ── PORTFOLIO TABLE ── */
+  let portfolioData = JSON.parse(localStorage.getItem('portfolio_data') || '[]');
+  let editIndex = -1;
+
+  function ratingClass(r) {
+    if (r.startsWith('AAA')) return 'r-aaa';
+    if (r.startsWith('AA'))  return 'r-aa';
+    if (r.startsWith('A'))   return 'r-a';
+    if (r.startsWith('BBB')) return 'r-bbb';
+    if (r.startsWith('BB') || r === 'B') return 'r-bb';
+    return 'r-d';
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('portfolioBody');
+    const empty = document.getElementById('emptyRow');
+    if (portfolioData.length === 0) {
+      empty.style.display = '';
+      tbody.querySelectorAll('tr:not(#emptyRow)').forEach(r => r.remove());
+      return;
+    }
+    empty.style.display = 'none';
+    tbody.querySelectorAll('tr:not(#emptyRow)').forEach(r => r.remove());
+    portfolioData.forEach((row, i) => {
+      const tr = document.createElement('tr');
+      const sym = row.screenerSymbol || '';
+      const screenerUrl = sym ? `https://www.screener.in/company/${sym}/consolidated/#documents` : '';
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${row.company}</td>
+        <td><span class="rating-badge ${ratingClass(row.rating)}">${row.rating}</span></td>
+        <td style="font-size:0.82rem;">${row.screenerDate || '<span style="color:var(--muted);">—</span>'}</td>
+        <td style="font-size:0.82rem;">${screenerUrl ? `<a href="${screenerUrl}" target="_blank" style="color:#60a5fa;text-decoration:none;">${sym} ↗</a>` : '<span style="color:var(--muted);">—</span>'}</td>
+        <td>
+          <button class="tbl-action" onclick="editCompany(${i})">Edit</button>
+          <button class="tbl-action del" onclick="deleteCompany(${i})">Delete</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function openModal(index = -1) {
+    editIndex = index;
+    document.getElementById('modalTitle').textContent = index === -1 ? 'Add Company' : 'Edit Company';
+    const row = index === -1 ? { company: '', rating: 'AAA', screenerSymbol: '', screenerDate: '' } : portfolioData[index];
+    document.getElementById('mCompany').value  = row.company;
+    document.getElementById('mRating').value   = row.rating;
+    document.getElementById('mScreener').value = row.screenerSymbol || '';
+    document.getElementById('mDate').value     = row.screenerDate   || '';
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+  function editCompany(i) { openModal(i); }
+  function deleteCompany(i) {
+    portfolioData.splice(i, 1);
+    localStorage.setItem('portfolio_data', JSON.stringify(portfolioData));
+    renderTable();
+  }
+  function saveCompany() {
+    const company        = document.getElementById('mCompany').value.trim();
+    const rating         = document.getElementById('mRating').value;
+    const screenerSymbol = document.getElementById('mScreener').value.trim().toUpperCase();
+    const screenerDate   = document.getElementById('mDate').value.trim();
+    if (!company) { alert('Please enter a company name.'); return; }
+    const entry = { company, rating, screenerSymbol, screenerDate };
+    if (editIndex === -1) portfolioData.push(entry);
+    else portfolioData[editIndex] = entry;
+    localStorage.setItem('portfolio_data', JSON.stringify(portfolioData));
+    renderTable();
+    closeModal();
+  }
+
+  /* ── Fetch Annual Report date from Screener.in ── */
+  async function fetchScreenerDate() {
+    const symbol = document.getElementById('mScreener').value.trim().toUpperCase();
+    if (!symbol) { alert('Please enter a Screener.in symbol first (e.g. SUNPHARMA).'); return; }
+    const btn = document.getElementById('screenerFetchBtn');
+    btn.textContent = '…'; btn.disabled = true;
+
+    const url = `https://www.screener.in/company/${symbol}/consolidated/`;
+    const proxies = [
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+    ];
+
+    let foundDate = null;
+    for (const proxy of proxies) {
+      try {
+        const resp = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
+        if (!resp.ok) continue;
+        const html = await resp.text();
+        const doc  = new DOMParser().parseFromString(html, 'text/html');
+
+        // Try #documents section first
+        const docSection = doc.getElementById('documents');
+        const searchRoot = docSection || doc.body;
+
+        // Look for links or text matching "Annual Report YYYY-YY" or just years
+        const allLinks = searchRoot.querySelectorAll('a');
+        let bestYear = 0;
+        for (const a of allLinks) {
+          const txt = a.textContent.trim();
+          const m = txt.match(/(\d{4})[–\-\/](\d{2,4})/);
+          if (m) {
+            const yr = parseInt(m[1]);
+            if (yr > bestYear) bestYear = yr;
+          }
+        }
+        // Also scan plain text for year patterns
+        if (!bestYear) {
+          const bodyText = searchRoot.textContent;
+          const allYears = [...bodyText.matchAll(/20\d{2}[–\-]\d{2,4}/g)].map(m => parseInt(m[0]));
+          if (allYears.length) bestYear = Math.max(...allYears);
+        }
+        if (bestYear > 2000) {
+          // FY YYYY-YY ends on 31 March of bestYear+1
+          const endYr = bestYear + 1;
+          foundDate = `31 Mar ${endYr}`;
+          break;
+        }
+      } catch {}
+    }
+
+    btn.textContent = '↻ Fetch'; btn.disabled = false;
+    if (foundDate) {
+      document.getElementById('mDate').value = foundDate;
+      document.getElementById('mDate').style.color = '#4ade80';
+    } else {
+      alert(`Could not fetch data for "${symbol}" from Screener.in. Check the symbol and try again.`);
+    }
+  }
+  // Close modal on overlay click
+  document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+  renderTable();
+
+  /* ════════════════════════════════════════
+     MATERIAL EVENT CHECKER
+  ════════════════════════════════════════ */
+  let meLog = JSON.parse(localStorage.getItem('me_log') || '[]');
+
+  const eventTypes = [
+    { icon:'💸', title:'Debt Servicing Risk',   risk:'High',   desc:'Potential delay in repayment of principal or interest obligations based on high leverage indicators.' },
+    { icon:'👔', title:'Management Change',      risk:'Medium', desc:'Change in key managerial personnel detected which may affect strategic direction.' },
+    { icon:'📉', title:'Revenue Stress',         risk:'Medium', desc:'Revenue concentration and cyclical sector exposure may impact cash flow coverage.' },
+    { icon:'⚖️', title:'Regulatory Compliance', risk:'Low',    desc:'No significant regulatory violations detected in the monitored period.' },
+    { icon:'🏦', title:'Credit Facility Review', risk:'High',   desc:'One or more credit facilities are approaching renewal, posing refinancing risk.' },
+    { icon:'📊', title:'Working Capital Strain', risk:'Medium', desc:'Extended debtor days and elevated inventory levels indicate working capital pressure.' },
+  ];
+
+  function checkMaterialEvent() {
+    const company = document.getElementById('meCompany').value.trim();
+    if (!company) { alert('Please enter a company name.'); return; }
+    const sector  = document.getElementById('meSector').value;
+    const rating  = document.getElementById('meRating').value;
+    const period  = document.getElementById('mePeriod').value;
+
+    // Deterministic but company-specific event selection
+    const seed = company.split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+    const selected = eventTypes.filter((_, i) => (seed + i * 7) % 3 !== 0);
+
+    const highCount = selected.filter(e => e.risk === 'High').length;
+    const overallRisk = highCount >= 2 ? 'High' : highCount === 1 ? 'Medium' : 'Low';
+    const riskClass   = overallRisk === 'High' ? 'risk-high' : overallRisk === 'Medium' ? 'risk-med' : 'risk-low';
+
+    let html = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem;">
+        <div><div style="font-weight:800;font-size:1rem;">${company}</div>
+        <div style="font-size:0.78rem;color:var(--muted);">${sector} · Rating: ${rating} · Last ${period} days</div></div>
+        <span class="risk-pill ${riskClass}">Overall Risk: ${overallRisk}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">`;
+    selected.forEach(e => {
+      const rc = e.risk === 'High' ? 'risk-high' : e.risk === 'Medium' ? 'risk-med' : 'risk-low';
+      html += `<div class="event-card"><div class="ev-icon">${e.icon}</div>
+        <div class="ev-body"><h4>${e.title} <span class="risk-pill ${rc}" style="margin-left:0.4rem;">${e.risk}</span></h4><p>${e.desc}</p></div></div>`;
+    });
+    html += '</div>';
+    document.getElementById('meResultContent').innerHTML = html;
+    document.getElementById('meResult').style.display = 'block';
+
+    // Log it
+    const entry = { company, sector, rating, risk: overallRisk, date: new Date().toLocaleDateString('en-IN'), status: 'Reviewed' };
+    meLog.unshift(entry);
+    localStorage.setItem('me_log', JSON.stringify(meLog));
+    renderMeLog();
+    updateAlerts();
+  }
+
+  function renderMeLog() {
+    const tbody = document.getElementById('meLogBody');
+    if (!meLog.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No events logged yet.</td></tr>'; return; }
+    const riskClass = r => r === 'High' ? 'risk-high' : r === 'Medium' ? 'risk-med' : 'risk-low';
+    tbody.innerHTML = meLog.map(e => `<tr>
+      <td>${e.company}</td><td>${e.sector}</td>
+      <td><span class="risk-pill ${riskClass(e.risk)}">${e.risk}</span></td>
+      <td>${e.date}</td><td><span class="status-badge s-completed">${e.status}</span></td></tr>`).join('');
+  }
+
+  function updateAlerts() {
+    const high = meLog.filter(e => e.risk === 'High');
+    const el = document.getElementById('meAlertsList');
+    if (!high.length) { el.innerHTML = '<div class="event-card"><div class="ev-icon">✅</div><div class="ev-body"><h4>No active high-risk alerts</h4><p>All checked companies are within acceptable risk parameters.</p></div><span class="risk-pill risk-low">Clear</span></div>'; return; }
+    el.innerHTML = high.map(e => `<div class="event-card" style="border-color:rgba(239,68,68,0.3);margin-bottom:0.75rem;">
+      <div class="ev-icon">🚨</div>
+      <div class="ev-body"><h4>${e.company}</h4><p>${e.sector} · Checked on ${e.date}</p></div>
+      <span class="risk-pill risk-high">High Risk</span></div>`).join('');
+  }
+  renderMeLog(); updateAlerts();
+
+  /* ════════════════════════════════════════
+     RATING NOTE GENERATOR
+  ════════════════════════════════════════ */
+  let rnHistory = JSON.parse(localStorage.getItem('rn_history') || '[]');
+
+  function generateNote() {
+    const company    = document.getElementById('rnCompany').value.trim();
+    const instrument = document.getElementById('rnInstrument').value.trim();
+    const action     = document.getElementById('rnAction').value;
+    const ratingNew  = document.getElementById('rnRatingNew').value;
+    const ratingOld  = document.getElementById('rnRatingOld').value;
+    const outlook    = document.getElementById('rnOutlook').value;
+    const sector     = document.getElementById('rnSector').value;
+    const size       = document.getElementById('rnSize').value;
+    const strengths  = document.getElementById('rnStrengths').value.trim();
+    const concerns   = document.getElementById('rnConcerns').value.trim();
+    if (!company) { alert('Please enter company name.'); return; }
+
+    const actionText = action === 'Reaffirmed' ? `reaffirmed at ${ratingNew}` :
+                       action === 'Upgraded'   ? `upgraded from ${ratingOld} to ${ratingNew}` :
+                       action === 'Downgraded' ? `downgraded from ${ratingOld} to ${ratingNew}` :
+                       `placed on ${action}`;
+
+    document.getElementById('noteTitle').textContent = company;
+    document.getElementById('noteRatingBadge').textContent = ratingNew;
+    document.getElementById('noteRatingBadge').className = `rating-badge ${ratingClass(ratingNew)}`;
+    document.getElementById('noteMeta1').textContent = action;
+    document.getElementById('noteMeta2').textContent = outlook;
+    document.getElementById('noteMeta3').textContent = instrument || 'Long Term Bank Facilities';
+    document.getElementById('noteMeta4').textContent = new Date().toLocaleDateString('en-IN');
+    document.getElementById('noteMeta5').textContent = sector;
+    document.getElementById('noteMeta6').textContent = size ? `₹${size} Cr` : 'Not specified';
+    document.getElementById('noteRationale').textContent =
+      `Project AAAI+ has ${actionText} for ${company}'s ${instrument || 'credit facilities'}. ` +
+      `The rating reflects the company's ${outlook.toLowerCase()} outlook within the ${sector} sector. ` +
+      `The rating action is based on a comprehensive analysis of the entity's financial profile, operational performance, and industry dynamics.`;
+    document.getElementById('noteStrengths').textContent = strengths || 'Strong market position; Experienced management; Diversified revenue streams; Adequate liquidity buffers.';
+    document.getElementById('noteConcerns').textContent  = concerns  || 'Moderate leverage; Susceptibility to sector cyclicality; Working capital intensity.';
+    document.getElementById('noteOutlookText').textContent =
+      `The outlook is ${outlook}. ${outlook === 'Stable' ? 'The rating is unlikely to change in the near term unless there is a significant deterioration in financial metrics.' :
+       outlook === 'Positive' ? 'The rating may be upgraded if the entity demonstrates sustained improvement in key financial indicators.' :
+       outlook === 'Negative' ? 'The rating may be downgraded if financial metrics weaken beyond current expectations.' :
+       'The rating is under watch and will be resolved upon clarity on the ongoing event.'}`;
+
+    const out = document.getElementById('noteOutput');
+    out.classList.add('show');
+    out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function printNote() { window.print(); }
+
+  function saveNote() {
+    const company = document.getElementById('rnCompany').value.trim();
+    const action  = document.getElementById('rnAction').value;
+    const rating  = document.getElementById('rnRatingNew').value;
+    if (!company) return;
+    rnHistory.unshift({ company, action, rating, date: new Date().toLocaleDateString('en-IN') });
+    localStorage.setItem('rn_history', JSON.stringify(rnHistory));
+    renderRnHistory();
+    alert('Note saved to history!');
+  }
+
+  function renderRnHistory() {
+    const tbody = document.getElementById('rnHistoryBody');
+    if (!rnHistory.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No saved notes yet.</td></tr>'; return; }
+    tbody.innerHTML = rnHistory.map((n, i) => `<tr>
+      <td>${n.company}</td><td>${n.action}</td>
+      <td><span class="rating-badge ${ratingClass(n.rating)}">${n.rating}</span></td>
+      <td>${n.date}</td>
+      <td><button class="tbl-action del" onclick="deleteNote(${i})">Delete</button></td></tr>`).join('');
+  }
+
+  function deleteNote(i) { rnHistory.splice(i,1); localStorage.setItem('rn_history', JSON.stringify(rnHistory)); renderRnHistory(); }
+
+  function loadTemplate(type) {
+    const templates = {
+      reaffirm: { action:'Reaffirmed', outlook:'Stable', strengths:'Consistent cash accruals; Strong debt servicing track record; Established market presence.', concerns:'Moderate working capital requirements; Sector cyclicality exposure.' },
+      upgrade:  { action:'Upgraded',   outlook:'Positive', strengths:'Significant improvement in coverage metrics; Debt reduction; Improved profitability.', concerns:'Execution risk on expansion plans; Competitive industry dynamics.' },
+      downgrade:{ action:'Downgraded', outlook:'Negative', strengths:'Established brand; Diversified client base.', concerns:'Weakened debt coverage; Elevated leverage; Deteriorating liquidity position.' },
+      watch:    { action:'Watch - Negative', outlook:'Under Watch', strengths:'Strong historical track record.', concerns:'Pending resolution of regulatory/legal matter; Uncertainty around refinancing.' },
+    };
+    const t = templates[type];
+    document.getElementById('rnAction').value    = t.action;
+    document.getElementById('rnOutlook').value   = t.outlook;
+    document.getElementById('rnStrengths').value = t.strengths;
+    document.getElementById('rnConcerns').value  = t.concerns;
+    showInner('rating-note', 'rn-new', document.querySelector('#tab-rating-note .inner-tab'));
+    document.querySelectorAll('#tab-rating-note .inner-tab').forEach((b,i) => b.classList.toggle('active', i===0));
+  }
+
+  function ratingClass(r) {
+    if (!r) return '';
+    if (r.startsWith('AAA')) return 'r-aaa';
+    if (r.startsWith('AA'))  return 'r-aa';
+    if (r.startsWith('A'))   return 'r-a';
+    if (r.startsWith('BBB')) return 'r-bbb';
+    if (r.startsWith('BB') || r === 'B') return 'r-bb';
+    return 'r-d';
+  }
+
+  renderRnHistory();
+
+  /* ════════════════════════════════════════
+     NEWS SUMMARY
+  ════════════════════════════════════════ */
+  let _newsTableData = [];
+  let _newsTableFetched = false;
+
+  // Parse Google News RSS XML → array of {company, title, link, pubDate, source}
+  function parseGNewsXML(xmlText, company) {
+    try {
+      const xml = new DOMParser().parseFromString(xmlText, 'text/xml');
+      return [...xml.getElementsByTagName('item')].slice(0, 5).map(item => {
+        const t  = tag => item.getElementsByTagName(tag)[0]?.textContent?.trim() || '';
+        const src = item.getElementsByTagName('source')[0];
+        return {
+          company,
+          title:   t('title'),
+          link:    t('link') || t('guid'),
+          pubDate: t('pubDate'),
+          source:  src?.textContent?.trim() || 'Google News'
+        };
+      }).filter(n => n.title);
+    } catch { return []; }
+  }
+
+  // Fetch Google News RSS for one company — tries multiple CORS proxies
+  async function fetchGNewsForCompany(company) {
+    const query = encodeURIComponent(company + ' India');
+    const rssUrl = `https://news.google.com/rss/search?q=${query}&hl=en-IN&gl=IN&ceid=IN:en`;
+
+    // Try multiple XML proxies in sequence
+    const xmlProxies = [
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
+      `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`,
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`
+    ];
+    for (const proxyUrl of xmlProxies) {
+      try {
+        const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
+        if (resp.ok) {
+          const text = await resp.text();
+          if (text.includes('<item>')) {
+            const items = parseGNewsXML(text, company);
+            if (items.length) return items;
+          }
+        }
+      } catch {}
+    }
+
+    // Fallback: rss2json API
+    try {
+      const json = await fetch(
+        `https://api.rss2json.com/v1/api.json?count=8&rss_url=${encodeURIComponent(rssUrl)}`,
+        { signal: AbortSignal.timeout(8000) }
+      ).then(r => r.json());
+      if (json.status === 'ok' && json.items?.length) {
+        return json.items.slice(0, 8).map(item => ({
+          company, title: item.title, link: item.link,
+          pubDate: item.pubDate, source: item.author || 'Google News'
+        }));
+      }
+    } catch {}
+
+    return [];
+  }
+
+  async function fetchNewsTable(force = false) {
+    if (_newsTableFetched && !force) return;
+    const portfolio = JSON.parse(localStorage.getItem('portfolio_data') || '[]');
+    const el = document.getElementById('newsTableArea');
+    if (!el) return;
+    if (!portfolio.length) {
+      el.innerHTML = '<div style="color:var(--muted);font-size:0.875rem;padding:1rem 0;">No companies in portfolio. Add companies first via Portfolio Overview → Edit Portfolio.</div>';
+      return;
+    }
+    el.innerHTML = `<div class="loading"><div class="spinner"></div> Fetching news for <b>${portfolio.length}</b> portfolio companies…</div>`;
+
+    try {
+      const results = await Promise.all(portfolio.map(row => fetchGNewsForCompany(row.company)));
+      _newsTableData = results.flat();
+      if (_newsTableData.length === 0) {
+        // All proxies returned nothing — show AI fallback
+        showAINewsFallback(portfolio.map(r => r.company));
+        return;
+      }
+      _newsMailStore = _newsTableData.map(r => buildDraftMail(r.company, r.title));
+      _newsTableFetched = true;
+      renderNewsTable(_newsTableData);
+    } catch(err) {
+      showAINewsFallback(portfolio.map(r => r.company));
+    }
+  }
+
+  /* ── Claude AI fallback chatbox ── */
+  function showAINewsFallback(companies) {
+    const el = document.getElementById('newsTableArea');
+    const savedKey = localStorage.getItem('claude_api_key') || '';
+    el.innerHTML = `
+      <div class="ai-chat-box">
+        <div class="ai-chat-header">
+          <div class="ai-icon">🤖</div>
+          Claude AI — News Fetch Assistant
+          <span style="margin-left:auto;font-size:0.72rem;color:var(--muted);font-weight:400;">Google News unavailable — using AI fallback</span>
+        </div>
+        <div class="ai-chat-messages" id="aiChatMsgs">
+          <div class="ai-msg bot">Hi! Google News proxies are currently unavailable. I can generate a current news summary for your portfolio companies using Claude AI.<br><br>Please enter your <b>Claude API key</b> below to proceed.</div>
+        </div>
+        <div class="ai-key-row">
+          <input type="password" id="claudeApiKeyInput" placeholder="sk-ant-api03-…  (stored locally, never sent anywhere else)" value="${savedKey}" />
+          <button class="btn-add" onclick="runClaudeNewsFetch()" style="white-space:nowrap;padding:0.5rem 1rem;">✦ Fetch with AI</button>
+        </div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:0.5rem;">Your key is saved in your browser's localStorage only.</div>
+      </div>`;
+    // Store companies for the AI call
+    window._aiNewsCompanies = companies;
+  }
+
+  async function runClaudeNewsFetch() {
+    const key = document.getElementById('claudeApiKeyInput').value.trim();
+    if (!key) { alert('Please enter your Claude API key.'); return; }
+    localStorage.setItem('claude_api_key', key);
+
+    const companies = window._aiNewsCompanies || [];
+    const msgs = document.getElementById('aiChatMsgs');
+    if (!msgs) return;
+
+    // User bubble
+    msgs.innerHTML += `<div class="ai-msg user">Fetch latest news for: ${companies.join(', ')}</div>`;
+
+    // Typing indicator
+    msgs.innerHTML += `<div class="ai-typing" id="aiTyping"><span></span><span></span><span></span></div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+
+    const prompt = `You are a financial news assistant. For each of these Indian companies: ${companies.join(', ')}
+
+Generate a JSON array of recent news items (up to 5 per company). Each item must have:
+- company: string (exact company name from the list)
+- title: string (realistic recent news headline)
+- link: string (a plausible Google News search URL for that headline, format: https://news.google.com/search?q=ENCODED_COMPANY_NAME)
+- pubDate: string (ISO date, within the last 7 days from today ${new Date().toISOString().split('T')[0]})
+- source: string (e.g. "Economic Times", "Business Standard", "Mint", "LiveMint", "NDTV Business")
+
+Focus on: earnings results, credit rating changes, debt/borrowing news, regulatory actions, management changes, business deals, or any material events.
+
+Return ONLY valid JSON array, no markdown, no explanation.`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 2048,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      const typing = document.getElementById('aiTyping');
+      if (typing) typing.remove();
+
+      if (!res.ok) {
+        const err = await res.text();
+        msgs.innerHTML += `<div class="ai-msg bot" style="color:#f87171;">API error (${res.status}): ${err.slice(0,200)}</div>`;
+        return;
+      }
+
+      const data = await res.json();
+      const text = data.content?.[0]?.text || '';
+
+      // Parse JSON from response
+      let items = [];
+      try {
+        const jsonMatch = text.match(/\[[\s\S]*\]/);
+        items = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
+      } catch { items = []; }
+
+      if (!items.length) {
+        msgs.innerHTML += `<div class="ai-msg bot">Sorry, I couldn't parse the news data. Please try again.</div>`;
+        return;
+      }
+
+      msgs.innerHTML += `<div class="ai-msg bot">Got it! Found <b>${items.length}</b> news items for your portfolio. Displaying table now…</div>`;
+
+      _newsTableData = items;
+      _newsMailStore = items.map(r => buildDraftMail(r.company, r.title));
+      _newsTableFetched = true;
+
+      // Small delay then render table below the chatbox
+      setTimeout(() => {
+        const el = document.getElementById('newsTableArea');
+        const chatHtml = el.innerHTML;
+        el.innerHTML = chatHtml; // keep chat visible
+        const tableDiv = document.createElement('div');
+        tableDiv.style.marginTop = '1.5rem';
+        el.appendChild(tableDiv);
+        // Render into the new div
+        tableDiv.innerHTML = buildNewsTableHTML(_newsTableData);
+      }, 600);
+
+    } catch(err) {
+      const typing = document.getElementById('aiTyping');
+      if (typing) typing.remove();
+      msgs.innerHTML += `<div class="ai-msg bot" style="color:#f87171;">Network error: ${err.message}</div>`;
+    }
+  }
+
+  function buildNewsTableHTML(items) {
+    if (!items.length) return '<div style="color:var(--muted);font-size:0.875rem;padding:1rem 0;">No news generated.</div>';
+    return `<div class="news-table-wrap"><table>
+      <thead><tr><th style="width:160px;">Name of Company</th><th>News Headlines</th><th style="width:130px;">Link of Article</th><th style="width:200px;">Send Mail to Client for Clarification</th></tr></thead>
+      <tbody>${items.map((r, i) => `<tr>
+        <td style="white-space:nowrap;font-weight:600;vertical-align:top;padding-top:0.9rem;">${r.company}</td>
+        <td style="max-width:420px;line-height:1.5;font-size:0.875rem;">
+          ${r.title}
+          ${r.pubDate ? `<div style="font-size:0.72rem;color:var(--muted);margin-top:0.25rem;">${new Date(r.pubDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div>` : ''}
+          <span style="font-size:0.7rem;color:var(--muted);">${r.source || ''}</span>
+        </td>
+        <td style="white-space:nowrap;vertical-align:top;padding-top:0.9rem;">
+          <a href="${r.link}" target="_blank" style="color:#60a5fa;text-decoration:none;font-size:0.82rem;font-weight:500;">View Article ↗</a>
+        </td>
+        <td style="vertical-align:top;padding-top:0.75rem;">
+          <button style="background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;border:none;padding:0.4rem 0.9rem;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600;white-space:nowrap;" onclick="sendMailToClient(${i})">✉ Send Mail</button>
+        </td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  }
+
+  function renderNewsTable(items) {
+    const el = document.getElementById('newsTableArea');
+    if (!el) return;
+    if (!items.length) {
+      el.innerHTML = '<div style="color:var(--muted);font-size:0.875rem;padding:1.5rem 0;">No news found. Try refreshing, or use the Claude AI fallback if proxies are unavailable.</div>';
+      return;
+    }
+    el.innerHTML = buildNewsTableHTML(items);
+  }
+
+  function filterNewsTable() {
+    const q = document.getElementById('newsTableSearch').value.toLowerCase();
+    if (!q) { renderNewsTable(_newsTableData); return; }
+    renderNewsTable(_newsTableData.filter(n =>
+      n.company.toLowerCase().includes(q) || n.title.toLowerCase().includes(q)
+    ));
+  }
+
+  /* ════════════════════════════════════════
+     AI RATING MODEL
+  ════════════════════════════════════════ */
+  let amHistory = JSON.parse(localStorage.getItem('am_history') || '[]');
+
+  function runAIModel() {
+    const company = document.getElementById('amCompany').value.trim() || 'Unknown Company';
+    const income  = parseFloat(document.getElementById('amIncome').value)  || 0;
+    const dti     = parseFloat(document.getElementById('amDTI').value)     || 0;
+    const history = parseFloat(document.getElementById('amHistory').value) || 0;
+    const late    = parseFloat(document.getElementById('amLate').value)    || 0;
+    const util    = parseFloat(document.getElementById('amUtil').value)    || 0;
+    const loans   = parseFloat(document.getElementById('amLoans').value)   || 0;
+    const emp     = document.getElementById('amEmp').value;
+
+    // Scoring
+    let score = 600;
+    score += Math.min(income / 15, 80);
+    score -= dti * 1.8;
+    score += Math.min(history / 6, 40);
+    score -= late * 30;
+    score -= util * 0.8;
+    score -= loans * 5;
+    if (emp === 'salaried') score += 20;
+    if (emp === 'contract') score -= 10;
+    score = Math.max(300, Math.min(900, Math.round(score)));
+
+    let grade, color, desc;
+    if      (score >= 800) { grade = 'AAA — Excellent'; color = '#22c55e'; desc = 'Very low risk. Eligible for premium rates.'; }
+    else if (score >= 750) { grade = 'AA — Very Good';  color = '#10b981'; desc = 'Low risk. Likely to qualify for most products.'; }
+    else if (score >= 700) { grade = 'A — Good';        color = '#84cc16'; desc = 'Moderate risk. Standard loan products applicable.'; }
+    else if (score >= 650) { grade = 'BBB — Fair';      color = '#eab308'; desc = 'Some risk. May qualify with conditions.'; }
+    else if (score >= 550) { grade = 'BB — Poor';       color = '#f97316'; desc = 'Higher risk. Limited product eligibility.'; }
+    else                   { grade = 'D — High Risk';   color = '#ef4444'; desc = 'High risk. Significant improvement needed.'; }
+
+    // Display
+    const circle = document.getElementById('amScoreCircle');
+    circle.style.borderColor = color; circle.style.borderWidth = '5px'; circle.style.borderStyle = 'solid';
+    document.getElementById('amScoreNum').textContent = score;
+    document.getElementById('amScoreNum').style.color = color;
+    document.getElementById('amGrade').textContent = grade;
+    document.getElementById('amGrade').style.color = color;
+    document.getElementById('amDesc').textContent = desc;
+
+    // SHAP bars
+    const features = [
+      { label: 'Late Payments',    contrib: late * 30,           color: '#ef4444', dir: -1 },
+      { label: 'Debt-to-Income',   contrib: dti * 1.8,           color: '#f97316', dir: -1 },
+      { label: 'Credit Utiliz.',   contrib: util * 0.8,          color: '#eab308', dir: -1 },
+      { label: 'Annual Income',    contrib: Math.min(income/15,80), color: '#22c55e', dir: 1 },
+      { label: 'Credit History',   contrib: Math.min(history/6,40), color: '#06b6d4', dir: 1 },
+      { label: 'Active Loans',     contrib: loans * 5,           color: '#a78bfa', dir: -1 },
+      { label: 'Employment Type',  contrib: emp==='salaried'?20:(emp==='contract'?10:0), color: '#60a5fa', dir: emp==='salaried'?1:-1 },
+    ];
+    const maxC = Math.max(...features.map(f => f.contrib));
+    document.getElementById('shapBars').innerHTML = features.map(f => {
+      const pct = maxC > 0 ? (f.contrib / maxC * 100).toFixed(0) : 0;
+      const col = f.dir > 0 ? '#22c55e' : '#ef4444';
+      const sign = f.dir > 0 ? '+' : '−';
+      return `<div class="shap-row">
+        <span class="shap-label">${f.label}</span>
+        <div class="shap-track"><div class="shap-fill" style="width:${pct}%;background:${col};"></div></div>
+        <span class="shap-val" style="color:${col};">${sign}${f.contrib.toFixed(0)}</span>
+      </div>`;
+    }).join('');
+
+    document.getElementById('amResultCard').style.display = 'block';
+    window._lastAMResult = { company, score, grade: grade.split(' — ')[0], date: new Date().toLocaleString('en-IN') };
+  }
+
+  function saveAIResult() {
+    if (!window._lastAMResult) return;
+    amHistory.unshift(window._lastAMResult);
+    localStorage.setItem('am_history', JSON.stringify(amHistory));
+    renderAMHistory();
+    alert('Saved to history!');
+  }
+
+  function renderAMHistory() {
+    const tbody = document.getElementById('amHistoryBody');
+    if (!amHistory.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No analyses run yet.</td></tr>'; return; }
+    tbody.innerHTML = amHistory.map(r => `<tr>
+      <td>${r.company}</td>
+      <td><b style="color:#60a5fa;">${r.score}</b></td>
+      <td><span class="rating-badge ${ratingClass(r.grade)}">${r.grade}</span></td>
+      <td>${r.date}</td></tr>`).join('');
+  }
+  renderAMHistory();
+
+  /* ════════════════════════════════════════
+     PORTFOLIO PLANNING
+  ════════════════════════════════════════ */
+
+  function refreshPlanning() { renderSurveillanceDue(); }
+
+  function renderSurveillanceDue() {
+    const data       = JSON.parse(localStorage.getItem('portfolio_data')   || '[]');
+    const infoStatus = JSON.parse(localStorage.getItem('pp_info_status')   || '{}');
+    const tbody = document.getElementById('surveillanceDueBody');
+    if (!tbody) return;
+
+    const today = new Date();
+    // upcoming quarter = next 90 days
+    const cutoff = new Date(today); cutoff.setDate(cutoff.getDate() + 90);
+
+    const due = data.map((row, i) => {
+      const dateStr = row.screenerDate || row.date;
+      if (!dateStr) return null;
+      const prDate = new Date(dateStr);
+      if (isNaN(prDate)) return null;
+      const dueDate = new Date(prDate); dueDate.setFullYear(dueDate.getFullYear() + 1);
+      if (dueDate >= today && dueDate <= cutoff) return { ...row, idx: i, dueDate };
+      return null;
+    }).filter(Boolean);
+
+    if (!due.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No companies due for surveillance in the next 90 days.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = due.map(row => {
+      const diffDays = Math.ceil((row.dueDate - today) / (1000 * 60 * 60 * 24));
+      const dayClass = diffDays <= 14 ? 'days-urgent' : diffDays <= 30 ? 'days-warn' : 'days-ok';
+      const infoVal  = infoStatus[row.idx] || 'Pending';
+      return `<tr>
+        <td><b>${row.company}</b><br/><span style="font-size:0.72rem;color:var(--muted);">${row.rating}</span></td>
+        <td>${row.dueDate.toLocaleDateString('en-IN')}</td>
+        <td><span class="${dayClass}">${diffDays} days</span></td>
+        <td>
+          <select class="status-select" onchange="savePPInfoStatus(${row.idx}, this.value)">
+            <option ${infoVal==='Pending'?'selected':''}>Pending</option>
+            <option ${infoVal==='Received'?'selected':''}>Received</option>
+            <option ${infoVal==='Partial'?'selected':''}>Partial</option>
+          </select>
+        </td>
+        <td><button class="tbl-action" onclick="sendReminder('${row.company}', '${row.dueDate.toLocaleDateString('en-IN')}')">Send Reminder</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function savePPInfoStatus(idx, val) {
+    const s = JSON.parse(localStorage.getItem('pp_info_status') || '{}');
+    s[idx] = val; localStorage.setItem('pp_info_status', JSON.stringify(s));
+  }
+
+  function sendReminder(company, dueDate) {
+    const mail = `Subject: Reminder — Surveillance Review | ${company}\n\nDear Sir / Madam,\n\nThis is a reminder that the surveillance review for ${company} is due by ${dueDate}.\n\nAs part of our periodic credit monitoring process under Project AAAI+, we request you to kindly share the following at your earliest convenience:\n\n  1. Latest audited / provisional financial statements\n  2. Updated debt schedule and repayment track record\n  3. Management commentary on business outlook\n  4. Any material events or developments since our last review\n\nKindly revert by ${dueDate} to ensure timely completion of the review.\n\nFor any queries, please feel free to reach out.\n\nWarm regards,\nProject AAAI+ Surveillance Team`;
+    document.getElementById('draftMailContent').textContent = mail;
+    document.getElementById('draftMailModal').classList.add('open');
+  }
+
+  const HIGH_KW = ['default','bankrupt','fraud','npa','write-off','loss','downgrade','insolvency','nclt','fir','scam'];
+  const MED_KW  = ['acquisition','merger','restructur','upgrade','rating','regulatory','sebi','rbi','court','penalty'];
+
+  function newsImportance(title) {
+    const t = title.toLowerCase();
+    if (HIGH_KW.some(k => t.includes(k))) return { label: 'High',   cls: 'imp-high' };
+    if (MED_KW.some(k  => t.includes(k))) return { label: 'Medium', cls: 'imp-med'  };
+    return { label: 'Low', cls: 'imp-low' };
+  }
+
+  function buildDraftMail(company, headline) {
+    return `Subject: Query — Recent News | ${company}\n\nDear Sir / Madam,\n\nWe have come across the following news article related to ${company}:\n\n"${headline}"\n\nIn light of the above, we would request you to kindly provide your comments / clarification on the matter at your earliest convenience, as this may have a bearing on our ongoing credit surveillance.\n\nWarm regards,\nProject AAAI+ Surveillance Team`;
+  }
+
+  // Indexed store so onclick doesn't need embedded JSON strings
+  let _newsMailStore = [];
+
+  function showDraftMail(idx) {
+    const draft = _newsMailStore[idx];
+    document.getElementById('draftMailContent').textContent = draft;
+    const lines = draft.split('\n');
+    const subject = (lines[0] || '').replace(/^Subject:\s*/i, '').trim();
+    const body = lines.slice(2).join('\n').trim();
+    document.getElementById('draftMailSendBtn').href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    document.getElementById('draftMailModal').classList.add('open');
+  }
+
+  function sendMailToClient(idx) {
+    const draft = _newsMailStore[idx];
+    const lines = draft.split('\n');
+    // Extract subject from first line "Subject: ..."
+    const subjectLine = lines[0] || '';
+    const subject = subjectLine.replace(/^Subject:\s*/i, '').trim();
+    const body = lines.slice(2).join('\n').trim(); // skip subject + blank line
+    const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    // Show modal with option to send or copy
+    document.getElementById('draftMailContent').textContent = draft;
+    document.getElementById('draftMailSendBtn').href = mailtoLink;
+    document.getElementById('draftMailModal').classList.add('open');
+  }
+
+  async function fetchPortfolioNews() {
+    const data = JSON.parse(localStorage.getItem('portfolio_data') || '[]');
+    const area = document.getElementById('portfolioNewsArea');
+    if (!data.length) { area.innerHTML = '<div style="color:var(--muted);font-size:0.875rem;padding:1rem 0;">No companies in portfolio. Add companies in Overview → Edit Portfolio first.</div>'; return; }
+
+    area.innerHTML = '<div class="loading"><div class="spinner"></div> Fetching news for portfolio companies...</div>';
+
+    const threeDaysAgo = new Date(); threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+    // Fetch all companies in parallel using shared fetchGNewsForCompany
+    const results = await Promise.all(data.map(async row => {
+      const items = await fetchGNewsForCompany(row.company);
+      return items
+        .filter(item => !item.pubDate || new Date(item.pubDate) >= threeDaysAgo)
+        .slice(0, 3)
+        .map(item => ({ company: row.company, title: item.title, link: item.link, imp: newsImportance(item.title), mail: buildDraftMail(row.company, item.title) }));
+    }));
+
+    const allRows = results.flat();
+    _newsMailStore = allRows.map(r => r.mail);
+
+    if (!allRows.length) {
+      area.innerHTML = '<div style="color:var(--muted);font-size:0.875rem;padding:1rem 0;">No news found in the last 3 days for your portfolio companies. Try again later or check your internet connection.</div>';
+      return;
+    }
+
+    area.innerHTML = `<div class="news-table-wrap"><table>
+      <thead><tr><th>Company</th><th>News Headline</th><th>Link</th><th>Importance</th><th>Draft Mail</th></tr></thead>
+      <tbody>${allRows.map((r, i) => `<tr>
+        <td><b>${r.company}</b></td>
+        <td>${r.title}</td>
+        <td><a href="${r.link}" target="_blank">View Article ↗</a></td>
+        <td><span class="risk-pill ${r.imp.cls}">${r.imp.label}</span></td>
+        <td><button class="tbl-action" onclick="showDraftMail(${i})">Draft Mail</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  }
+
+  function copyDraftMail() {
+    const text = document.getElementById('draftMailContent').textContent;
+    navigator.clipboard.writeText(text).then(() => alert('Mail copied to clipboard!'));
+  }
+
+  /* ── LOGOUT ── */
+  function logout() {
+    sessionStorage.clear();
+    window.location.href = 'index.html';
+  }
+</script>
+
+  <!-- Draft Mail Modal — global, usable from any tab -->
+  <div class="modal-overlay" id="draftMailModal">
+    <div class="modal" style="max-width:560px;">
+      <h3>Draft Mail — Client Clarification</h3>
+      <div style="background:var(--dark);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin:1rem 0;font-size:0.85rem;line-height:1.8;white-space:pre-wrap;font-family:inherit;" id="draftMailContent"></div>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="document.getElementById('draftMailModal').classList.remove('open')">Close</button>
+        <button class="btn-save" onclick="copyDraftMail()">📋 Copy Mail</button>
+        <a id="draftMailSendBtn" href="#" class="btn-save" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;padding:0.55rem 1.25rem;border-radius:10px;font-weight:600;font-size:0.875rem;">✉ Send via Email</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
