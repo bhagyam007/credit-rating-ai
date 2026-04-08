@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Annual Report Analyser — AAAI+</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0f4f8;
+      --surface: #ffffff;
+      --border: #dde3ec;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --success: #16a34a;
+      --success-bg: #f0fdf4;
+      --warn: #d97706;
+      --warn-bg: #fffbeb;
+      --error: #dc2626;
+      --error-bg: #fef2f2;
+      --radius: 10px;
+      --shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.05);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+    }
+    header .brand { display: flex; align-items: center; gap: 10px; }
+    header .brand svg { flex-shrink: 0; }
+    header .brand h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+    header .brand span { font-size: 12px; opacity: 0.75; font-weight: 400; margin-left: 4px; }
+    header a { color: rgba(255,255,255,0.8); font-size: 12px; text-decoration: none; transition: color .2s; }
+    header a:hover { color: #fff; }
+
+    /* ── Layout ── */
+    .page { max-width: 900px; margin: 0 auto; padding: 28px 20px 60px; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title .badge {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    /* ── API Key section ── */
+    .api-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .api-row input {
+      flex: 1;
+      font-family: monospace;
+      font-size: 13px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      outline: none;
+      color: var(--text);
+      background: #f8fafc;
+      transition: border-color .2s;
+    }
+    .api-row input:focus { border-color: var(--primary); background: #fff; }
+    .api-row .hint { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    #apiSaved { font-size: 12px; color: var(--success); display: none; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border: none;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, transform .1s, box-shadow .15s;
+      white-space: nowrap;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+    .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    /* ── Input tabs ── */
+    .input-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .input-tab {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color .2s, border-color .2s;
+    }
+    .input-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .input-panel { display: none; }
+    .input-panel.active { display: block; }
+
+    /* ── Upload zone ── */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 36px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      background: #f8fafc;
+      position: relative;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+    .upload-zone input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-zone .icon { font-size: 32px; margin-bottom: 8px; }
+    .upload-zone p { color: var(--text-muted); font-size: 13px; }
+    .upload-zone .filename {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 13px;
+      margin-top: 4px;
+      word-break: break-all;
+    }
+
+    /* ── URL input ── */
+    .url-input-wrap { display: flex; gap: 8px; }
+    .url-input-wrap input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .url-input-wrap input:focus { border-color: var(--primary); }
+    .url-hint { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+    /* ── Company name ── */
+    .company-row { margin-bottom: 16px; }
+    .company-row label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .company-row input {
+      width: 100%;
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .company-row input:focus { border-color: var(--primary); }
+
+    /* ── Analyse button row ── */
+    .analyse-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    /* ── Status / progress ── */
+    #statusWrap { display: none; margin-bottom: 16px; }
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .status-bar.loading { background: var(--primary-light); color: var(--primary); border: 1px solid #bfdbfe; }
+    .status-bar.error   { background: var(--error-bg);    color: var(--error);   border: 1px solid #fecaca; }
+    .status-bar.success { background: var(--success-bg);  color: var(--success); border: 1px solid #bbf7d0; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Progress steps ── */
+    .steps {
+      display: flex;
+      gap: 0;
+      margin-bottom: 20px;
+    }
+    .step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+    }
+    .step::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: var(--border);
+      z-index: 0;
+    }
+    .step:last-child::before { display: none; }
+    .step-dot {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      z-index: 1;
+      position: relative;
+      transition: background .3s, color .3s;
+    }
+    .step.done .step-dot { background: var(--success); color: #fff; }
+    .step.active .step-dot { background: var(--primary); color: #fff; }
+    .step-label { font-size: 11px; color: var(--text-muted); text-align: center; }
+    .step.done .step-label, .step.active .step-label { color: var(--text); font-weight: 600; }
+
+    /* ── Results ── */
+    #results { display: none; }
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .result-header h2 { font-size: 18px; font-weight: 700; color: var(--text); }
+    .result-header .meta { font-size: 12px; color: var(--text-muted); }
+
+    /* ── Introduction card ── */
+    #introText {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    /* ── Timeline ── */
+    .timeline { position: relative; padding-left: 28px; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--primary), #bfdbfe);
+    }
+    .tl-item {
+      position: relative;
+      margin-bottom: 18px;
+      padding-left: 8px;
+    }
+    .tl-item:last-child { margin-bottom: 0; }
+    .tl-dot {
+      position: absolute;
+      left: -29px;
+      top: 4px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 2px solid var(--surface);
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+    .tl-year {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 2px;
+    }
+    .tl-event { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+    /* ── Table ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .data-table th {
+      background: #f1f5f9;
+      padding: 9px 12px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #f8fafc; }
+    .amount-cell { font-weight: 600; white-space: nowrap; }
+    .na-cell { color: var(--text-muted); font-style: italic; }
+
+    /* ── Summary prose under table ── */
+    .section-summary {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border-radius: 6px;
+      margin-bottom: 14px;
+      border-left: 3px solid var(--primary);
+    }
+
+    /* ── Copy button ── */
+    .copy-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+    /* ── No data pill ── */
+    .no-data {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .page { padding: 16px 12px 40px; }
+      .card { padding: 16px; }
+      .data-table { font-size: 12px; }
+      .data-table th, .data-table td { padding: 7px 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="6" fill="rgba(255,255,255,0.2)"/>
+      <path d="M6 18L10 10L14 14L17 9L18 12" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1>Annual Report Analyser <span>— AAAI+</span></h1>
+  </div>
+  <a href="dashboard.html">← Back to Dashboard</a>
+</header>
+
+<div class="page">
+
+  <!-- API Key -->
+  <div class="card">
+    <div class="card-title">Claude API Key</div>
+    <div class="api-row">
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-…" autocomplete="off" />
+      <button class="btn btn-ghost btn-sm" onclick="saveApiKey()">Save</button>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; margin-top:6px;">
+      <p class="hint" style="font-size:12px; color:var(--text-muted);">Stored locally in your browser. Never sent anywhere except directly to Anthropic's API.</p>
+      <span id="apiSaved">✓ Saved</span>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="card">
+    <div class="card-title">Upload Annual Report</div>
+
+    <div class="company-row">
+      <label>Company Name <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional — helps Claude focus)</span></label>
+      <input type="text" id="companyName" placeholder="e.g. Tata Steel Limited" />
+    </div>
+
+    <div class="input-tabs">
+      <div class="input-tab active" onclick="switchTab('upload')">Upload PDF</div>
+      <div class="input-tab" onclick="switchTab('url')">Paste URL</div>
+    </div>
+
+    <div class="input-panel active" id="panel-upload">
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="pdfFile" accept=".pdf,application/pdf" onchange="onFileChange()" />
+        <div class="icon">📄</div>
+        <p>Drop your annual report PDF here, or <strong>click to browse</strong></p>
+        <p class="filename" id="fileName"></p>
+        <p style="font-size:11px; color:var(--text-muted); margin-top:6px;">Max recommended size: 32 MB</p>
+      </div>
+    </div>
+
+    <div class="input-panel" id="panel-url">
+      <div class="url-input-wrap">
+        <input type="url" id="pdfUrl" placeholder="https://example.com/annual-report.pdf" />
+      </div>
+      <p class="url-hint">Paste a direct link to the PDF. The URL must be publicly accessible.</p>
+    </div>
+
+    <div class="analyse-row">
+      <button class="btn btn-primary" id="analyseBtn" onclick="startAnalysis()">
+        <span>Analyse Report</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" id="resetBtn" onclick="resetAll()" style="display:none;">Reset</button>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div id="statusWrap">
+    <div id="statusBar" class="status-bar loading">
+      <div class="spinner" id="statusSpinner"></div>
+      <span id="statusText">Preparing…</span>
+    </div>
+  </div>
+
+  <!-- Progress steps (shown during loading) -->
+  <div id="progressSteps" style="display:none;" class="card" >
+    <div class="steps">
+      <div class="step" id="step1"><div class="step-dot">1</div><div class="step-label">Load PDF</div></div>
+      <div class="step" id="step2"><div class="step-dot">2</div><div class="step-label">Send to Claude</div></div>
+      <div class="step" id="step3"><div class="step-dot">3</div><div class="step-label">Parse Results</div></div>
+      <div class="step" id="step4"><div class="step-dot">4</div><div class="step-label">Done</div></div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <div class="result-header">
+      <div>
+        <h2 id="resultCompanyName">Analysis Results</h2>
+        <div class="meta" id="resultMeta"></div>
+      </div>
+      <div class="copy-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyAll()">Copy All</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetAll()">New Analysis</button>
+      </div>
+    </div>
+
+    <!-- Introduction -->
+    <div class="card">
+      <div class="card-title">
+        Company Introduction
+        <span class="badge">Brief</span>
+      </div>
+      <div id="introText"></div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="card">
+      <div class="card-title">
+        Significant Events Timeline
+        <span class="badge" id="timelineBadge"></span>
+      </div>
+      <div class="timeline" id="timelineWrap"></div>
+    </div>
+
+    <!-- Contingent Liabilities -->
+    <div class="card">
+      <div class="card-title">
+        Contingent Liabilities
+        <span class="badge" id="clBadge"></span>
+      </div>
+      <div id="clSummary" class="section-summary" style="display:none;"></div>
+      <div id="clTable"></div>
+    </div>
+
+    <!-- Related Party Transactions -->
+    <div class="card">
+      <div class="card-title">
+        Related Party Transactions
+        <span class="badge" id="rptBadge"></span>
+      </div>
+      <div id="rptSummary" class="section-summary" style="display:none;"></div>
+      <div id="rptTable"></div>
+    </div>
+
+  </div><!-- /results -->
+
+</div><!-- /page -->
+
+<script>
+// ── State ───────────────────────────────────────────────────
+let pdfBase64 = null;
+let currentTab = 'upload';
+let lastResult = null;
+
+// ── Init ────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('claude_api_key');
+  if (saved) {
+    document.getElementById('apiKeyInput').value = saved;
+  }
+  setupDragDrop();
+});
+
+function saveApiKey() {
+  const v = document.getElementById('apiKeyInput').value.trim();
+  if (!v) return;
+  localStorage.setItem('claude_api_key', v);
+  const el = document.getElementById('apiSaved');
+  el.style.display = 'inline';
+  setTimeout(() => { el.style.display = 'none'; }, 2000);
+}
+
+// ── Tabs ────────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.input-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.input-panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  pdfBase64 = null;
+  document.getElementById('fileName').textContent = '';
+}
+
+// ── File ────────────────────────────────────────────────────
+function onFileChange() {
+  const file = document.getElementById('pdfFile').files[0];
+  if (!file) return;
+  document.getElementById('fileName').textContent = '📎 ' + file.name;
+  pdfBase64 = null; // will be read on analyse
+}
+
+function setupDragDrop() {
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type === 'application/pdf') {
+      document.getElementById('pdfFile').files; // can't set programmatically
+      // Manually handle drop
+      readFileAsBase64(file).then(b64 => {
+        pdfBase64 = b64;
+        document.getElementById('fileName').textContent = '📎 ' + file.name;
+      });
+    }
+  });
+}
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const dataUrl = e.target.result;
+      resolve(dataUrl.split(',')[1]); // strip "data:application/pdf;base64,"
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── Main flow ────────────────────────────────────────────────
+async function startAnalysis() {
+  const apiKey = (document.getElementById('apiKeyInput').value || '').trim()
+               || (localStorage.getItem('claude_api_key') || '').trim();
+
+  if (!apiKey) {
+    showStatus('error', 'Please enter your Claude API key above.');
+    return;
+  }
+
+  showProgressSteps();
+  setStep(1, 'active');
+  setStatus('loading', 'Loading PDF…');
+  document.getElementById('analyseBtn').disabled = true;
+  document.getElementById('results').style.display = 'none';
+
+  let base64;
+  try {
+    base64 = await loadPdf();
+  } catch (err) {
+    setStep(1, 'error');
+    showStatus('error', 'Failed to load PDF: ' + err.message);
+    document.getElementById('analyseBtn').disabled = false;
+    return;
+  }
+
+  setStep(1, 'done');
+  setStep(2, 'active');
+  setStatus('loading', 'Sending to Claude — this may take 30–90 seconds for large reports…');
+
+  let result;
+  try {
+    result = await callClaude(apiKey, base64);
+  } catch (err) {
+    setStep(2, 'error');
+    showStatus('error', 'Claude API error: ' + err.message);
+    document.getElementById('analyseBtn').disabled = false;
+    return;
+  }
+
+  setStep(2, 'done');
+  setStep(3, 'active');
+  setStatus('loading', 'Parsing results…');
+
+  let parsed;
+  try {
+    parsed = parseResult(result);
+  } catch (err) {
+    setStep(3, 'error');
+    showStatus('error', 'Could not parse Claude response. ' + err.message);
+    console.error('Raw response:', result);
+    document.getElementById('analyseBtn').disabled = false;
+    return;
+  }
+
+  setStep(3, 'done');
+  setStep(4, 'done');
+  setStatus('success', 'Analysis complete!');
+  lastResult = parsed;
+
+  renderResults(parsed);
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('resetBtn').style.display = 'inline-flex';
+  document.getElementById('progressSteps').style.display = 'none';
+  document.getElementById('statusWrap').style.display = 'none';
+  document.getElementById('analyseBtn').disabled = false;
+}
+
+async function loadPdf() {
+  if (currentTab === 'upload') {
+    if (pdfBase64) return pdfBase64; // already read via drag-drop
+    const file = document.getElementById('pdfFile').files[0];
+    if (!file) throw new Error('No PDF file selected.');
+    return await readFileAsBase64(file);
+  } else {
+    const url = document.getElementById('pdfUrl').value.trim();
+    if (!url) throw new Error('No URL entered.');
+    // Use proxy to avoid CORS
+    const proxyUrl = `/api/pdf?url=${encodeURIComponent(url)}`;
+    const resp = await fetch(proxyUrl);
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Proxy failed');
+    return data.base64;
+  }
+}
+
+// ── Claude API call ─────────────────────────────────────────
+async function callClaude(apiKey, base64) {
+  const company = document.getElementById('companyName').value.trim();
+  const companyHint = company ? `The company name is: ${company}. ` : '';
+
+  const prompt = `${companyHint}Carefully analyse this annual report and return ONLY a valid JSON object (no markdown, no explanation) with exactly these four keys:
+
+{
+  "introduction": "<A 6 to 7 sentence paragraph covering: founder name(s), year of incorporation, registered office state, main business segments, number of manufacturing/production units or plants (state 'Not applicable' if service company), key products or services, and any recent major development.>",
+
+  "timeline": [
+    { "year": "<YYYY or YYYY-YY>", "event": "<One concise sentence describing a significant milestone — IPO, major acquisition, capacity expansion, product launch, regulatory event, rating change, debt restructuring, etc.>" }
+  ],
+
+  "contingentLiabilities": {
+    "summary": "<2-3 sentence narrative overview of the nature, total quantum and any significant items>",
+    "items": [
+      {
+        "description": "<Nature of contingency — tax demand, legal case, guarantee, etc.>",
+        "amount": "<Amount in INR crore, or 'Not quantified'>",
+        "nature": "<Litigation / Tax / Guarantee / Other>"
+      }
+    ]
+  },
+
+  "relatedPartyTransactions": {
+    "summary": "<2-3 sentence narrative on the overall RPT structure and materiality>",
+    "transactions": [
+      {
+        "party": "<Party name>",
+        "relationship": "<Subsidiary / Associate / KMP / Promoter entity / etc.>",
+        "nature": "<Purchase / Sale / Loan / Rent / Service / Guarantee / Other>",
+        "amount": "<Amount in INR crore for the year, or 'Not disclosed'>"
+      }
+    ]
+  }
+}
+
+For the timeline: include events from incorporation year to the year of this annual report, in chronological order.
+For contingent liabilities and RPTs: include ALL items disclosed in the notes to accounts; do not skip any.
+Return ONLY the JSON object.`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'pdfs-2024-09-25',
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'claude-opus-4-6',
+      max_tokens: 8192,
+      messages: [{
+        role: 'user',
+        content: [
+          {
+            type: 'document',
+            source: {
+              type: 'base64',
+              media_type: 'application/pdf',
+              data: base64
+            }
+          },
+          { type: 'text', text: prompt }
+        ]
+      }]
+    }),
+    signal: AbortSignal.timeout(180000)
+  });
+
+  const data = await resp.json();
+  if (!resp.ok) {
+    throw new Error(data.error?.message || `API returned ${resp.status}`);
+  }
+  return data.content?.[0]?.text || '';
+}
+
+// ── Parse ───────────────────────────────────────────────────
+function parseResult(text) {
+  // Extract JSON even if Claude added any surrounding text
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('No JSON object found in response.');
+  return JSON.parse(match[0]);
+}
+
+// ── Render ──────────────────────────────────────────────────
+function renderResults(d) {
+  const company = document.getElementById('companyName').value.trim() || 'Report';
+  document.getElementById('resultCompanyName').textContent = company;
+  document.getElementById('resultMeta').textContent = 'Analysed on ' + new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+
+  // Introduction
+  document.getElementById('introText').textContent = d.introduction || 'Not available.';
+
+  // Timeline
+  const tl = d.timeline || [];
+  document.getElementById('timelineBadge').textContent = tl.length + ' events';
+  const tlWrap = document.getElementById('timelineWrap');
+  if (!tl.length) {
+    tlWrap.innerHTML = '<div class="no-data">No timeline events extracted.</div>';
+  } else {
+    tlWrap.innerHTML = tl.map(item => `
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-year">${esc(item.year)}</div>
+        <div class="tl-event">${esc(item.event)}</div>
+      </div>`).join('');
+  }
+
+  // Contingent Liabilities
+  const cl = d.contingentLiabilities || {};
+  const clItems = cl.items || [];
+  document.getElementById('clBadge').textContent = clItems.length + ' items';
+  const clSum = document.getElementById('clSummary');
+  if (cl.summary) { clSum.textContent = cl.summary; clSum.style.display = 'block'; }
+  const clTbl = document.getElementById('clTable');
+  if (!clItems.length) {
+    clTbl.innerHTML = '<div class="no-data">No contingent liabilities extracted.</div>';
+  } else {
+    clTbl.innerHTML = `
+      <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead><tr>
+          <th style="width:40%">Description</th>
+          <th style="width:25%">Amount</th>
+          <th style="width:35%">Nature</th>
+        </tr></thead>
+        <tbody>
+          ${clItems.map(r => `<tr>
+            <td>${esc(r.description || '-')}</td>
+            <td class="${r.amount && r.amount !== 'Not quantified' ? 'amount-cell' : 'na-cell'}">${esc(r.amount || 'Not quantified')}</td>
+            <td>${esc(r.nature || '-')}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>`;
+  }
+
+  // Related Party Transactions
+  const rpt = d.relatedPartyTransactions || {};
+  const rptTxns = rpt.transactions || [];
+  document.getElementById('rptBadge').textContent = rptTxns.length + ' transactions';
+  const rptSum = document.getElementById('rptSummary');
+  if (rpt.summary) { rptSum.textContent = rpt.summary; rptSum.style.display = 'block'; }
+  const rptTbl = document.getElementById('rptTable');
+  if (!rptTxns.length) {
+    rptTbl.innerHTML = '<div class="no-data">No RPT data extracted.</div>';
+  } else {
+    rptTbl.innerHTML = `
+      <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead><tr>
+          <th style="width:25%">Party</th>
+          <th style="width:20%">Relationship</th>
+          <th style="width:25%">Nature</th>
+          <th style="width:30%">Amount</th>
+        </tr></thead>
+        <tbody>
+          ${rptTxns.map(r => `<tr>
+            <td style="font-weight:600">${esc(r.party || '-')}</td>
+            <td>${esc(r.relationship || '-')}</td>
+            <td>${esc(r.nature || '-')}</td>
+            <td class="${r.amount && r.amount !== 'Not disclosed' ? 'amount-cell' : 'na-cell'}">${esc(r.amount || 'Not disclosed')}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>`;
+  }
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showStatus(type, msg) {
+  const wrap = document.getElementById('statusWrap');
+  const bar  = document.getElementById('statusBar');
+  const spinner = document.getElementById('statusSpinner');
+  const text = document.getElementById('statusText');
+  wrap.style.display = 'block';
+  bar.className = 'status-bar ' + type;
+  spinner.style.display = type === 'loading' ? 'block' : 'none';
+  text.textContent = msg;
+}
+
+function setStatus(type, msg) { showStatus(type, msg); }
+
+function showProgressSteps() {
+  document.getElementById('progressSteps').style.display = 'block';
+  document.getElementById('statusWrap').style.display = 'block';
+  ['step1','step2','step3','step4'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('active','done');
+  });
+}
+
+function setStep(n, state) {
+  const el = document.getElementById('step' + n);
+  el.classList.remove('active','done');
+  if (state === 'done') {
+    el.classList.add('done');
+    el.querySelector('.step-dot').textContent = '✓';
+  } else if (state === 'active') {
+    el.classList.add('active');
+  }
+}
+
+function resetAll() {
+  pdfBase64 = null;
+  lastResult = null;
+  document.getElementById('pdfFile').value = '';
+  document.getElementById('pdfUrl').value = '';
+  document.getElementById('fileName').textContent = '';
+  document.getElementById('companyName').value = '';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('statusWrap').style.display = 'none';
+  document.getElementById('progressSteps').style.display = 'none';
+  document.getElementById('analyseBtn').disabled = false;
+  document.getElementById('resetBtn').style.display = 'none';
+}
+
+function copyAll() {
+  if (!lastResult) return;
+  const d = lastResult;
+  let text = '';
+
+  text += '=== COMPANY INTRODUCTION ===\n' + (d.introduction || '') + '\n\n';
+
+  text += '=== SIGNIFICANT EVENTS TIMELINE ===\n';
+  (d.timeline || []).forEach(t => { text += `${t.year}: ${t.event}\n`; });
+  text += '\n';
+
+  text += '=== CONTINGENT LIABILITIES ===\n';
+  if (d.contingentLiabilities?.summary) text += d.contingentLiabilities.summary + '\n\n';
+  (d.contingentLiabilities?.items || []).forEach(r => {
+    text += `• ${r.description} | ${r.amount} | ${r.nature}\n`;
+  });
+  text += '\n';
+
+  text += '=== RELATED PARTY TRANSACTIONS ===\n';
+  if (d.relatedPartyTransactions?.summary) text += d.relatedPartyTransactions.summary + '\n\n';
+  (d.relatedPartyTransactions?.transactions || []).forEach(r => {
+    text += `• ${r.party} (${r.relationship}) — ${r.nature}: ${r.amount}\n`;
+  });
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.textContent = 'Copy All'; }, 2000);
+  });
+}
+</script>
+</body>
+</html>
