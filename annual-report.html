@@ -680,7 +680,8 @@ async function extractTextFromPdf(arrayBuffer) {
 async function callClaude(text) {
   const company = document.getElementById('companyName').value.trim();
   const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-  const endpoint = isLocal ? 'http://localhost:3333/api/analyse' : '/api/analyse';
+  const port = isLocal ? (location.port || 3333) : null;
+  const endpoint = isLocal ? `http://localhost:${port}/api/analyse` : '/api/analyse';
 
   const resp = await fetch(endpoint, {
     method: 'POST',

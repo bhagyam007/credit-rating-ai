@@ -8,6 +8,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 const PORT = 3333;
+const CLAUDE_BIN = 'C:\\Users\\User\\.vscode\\extensions\\anthropic.claude-code-2.1.96-win32-x64\\resources\\native-binary\\claude.exe';
 
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -77,8 +78,7 @@ ${text.slice(0, 180000)}`;
 
       console.log(`[${new Date().toLocaleTimeString()}] Sending to Claude CLI...`);
 
-      const claude = spawn('claude', ['-p', prompt], {
-        shell: true,
+      const claude = spawn(CLAUDE_BIN, ['-p', prompt], {
         timeout: 180000
       });
 
