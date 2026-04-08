@@ -75,12 +75,15 @@ ${text.slice(0, 180000)}`;
   (async () => {
     const reader = upstream.body.getReader();
     let fullText = '';
+    let lineBuffer = '';
     try {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split('\n')) {
+        lineBuffer += decoder.decode(value, { stream: true });
+        const lines = lineBuffer.split('\n');
+        lineBuffer = lines.pop(); // keep incomplete last line for next chunk
+        for (const line of lines) {
           if (!line.startsWith('data: ')) continue;
           const data = line.slice(6).trim();
           if (data === '[DONE]') continue;
