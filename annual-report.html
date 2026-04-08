@@ -712,10 +712,21 @@ async function callClaude(text) {
 
 // ── Parse ───────────────────────────────────────────────────
 function parseResult(text) {
-  // Extract JSON even if Claude added any surrounding text
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error('No JSON object found in response.');
-  return JSON.parse(match[0]);
+  let raw = match[0];
+  // Remove control characters that break JSON.parse (tab/newline inside strings are ok, others aren't)
+  raw = raw.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    // Second pass: escape any bare newlines/tabs inside string values
+    raw = raw.replace(/("(?:[^"\\]|\\.)*")|([^"{}[\]:,\s])/g, (m, str, other) => {
+      if (str) return str.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+      return other || m;
+    });
+    return JSON.parse(raw);
+  }
 }
 
 // ── Render ──────────────────────────────────────────────────
