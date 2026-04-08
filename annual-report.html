@@ -715,17 +715,29 @@ function parseResult(text) {
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) throw new Error('No JSON object found in response.');
   let raw = match[0];
-  // Remove control characters that break JSON.parse (tab/newline inside strings are ok, others aren't)
+  console.log('Raw Claude response:', raw.slice(0, 500));
+
+  // Strip non-printable control characters (keep \n \r \t)
   raw = raw.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+
   try {
     return JSON.parse(raw);
-  } catch (e) {
-    // Second pass: escape any bare newlines/tabs inside string values
-    raw = raw.replace(/("(?:[^"\\]|\\.)*")|([^"{}[\]:,\s])/g, (m, str, other) => {
-      if (str) return str.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
-      return other || m;
-    });
-    return JSON.parse(raw);
+  } catch (e1) {
+    console.warn('First parse failed:', e1.message, '— trying repair');
+    // Replace literal newlines/tabs inside JSON string values
+    try {
+      const repaired = raw.replace(/"((?:[^"\\]|\\.)*)"/gs, (m, inner) => {
+        return '"' + inner
+          .replace(/\n/g, '\\n')
+          .replace(/\r/g, '\\r')
+          .replace(/\t/g, '\\t') + '"';
+      });
+      return JSON.parse(repaired);
+    } catch (e2) {
+      console.error('Second parse failed:', e2.message);
+      console.error('Full raw response:', raw);
+      throw new Error(e2.message + ' — check browser console for raw response');
+    }
   }
 }
 
