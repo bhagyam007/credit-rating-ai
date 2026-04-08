@@ -394,6 +394,19 @@
 
 <div class="page">
 
+  <!-- API Key -->
+  <div class="card">
+    <div class="card-title">Claude API Key</div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-…" autocomplete="off"
+        style="flex:1;font-family:monospace;font-size:13px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;outline:none;background:#f8fafc;transition:border-color .2s;"
+        oninput="this.style.borderColor='var(--primary)'" />
+      <button class="btn btn-ghost btn-sm" onclick="saveApiKey()">Save</button>
+      <span id="apiSaved" style="font-size:12px;color:var(--success);display:none;">✓ Saved</span>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:6px;">Stored locally in your browser. Sent directly to Anthropic's API — never via our server.</p>
+  </div>
+
   <!-- Input -->
   <div class="card">
     <div class="card-title">Upload Annual Report</div>
@@ -514,8 +527,19 @@ let lastResult = null;
 
 // ── Init ────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('claude_api_key');
+  if (saved) document.getElementById('apiKeyInput').value = saved;
   setupDragDrop();
 });
+
+function saveApiKey() {
+  const v = document.getElementById('apiKeyInput').value.trim();
+  if (!v) return;
+  localStorage.setItem('claude_api_key', v);
+  const el = document.getElementById('apiSaved');
+  el.style.display = 'inline';
+  setTimeout(() => { el.style.display = 'none'; }, 2000);
+}
 
 // ── Tabs ────────────────────────────────────────────────────
 function switchTab(tab) {
@@ -569,6 +593,12 @@ function readFileAsBase64(file) {
 
 // ── Main flow ────────────────────────────────────────────────
 async function startAnalysis() {
+  const apiKey = document.getElementById('apiKeyInput').value.trim()
+              || localStorage.getItem('claude_api_key') || '';
+  if (!apiKey) {
+    showStatus('error', 'Please enter your Claude API key above.');
+    return;
+  }
   showProgressSteps();
   setStep(1, 'active');
   setStatus('loading', 'Loading PDF…');
@@ -591,7 +621,7 @@ async function startAnalysis() {
 
   let result;
   try {
-    result = await callClaude(base64);
+    result = await callClaude(apiKey, base64);
   } catch (err) {
     setStep(2, 'error');
     showStatus('error', 'Claude API error: ' + err.message);
@@ -645,21 +675,61 @@ async function loadPdf() {
   }
 }
 
-// ── Claude API call (via server-side proxy) ──────────────────
-async function callClaude(base64) {
+// ── Claude API call (direct from browser) ───────────────────
+async function callClaude(apiKey, base64) {
   const company = document.getElementById('companyName').value.trim();
+  const companyHint = company ? `The company name is: ${company}. ` : '';
 
-  const resp = await fetch('/api/analyse', {
+  const prompt = `${companyHint}Carefully analyse this annual report and return ONLY a valid JSON object (no markdown, no explanation) with exactly these four keys:
+
+{
+  "introduction": "<A 6 to 7 sentence paragraph covering: founder name(s), year of incorporation, registered office state, main business segments, number of manufacturing/production units or plants (state 'Not applicable' if service company), key products or services, and any recent major development.>",
+  "timeline": [
+    { "year": "<YYYY or YYYY-YY>", "event": "<One concise sentence describing a significant milestone — IPO, major acquisition, capacity expansion, product launch, regulatory event, rating change, debt restructuring, etc.>" }
+  ],
+  "contingentLiabilities": {
+    "summary": "<2-3 sentence narrative overview of the nature, total quantum and any significant items>",
+    "items": [
+      { "description": "<Nature of contingency>", "amount": "<Amount in INR crore, or 'Not quantified'>", "nature": "<Litigation / Tax / Guarantee / Other>" }
+    ]
+  },
+  "relatedPartyTransactions": {
+    "summary": "<2-3 sentence narrative on the overall RPT structure and materiality>",
+    "transactions": [
+      { "party": "<Party name>", "relationship": "<Subsidiary / Associate / KMP / Promoter entity / etc.>", "nature": "<Purchase / Sale / Loan / Rent / Service / Guarantee / Other>", "amount": "<Amount in INR crore for the year, or 'Not disclosed'>" }
+    ]
+  }
+}
+
+For the timeline: include events from incorporation year to the year of this annual report, in chronological order.
+For contingent liabilities and RPTs: include ALL items disclosed in the notes to accounts; do not skip any.
+Return ONLY the JSON object.`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ base64, company }),
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'pdfs-2024-09-25',
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 8192,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
+          { type: 'text', text: prompt }
+        ]
+      }]
+    }),
     signal: AbortSignal.timeout(180000)
   });
 
   const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error || `Server returned ${resp.status}`);
-  // Server already parsed JSON, return as string for parseResult compatibility
-  return JSON.stringify(data.result);
+  if (!resp.ok) throw new Error(data.error?.message || `API returned ${resp.status}`);
+  return data.content?.[0]?.text || '';
 }
 
 // ── Parse ───────────────────────────────────────────────────
