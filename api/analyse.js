@@ -1,4 +1,11 @@
 // Vercel serverless function — analyses annual report PDF via Claude API
+export const config = {
+  api: {
+    bodyParser: { sizeLimit: '50mb' },
+    maxDuration: 60               // seconds — requires Vercel Pro; ignored on Hobby
+  }
+};
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -60,7 +67,7 @@ Return ONLY the JSON object.`;
         'content-type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-6',
+        model: 'claude-sonnet-4-6',
         max_tokens: 8192,
         messages: [{
           role: 'user',
