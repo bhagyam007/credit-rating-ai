@@ -1,19 +1,20 @@
-// Vercel serverless function — accepts extracted PDF text, calls Claude, streams response
-export const config = {
-  api: { bodyParser: { sizeLimit: '10mb' } }
-};
+// Vercel Edge function — 30s timeout vs 10s for serverless
+export const config = { runtime: 'edge' };
 
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') { res.status(200).end(); return; }
-  if (req.method !== 'POST') { res.status(405).json({ error: 'POST only' }); return; }
+export default async function handler(req) {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+
+  if (req.method === 'OPTIONS') return new Response(null, { status: 200, headers });
+  if (req.method !== 'POST') return new Response(JSON.stringify({ error: 'POST only' }), { status: 405, headers });
 
   const apiKey = process.env.CLAUDE_API_KEY;
-  if (!apiKey) { res.status(500).json({ error: 'CLAUDE_API_KEY not set on server' }); return; }
+  if (!apiKey) return new Response(JSON.stringify({ error: 'CLAUDE_API_KEY not set' }), { status: 500, headers });
 
-  const { text, company } = req.body || {};
-  if (!text) { res.status(400).json({ error: 'text required' }); return; }
+  const { text, company } = await req.json();
+  if (!text) return new Response(JSON.stringify({ error: 'text required' }), { status: 400, headers });
 
   const companyHint = company ? `The company name is: ${company}. ` : '';
 
@@ -45,63 +46,72 @@ Return ONLY the JSON object.
 --- ANNUAL REPORT TEXT ---
 ${text.slice(0, 180000)}`;
 
-  try {
-    const upstream = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 8192,
-        stream: true,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
+  const upstream = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 8192,
+      stream: true,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
 
-    if (!upstream.ok) {
-      const err = await upstream.json();
-      res.status(upstream.status).json({ error: err.error?.message || 'Claude API error' });
-      return;
-    }
-
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('X-Accel-Buffering', 'no');
-
-    const reader = upstream.body.getReader();
-    const decoder = new TextDecoder();
-    let fullText = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value, { stream: true });
-      for (const line of chunk.split('\n')) {
-        if (!line.startsWith('data: ')) continue;
-        const data = line.slice(6).trim();
-        if (data === '[DONE]') continue;
-        try {
-          const evt = JSON.parse(data);
-          if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
-            fullText += evt.delta.text;
-            res.write(`data: ${JSON.stringify({ type: 'delta' })}\n\n`);
-          }
-        } catch {}
-      }
-    }
-
-    const match = fullText.match(/\{[\s\S]*\}/);
-    if (!match) {
-      res.write(`data: ${JSON.stringify({ type: 'error', error: 'No JSON in response' })}\n\n`);
-    } else {
-      res.write(`data: ${JSON.stringify({ type: 'done', result: JSON.parse(match[0]) })}\n\n`);
-    }
-    res.end();
-
-  } catch (err) {
-    res.status(502).json({ error: err.message });
+  if (!upstream.ok) {
+    const err = await upstream.json();
+    return new Response(JSON.stringify({ error: err.error?.message || 'Claude API error' }), { status: upstream.status, headers });
   }
+
+  // Pipe the SSE stream straight through to the browser
+  const { readable, writable } = new TransformStream();
+  const writer = writable.getWriter();
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  (async () => {
+    const reader = upstream.body.getReader();
+    let fullText = '';
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        for (const line of chunk.split('\n')) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') continue;
+          try {
+            const evt = JSON.parse(data);
+            if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
+              fullText += evt.delta.text;
+              await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'delta' })}\n\n`));
+            }
+          } catch {}
+        }
+      }
+      const match = fullText.match(/\{[\s\S]*\}/);
+      if (!match) {
+        await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: 'No JSON in response' })}\n\n`));
+      } else {
+        await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'done', result: JSON.parse(match[0]) })}\n\n`));
+      }
+    } catch (e) {
+      await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: e.message })}\n\n`));
+    } finally {
+      await writer.close();
+    }
+  })();
+
+  return new Response(readable, {
+    headers: {
+      ...headers,
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'X-Accel-Buffering': 'no'
+    }
+  });
 }
