@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Annual Report Analyser — AAAI+</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module" id="pdfjs-script"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -571,7 +572,7 @@ function readFileAsBase64(file) {
 async function startAnalysis() {
   showProgressSteps();
   setStep(1, 'active');
-  setStatus('loading', 'Loading PDF…');
+  setStatus('loading', 'Loading PDF — extracting text…');
   document.getElementById('analyseBtn').disabled = true;
   document.getElementById('results').style.display = 'none';
 
@@ -627,84 +628,87 @@ async function startAnalysis() {
   document.getElementById('analyseBtn').disabled = false;
 }
 
+// ── Load PDF → extract text via PDF.js ──────────────────────
 async function loadPdf() {
+  let arrayBuffer;
   if (currentTab === 'upload') {
-    if (pdfBase64) return pdfBase64; // already read via drag-drop
     const file = document.getElementById('pdfFile').files[0];
-    if (!file) throw new Error('No PDF file selected.');
-    return await readFileAsBase64(file);
+    if (!file && !pdfBase64) throw new Error('No PDF file selected.');
+    if (pdfBase64) {
+      // came from drag-drop — convert base64 back to ArrayBuffer
+      const bin = atob(pdfBase64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      arrayBuffer = bytes.buffer;
+    } else {
+      arrayBuffer = await file.arrayBuffer();
+    }
   } else {
     const url = document.getElementById('pdfUrl').value.trim();
     if (!url) throw new Error('No URL entered.');
-    // Use proxy to avoid CORS
     const proxyUrl = `/api/pdf?url=${encodeURIComponent(url)}`;
     const resp = await fetch(proxyUrl);
     const data = await resp.json();
     if (!resp.ok) throw new Error(data.error || 'Proxy failed');
-    return data.base64;
+    const bin = atob(data.base64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    arrayBuffer = bytes.buffer;
   }
+
+  setStatus('loading', 'Extracting text from PDF…');
+  return await extractTextFromPdf(arrayBuffer);
 }
 
-// ── Claude API call (browser → Anthropic directly) ───────────
-async function callClaude(base64) {
-  // Fetch key from server — never hardcoded in HTML
-  const keyResp = await fetch('/api/key');
-  if (!keyResp.ok) throw new Error('Could not retrieve API key from server');
-  const { key } = await keyResp.json();
+async function extractTextFromPdf(arrayBuffer) {
+  // Dynamically import PDF.js as a module
+  const pdfjsLib = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
 
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let fullText = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map(item => item.str).join(' ');
+    fullText += `\n--- Page ${i} ---\n${pageText}`;
+  }
+  return fullText;
+}
+
+// ── Claude API call (text → server → Claude) ─────────────────
+async function callClaude(text) {
   const company = document.getElementById('companyName').value.trim();
-  const companyHint = company ? `The company name is: ${company}. ` : '';
 
-  const prompt = `${companyHint}Carefully analyse this annual report and return ONLY a valid JSON object (no markdown, no explanation) with exactly these four keys:
-
-{
-  "introduction": "<A 6 to 7 sentence paragraph covering: founder name(s), year of incorporation, registered office state, main business segments, number of manufacturing/production units or plants (state 'Not applicable' if service company), key products or services, and any recent major development.>",
-  "timeline": [
-    { "year": "<YYYY or YYYY-YY>", "event": "<One concise sentence describing a significant milestone>" }
-  ],
-  "contingentLiabilities": {
-    "summary": "<2-3 sentence narrative overview>",
-    "items": [
-      { "description": "<Nature of contingency>", "amount": "<Amount in INR crore, or 'Not quantified'>", "nature": "<Litigation / Tax / Guarantee / Other>" }
-    ]
-  },
-  "relatedPartyTransactions": {
-    "summary": "<2-3 sentence narrative on RPT structure and materiality>",
-    "transactions": [
-      { "party": "<Party name>", "relationship": "<Subsidiary / Associate / KMP / Promoter entity / etc.>", "nature": "<Purchase / Sale / Loan / Rent / Service / Guarantee / Other>", "amount": "<Amount in INR crore, or 'Not disclosed'>" }
-    ]
-  }
-}
-
-For the timeline: include events from incorporation year to the year of this annual report, in chronological order.
-For contingent liabilities and RPTs: include ALL items disclosed in the notes to accounts.
-Return ONLY the JSON object.`;
-
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+  const resp = await fetch('/api/analyse', {
     method: 'POST',
-    headers: {
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'anthropic-beta': 'pdfs-2024-09-25',
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 8192,
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
-          { type: 'text', text: prompt }
-        ]
-      }]
-    }),
-    signal: AbortSignal.timeout(180000)
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ text, company })
   });
 
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error?.message || `API returned ${resp.status}`);
-  return data.content?.[0]?.text || '';
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error || `Server returned ${resp.status}`);
+  }
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const data = JSON.parse(line.slice(6));
+      if (data.type === 'error') throw new Error(data.error);
+      if (data.type === 'done') return JSON.stringify(data.result);
+    }
+  }
+  throw new Error('Stream ended without a result.');
 }
 
 // ── Parse ───────────────────────────────────────────────────

@@ -1,6 +1,6 @@
-// Vercel serverless function — streams Claude response to avoid Hobby plan timeout
+// Vercel serverless function — accepts extracted PDF text, calls Claude, streams response
 export const config = {
-  api: { bodyParser: { sizeLimit: '50mb' } }
+  api: { bodyParser: { sizeLimit: '10mb' } }
 };
 
 export default async function handler(req, res) {
@@ -12,12 +12,12 @@ export default async function handler(req, res) {
   const apiKey = process.env.CLAUDE_API_KEY;
   if (!apiKey) { res.status(500).json({ error: 'CLAUDE_API_KEY not set on server' }); return; }
 
-  const { base64, company } = req.body || {};
-  if (!base64) { res.status(400).json({ error: 'base64 PDF required' }); return; }
+  const { text, company } = req.body || {};
+  if (!text) { res.status(400).json({ error: 'text required' }); return; }
 
   const companyHint = company ? `The company name is: ${company}. ` : '';
 
-  const prompt = `${companyHint}Carefully analyse this annual report and return ONLY a valid JSON object (no markdown, no explanation) with exactly these four keys:
+  const prompt = `${companyHint}Below is the full extracted text of an annual report. Carefully analyse it and return ONLY a valid JSON object (no markdown, no explanation) with exactly these four keys:
 
 {
   "introduction": "<A 6 to 7 sentence paragraph covering: founder name(s), year of incorporation, registered office state, main business segments, number of manufacturing/production units or plants (state 'Not applicable' if service company), key products or services, and any recent major development.>",
@@ -25,13 +25,13 @@ export default async function handler(req, res) {
     { "year": "<YYYY or YYYY-YY>", "event": "<One concise sentence describing a significant milestone>" }
   ],
   "contingentLiabilities": {
-    "summary": "<2-3 sentence narrative overview>",
+    "summary": "<2-3 sentence narrative overview of the nature, total quantum and any significant items>",
     "items": [
       { "description": "<Nature of contingency>", "amount": "<Amount in INR crore, or 'Not quantified'>", "nature": "<Litigation / Tax / Guarantee / Other>" }
     ]
   },
   "relatedPartyTransactions": {
-    "summary": "<2-3 sentence narrative on RPT structure and materiality>",
+    "summary": "<2-3 sentence narrative on the overall RPT structure and materiality>",
     "transactions": [
       { "party": "<Party name>", "relationship": "<Subsidiary / Associate / KMP / Promoter entity / etc.>", "nature": "<Purchase / Sale / Loan / Rent / Service / Guarantee / Other>", "amount": "<Amount in INR crore, or 'Not disclosed'>" }
     ]
@@ -39,8 +39,11 @@ export default async function handler(req, res) {
 }
 
 For the timeline: include events from incorporation year to the year of this annual report, in chronological order.
-For contingent liabilities and RPTs: include ALL items disclosed in the notes to accounts.
-Return ONLY the JSON object.`;
+For contingent liabilities and RPTs: include ALL items disclosed in the notes to accounts; do not skip any.
+Return ONLY the JSON object.
+
+--- ANNUAL REPORT TEXT ---
+${text.slice(0, 180000)}`;
 
   try {
     const upstream = await fetch('https://api.anthropic.com/v1/messages', {
@@ -48,20 +51,13 @@ Return ONLY the JSON object.`;
       headers: {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
-        'anthropic-beta': 'pdfs-2024-09-25',
         'content-type': 'application/json'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 8192,
         stream: true,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
-            { type: 'text', text: prompt }
-          ]
-        }]
+        messages: [{ role: 'user', content: prompt }]
       })
     });
 
@@ -71,7 +67,6 @@ Return ONLY the JSON object.`;
       return;
     }
 
-    // Stream response — keeps connection alive, bypasses Hobby timeout
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('X-Accel-Buffering', 'no');
@@ -83,11 +78,8 @@ Return ONLY the JSON object.`;
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-
       const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
-
-      for (const line of lines) {
+      for (const line of chunk.split('\n')) {
         if (!line.startsWith('data: ')) continue;
         const data = line.slice(6).trim();
         if (data === '[DONE]') continue;
@@ -95,14 +87,12 @@ Return ONLY the JSON object.`;
           const evt = JSON.parse(data);
           if (evt.type === 'content_block_delta' && evt.delta?.type === 'text_delta') {
             fullText += evt.delta.text;
-            // Send heartbeat so connection stays alive
-            res.write(`data: ${JSON.stringify({ type: 'delta', text: evt.delta.text })}\n\n`);
+            res.write(`data: ${JSON.stringify({ type: 'delta' })}\n\n`);
           }
         } catch {}
       }
     }
 
-    // Extract and send final JSON
     const match = fullText.match(/\{[\s\S]*\}/);
     if (!match) {
       res.write(`data: ${JSON.stringify({ type: 'error', error: 'No JSON in response' })}\n\n`);
