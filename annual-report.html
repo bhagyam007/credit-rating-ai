@@ -649,7 +649,7 @@ async function loadPdf() {
 async function callClaude(base64) {
   const company = document.getElementById('companyName').value.trim();
 
-  const resp = await fetch('/api/analyse', {
+  const resp = await fetch('https://credit-rating-ai.vercel.app/api/analyse', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ base64, company })
