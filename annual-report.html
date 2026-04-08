@@ -679,8 +679,10 @@ async function extractTextFromPdf(arrayBuffer) {
 // ── Claude API call (text → server → Claude) ─────────────────
 async function callClaude(text) {
   const company = document.getElementById('companyName').value.trim();
+  const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const endpoint = isLocal ? 'http://localhost:3333/api/analyse' : '/api/analyse';
 
-  const resp = await fetch('/api/analyse', {
+  const resp = await fetch(endpoint, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ text, company })
@@ -691,10 +693,19 @@ async function callClaude(text) {
     throw new Error(err.error || `Server returned ${resp.status}`);
   }
 
+  const contentType = resp.headers.get('content-type') || '';
+
+  // Local server returns plain JSON; Vercel returns SSE stream
+  if (contentType.includes('application/json')) {
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    return JSON.stringify(data.result);
+  }
+
+  // SSE stream (Vercel)
   const reader = resp.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
-
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
