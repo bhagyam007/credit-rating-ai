@@ -97,7 +97,8 @@ ${text.slice(0, 180000)}`;
       if (!match) {
         await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: 'No JSON in response' })}\n\n`));
       } else {
-        await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'done', result: JSON.parse(match[0]) })}\n\n`));
+        // Send raw text — client parses JSON so special chars don't break server-side stringify
+        await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'done', raw: match[0] })}\n\n`));
       }
     } catch (e) {
       await writer.write(encoder.encode(`data: ${JSON.stringify({ type: 'error', error: e.message })}\n\n`));
