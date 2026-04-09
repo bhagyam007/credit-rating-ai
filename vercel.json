@@ -2,7 +2,8 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/annual-report", "destination": "/annual-report.html" },
+    { "source": "/internal-rating-model", "destination": "/internal-rating-model.html" },
     { "source": "/", "destination": "/dashboard.html" },
-    { "source": "/((?!api/|annual-report\\.html|dashboard\\.html).*)", "destination": "/dashboard.html" }
+    { "source": "/((?!api/|annual-report\\.html|dashboard\\.html|internal-rating-model\\.html).*)", "destination": "/dashboard.html" }
   ]
 }
