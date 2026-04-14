@@ -1668,6 +1668,13 @@
   }
 
   /* ── PORTFOLIO TABLE ── */
+  // One-time migration: reset portfolio to Sun Pharma
+  if (!localStorage.getItem('_portfolio_reset_v1')) {
+    localStorage.setItem('portfolio_data', JSON.stringify([
+      { company: 'Sun Pharma Industries Limited', rating: '', screenerSymbol: 'SUNPHARMA', screenerDate: '' }
+    ]));
+    localStorage.setItem('_portfolio_reset_v1', '1');
+  }
   let portfolioData = JSON.parse(localStorage.getItem('portfolio_data') || '[]');
   let editIndex = -1;
 
@@ -2018,7 +2025,8 @@
 
     try {
       const results = await Promise.all(portfolio.map(row => fetchGNewsForCompany(row.company)));
-      _newsTableData = results.flat();
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      _newsTableData = results.flat().filter(r => !r.pubDate || new Date(r.pubDate) >= oneDayAgo);
       if (_newsTableData.length === 0) {
         // All proxies returned nothing — show AI fallback
         showAINewsFallback(portfolio.map(r => r.company));
@@ -2394,13 +2402,13 @@
 
     area.innerHTML = '<div class="loading"><div class="spinner"></div> Fetching news for portfolio companies...</div>';
 
-    const threeDaysAgo = new Date(); threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     // Fetch all companies in parallel using shared fetchGNewsForCompany
     const results = await Promise.all(data.map(async row => {
       const items = await fetchGNewsForCompany(row.company);
       return items
-        .filter(item => !item.pubDate || new Date(item.pubDate) >= threeDaysAgo)
+        .filter(item => !item.pubDate || new Date(item.pubDate) >= oneDayAgo)
         .slice(0, 3)
         .map(item => ({ company: row.company, title: item.title, link: item.link, imp: newsImportance(item.title), mail: buildDraftMail(row.company, item.title) }));
     }));
@@ -2409,7 +2417,7 @@
     _newsMailStore = allRows.map(r => r.mail);
 
     if (!allRows.length) {
-      area.innerHTML = '<div style="color:var(--muted);font-size:0.875rem;padding:1rem 0;">No news found in the last 3 days for your portfolio companies. Try again later or check your internet connection.</div>';
+      area.innerHTML = '<div style="color:var(--muted);font-size:0.875rem;padding:1rem 0;">No news found in the last 24 hours for your portfolio companies. Try again later or check your internet connection.</div>';
       return;
     }
 
