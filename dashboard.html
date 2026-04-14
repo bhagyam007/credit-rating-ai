@@ -614,14 +614,8 @@
 
   <nav class="sidebar-nav">
     <!-- Overview -->
-    <div class="nav-parent open" onclick="toggleAccordion(this)">
-      <div class="left"><span class="icon">🏠</span> Portfolio Overview</div>
-      <span class="nav-arrow">▶</span>
-    </div>
-    <div class="nav-children open">
-      <div class="nav-child active" onclick="showSubTab('overview','portfolio-summary',this)">Portfolio Summary</div>
-      <div class="nav-child" onclick="showSubTab('overview','edit-portfolio',this)">Edit Portfolio</div>
-      <div class="nav-child" onclick="showSubTab('overview','portfolio-planning',this);renderSurveillanceDue()">Portfolio Planning</div>
+    <div class="nav-item active" id="navOverview" onclick="showTabById('overview')">
+      <span class="icon">🏠</span> Portfolio Overview
     </div>
 
     <!-- Material Event Checker -->
@@ -697,13 +691,13 @@
 
     <!-- Inner Sub-Tabs -->
     <div class="inner-tabs fade-in">
-      <button class="inner-tab active" onclick="showInner('overview','portfolio-summary',this)">Portfolio Summary</button>
+      <button class="inner-tab active" onclick="showInner('overview','dashboard',this)">Dashboard</button>
+      <button class="inner-tab" onclick="showInner('overview','list-of-cases',this);loadListOfCases()">List of Cases</button>
       <button class="inner-tab" onclick="showInner('overview','edit-portfolio',this)">Edit Portfolio</button>
-      <button class="inner-tab" onclick="showInner('overview','portfolio-planning',this);renderSurveillanceDue()">Portfolio Planning</button>
     </div>
 
-    <!-- Sub: Portfolio Summary (charts) -->
-    <div class="inner-panel active" id="overview-portfolio-summary">
+    <!-- Sub: Dashboard (charts) -->
+    <div class="inner-panel active" id="overview-dashboard">
       <div class="two-col fade-in" style="margin-bottom:1.5rem;">
         <div class="card">
           <h3>Surveillance Status</h3>
@@ -765,15 +759,13 @@
               <tr>
                 <th>#</th>
                 <th>Company Name</th>
-                <th>Credit Rating</th>
-                <th>Annual Report Date</th>
                 <th>Screener Link</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="portfolioBody">
               <tr class="empty-row" id="emptyRow">
-                <td colspan="6">No companies added yet. Click "+ Add Company" to get started.</td>
+                <td colspan="4">No companies added yet. Click "+ Add Company" to get started.</td>
               </tr>
             </tbody>
           </table>
@@ -781,35 +773,36 @@
       </div>
     </div>
 
-    <!-- Sub: Portfolio Planning -->
-    <div class="inner-panel" id="overview-portfolio-planning">
-      <!-- TOP HALF: Surveillance Due Table -->
-      <div class="card fade-in" style="margin-bottom:1.5rem;">
+    <!-- Sub: List of Cases -->
+    <div class="inner-panel" id="overview-list-of-cases">
+      <div class="card fade-in">
         <div class="tbl-toolbar">
           <div>
-            <h3>Surveillance Due — Upcoming Quarter</h3>
-            <p style="font-size:0.8rem;color:var(--muted);margin-top:0.25rem;">Companies with PR review due within the next 3 months</p>
+            <h3>List of Cases</h3>
+            <p style="font-size:0.8rem;color:var(--muted);margin-top:0.25rem;">Credit rating data fetched from Screener.in documents</p>
           </div>
-          <button class="btn-add" onclick="refreshPlanning()">↻ Refresh</button>
+          <button class="btn-add" onclick="fetchListOfCases(true)">↻ Refresh</button>
         </div>
         <div class="tbl-wrap">
           <table>
             <thead>
               <tr>
                 <th>Company Name</th>
-                <th>PR Due By</th>
-                <th>Days Remaining</th>
-                <th>Status of Info Received</th>
-                <th>Send Reminder</th>
+                <th>Rating Agency</th>
+                <th>Press Release Date</th>
+                <th>Rating</th>
+                <th>Outlook</th>
+                <th>Rating Action</th>
+                <th>Press Release</th>
+                <th></th>
               </tr>
             </thead>
-            <tbody id="surveillanceDueBody">
-              <tr class="empty-row"><td colspan="5">No companies due for surveillance in the upcoming quarter. Add companies in Edit Portfolio.</td></tr>
+            <tbody id="casesBody">
+              <tr class="empty-row"><td colspan="6">Click "List of Cases" to load data.</td></tr>
             </tbody>
           </table>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -1390,34 +1383,8 @@
         <input type="text" id="mCompany" placeholder="e.g. Tata Steel Ltd" />
       </div>
       <div>
-        <label>Credit Rating</label>
-        <select id="mRating">
-          <option value="AAA">AAA</option>
-          <option value="AA+">AA+</option>
-          <option value="AA">AA</option>
-          <option value="AA-">AA-</option>
-          <option value="A+">A+</option>
-          <option value="A">A</option>
-          <option value="A-">A-</option>
-          <option value="BBB+">BBB+</option>
-          <option value="BBB">BBB</option>
-          <option value="BBB-">BBB-</option>
-          <option value="BB+">BB+</option>
-          <option value="BB">BB</option>
-          <option value="B">B</option>
-          <option value="D">D</option>
-        </select>
-      </div>
-      <div>
         <label>Screener.in Symbol <span style="font-size:0.7rem;color:var(--muted);">(e.g. SUNPHARMA, TATASTEEL)</span></label>
-        <div style="display:flex;gap:0.5rem;align-items:center;">
-          <input type="text" id="mScreener" placeholder="e.g. SUNPHARMA" style="flex:1;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()" />
-          <button type="button" class="btn-save" onclick="fetchScreenerDate()" style="white-space:nowrap;padding:0.5rem 0.85rem;font-size:0.8rem;" id="screenerFetchBtn">↻ Fetch</button>
-        </div>
-      </div>
-      <div>
-        <label>Annual Report Date <span style="font-size:0.7rem;color:var(--muted);">(auto-fetched from Screener.in)</span></label>
-        <input type="text" id="mDate" placeholder="Fetched automatically…" readonly style="background:var(--dark3);cursor:default;color:var(--muted);" />
+        <input type="text" id="mScreener" placeholder="e.g. TATASTEEL" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()" />
       </div>
     </div>
     <div class="modal-btns">
@@ -1730,8 +1697,6 @@
       tr.innerHTML = `
         <td>${i + 1}</td>
         <td>${row.company}</td>
-        <td><span class="rating-badge ${ratingClass(row.rating)}">${row.rating}</span></td>
-        <td style="font-size:0.82rem;">${row.screenerDate || '<span style="color:var(--muted);">—</span>'}</td>
         <td style="font-size:0.82rem;">${screenerUrl ? `<a href="${screenerUrl}" target="_blank" style="color:#60a5fa;text-decoration:none;">${sym} ↗</a>` : '<span style="color:var(--muted);">—</span>'}</td>
         <td>
           <button class="tbl-action" onclick="editCompany(${i})">Edit</button>
@@ -1744,11 +1709,9 @@
   function openModal(index = -1) {
     editIndex = index;
     document.getElementById('modalTitle').textContent = index === -1 ? 'Add Company' : 'Edit Company';
-    const row = index === -1 ? { company: '', rating: 'AAA', screenerSymbol: '', screenerDate: '' } : portfolioData[index];
+    const row = index === -1 ? { company: '', screenerSymbol: '' } : portfolioData[index];
     document.getElementById('mCompany').value  = row.company;
-    document.getElementById('mRating').value   = row.rating;
     document.getElementById('mScreener').value = row.screenerSymbol || '';
-    document.getElementById('mDate').value     = row.screenerDate   || '';
     document.getElementById('modalOverlay').classList.add('open');
   }
   function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
@@ -1760,11 +1723,9 @@
   }
   function saveCompany() {
     const company        = document.getElementById('mCompany').value.trim();
-    const rating         = document.getElementById('mRating').value;
     const screenerSymbol = document.getElementById('mScreener').value.trim().toUpperCase();
-    const screenerDate   = document.getElementById('mDate').value.trim();
     if (!company) { alert('Please enter a company name.'); return; }
-    const entry = { company, rating, screenerSymbol, screenerDate };
+    const entry = { company, screenerSymbol };
     if (editIndex === -1) portfolioData.push(entry);
     else portfolioData[editIndex] = entry;
     localStorage.setItem('portfolio_data', JSON.stringify(portfolioData));
@@ -1779,26 +1740,18 @@
     const btn = document.getElementById('screenerFetchBtn');
     btn.textContent = '…'; btn.disabled = true;
 
-    const url = `https://www.screener.in/company/${symbol}/consolidated/`;
-    const proxies = [
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-      `https://corsproxy.io/?${encodeURIComponent(url)}`,
-      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
-    ];
-
     let foundDate = null;
-    for (const proxy of proxies) {
-      try {
-        const resp = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
-        if (!resp.ok) continue;
+    try {
+      const resp = await fetch(`/api/screener?symbol=${encodeURIComponent(symbol)}`, {
+        signal: AbortSignal.timeout(18000)
+      });
+      if (resp.ok) {
         const html = await resp.text();
         const doc  = new DOMParser().parseFromString(html, 'text/html');
 
-        // Try #documents section first
         const docSection = doc.getElementById('documents');
         const searchRoot = docSection || doc.body;
 
-        // Look for links or text matching "Annual Report YYYY-YY" or just years
         const allLinks = searchRoot.querySelectorAll('a');
         let bestYear = 0;
         for (const a of allLinks) {
@@ -1809,20 +1762,17 @@
             if (yr > bestYear) bestYear = yr;
           }
         }
-        // Also scan plain text for year patterns
         if (!bestYear) {
           const bodyText = searchRoot.textContent;
           const allYears = [...bodyText.matchAll(/20\d{2}[–\-]\d{2,4}/g)].map(m => parseInt(m[0]));
           if (allYears.length) bestYear = Math.max(...allYears);
         }
         if (bestYear > 2000) {
-          // FY YYYY-YY ends on 31 March of bestYear+1
           const endYr = bestYear + 1;
           foundDate = `31 Mar ${endYr}`;
-          break;
         }
-      } catch {}
-    }
+      }
+    } catch {}
 
     btn.textContent = '↻ Fetch'; btn.disabled = false;
     if (foundDate) {
@@ -2038,44 +1988,20 @@
     } catch { return []; }
   }
 
-  // Fetch Google News RSS for one company — tries multiple CORS proxies
+  // Fetch Google News RSS for one company — via server-side /api/news proxy
   async function fetchGNewsForCompany(company) {
-    const query = encodeURIComponent(company + ' India');
-    const rssUrl = `https://news.google.com/rss/search?q=${query}&hl=en-IN&gl=IN&ceid=IN:en`;
-
-    // Try multiple XML proxies in sequence
-    const xmlProxies = [
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
-      `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`,
-      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`
-    ];
-    for (const proxyUrl of xmlProxies) {
-      try {
-        const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
-        if (resp.ok) {
-          const text = await resp.text();
-          if (text.includes('<item>')) {
-            const items = parseGNewsXML(text, company);
-            if (items.length) return items;
-          }
-        }
-      } catch {}
-    }
-
-    // Fallback: rss2json API
     try {
-      const json = await fetch(
-        `https://api.rss2json.com/v1/api.json?count=8&rss_url=${encodeURIComponent(rssUrl)}`,
-        { signal: AbortSignal.timeout(8000) }
-      ).then(r => r.json());
-      if (json.status === 'ok' && json.items?.length) {
-        return json.items.slice(0, 8).map(item => ({
-          company, title: item.title, link: item.link,
-          pubDate: item.pubDate, source: item.author || 'Google News'
-        }));
+      const resp = await fetch(`/api/news?company=${encodeURIComponent(company)}`, {
+        signal: AbortSignal.timeout(15000)
+      });
+      if (resp.ok) {
+        const text = await resp.text();
+        if (text.includes('<item>')) {
+          const items = parseGNewsXML(text, company);
+          if (items.length) return items;
+        }
       }
     } catch {}
-
     return [];
   }
 
@@ -2109,7 +2035,6 @@
   /* ── Claude AI fallback chatbox ── */
   function showAINewsFallback(companies) {
     const el = document.getElementById('newsTableArea');
-    const savedKey = localStorage.getItem('claude_api_key') || '';
     el.innerHTML = `
       <div class="ai-chat-box">
         <div class="ai-chat-header">
@@ -2118,84 +2043,44 @@
           <span style="margin-left:auto;font-size:0.72rem;color:var(--muted);font-weight:400;">Google News unavailable — using AI fallback</span>
         </div>
         <div class="ai-chat-messages" id="aiChatMsgs">
-          <div class="ai-msg bot">Hi! Google News proxies are currently unavailable. I can generate a current news summary for your portfolio companies using Claude AI.<br><br>Please enter your <b>Claude API key</b> below to proceed.</div>
+          <div class="ai-msg bot">Hi! Google News is currently unavailable. Click the button below to generate a current news summary for your portfolio using Claude AI.</div>
         </div>
         <div class="ai-key-row">
-          <input type="password" id="claudeApiKeyInput" placeholder="sk-ant-api03-…  (stored locally, never sent anywhere else)" value="${savedKey}" />
-          <button class="btn-add" onclick="runClaudeNewsFetch()" style="white-space:nowrap;padding:0.5rem 1rem;">✦ Fetch with AI</button>
+          <button class="btn-add" onclick="runClaudeNewsFetch()" style="white-space:nowrap;padding:0.5rem 1rem;width:100%;">✦ Fetch with AI</button>
         </div>
-        <div style="font-size:0.72rem;color:var(--muted);margin-top:0.5rem;">Your key is saved in your browser's localStorage only.</div>
       </div>`;
-    // Store companies for the AI call
     window._aiNewsCompanies = companies;
   }
 
   async function runClaudeNewsFetch() {
-    const key = document.getElementById('claudeApiKeyInput').value.trim();
-    if (!key) { alert('Please enter your Claude API key.'); return; }
-    localStorage.setItem('claude_api_key', key);
-
     const companies = window._aiNewsCompanies || [];
     const msgs = document.getElementById('aiChatMsgs');
     if (!msgs) return;
 
-    // User bubble
     msgs.innerHTML += `<div class="ai-msg user">Fetch latest news for: ${companies.join(', ')}</div>`;
-
-    // Typing indicator
     msgs.innerHTML += `<div class="ai-typing" id="aiTyping"><span></span><span></span><span></span></div>`;
     msgs.scrollTop = msgs.scrollHeight;
 
-    const prompt = `You are a financial news assistant. For each of these Indian companies: ${companies.join(', ')}
-
-Generate a JSON array of recent news items (up to 5 per company). Each item must have:
-- company: string (exact company name from the list)
-- title: string (realistic recent news headline)
-- link: string (a plausible Google News search URL for that headline, format: https://news.google.com/search?q=ENCODED_COMPANY_NAME)
-- pubDate: string (ISO date, within the last 7 days from today ${new Date().toISOString().split('T')[0]})
-- source: string (e.g. "Economic Times", "Business Standard", "Mint", "LiveMint", "NDTV Business")
-
-Focus on: earnings results, credit rating changes, debt/borrowing news, regulatory actions, management changes, business deals, or any material events.
-
-Return ONLY valid JSON array, no markdown, no explanation.`;
-
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('/api/claude', {
         method: 'POST',
-        headers: {
-          'x-api-key': key,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: 'claude-haiku-4-5-20251001',
-          max_tokens: 2048,
-          messages: [{ role: 'user', content: prompt }]
-        })
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ companies }),
+        signal: AbortSignal.timeout(35000)
       });
 
       const typing = document.getElementById('aiTyping');
       if (typing) typing.remove();
 
+      const data = await res.json();
       if (!res.ok) {
-        const err = await res.text();
-        msgs.innerHTML += `<div class="ai-msg bot" style="color:#f87171;">API error (${res.status}): ${err.slice(0,200)}</div>`;
+        msgs.innerHTML += `<div class="ai-msg bot" style="color:#f87171;">Error: ${data.error || res.status}</div>`;
         return;
       }
 
-      const data = await res.json();
-      const text = data.content?.[0]?.text || '';
-
-      // Parse JSON from response
-      let items = [];
-      try {
-        const jsonMatch = text.match(/\[[\s\S]*\]/);
-        items = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
-      } catch { items = []; }
-
+      const items = data.items || [];
       if (!items.length) {
-        msgs.innerHTML += `<div class="ai-msg bot">Sorry, I couldn't parse the news data. Please try again.</div>`;
+        msgs.innerHTML += `<div class="ai-msg bot">Sorry, couldn't generate news data. Please try again.</div>`;
         return;
       }
 
@@ -2205,15 +2090,11 @@ Return ONLY valid JSON array, no markdown, no explanation.`;
       _newsMailStore = items.map(r => buildDraftMail(r.company, r.title));
       _newsTableFetched = true;
 
-      // Small delay then render table below the chatbox
       setTimeout(() => {
         const el = document.getElementById('newsTableArea');
-        const chatHtml = el.innerHTML;
-        el.innerHTML = chatHtml; // keep chat visible
         const tableDiv = document.createElement('div');
         tableDiv.style.marginTop = '1.5rem';
         el.appendChild(tableDiv);
-        // Render into the new div
         tableDiv.innerHTML = buildNewsTableHTML(_newsTableData);
       }, 600);
 
@@ -2227,19 +2108,25 @@ Return ONLY valid JSON array, no markdown, no explanation.`;
   function buildNewsTableHTML(items) {
     if (!items.length) return '<div style="color:var(--muted);font-size:0.875rem;padding:1rem 0;">No news generated.</div>';
     return `<div class="news-table-wrap"><table>
-      <thead><tr><th style="width:160px;">Name of Company</th><th>News Headlines</th><th style="width:130px;">Link of Article</th><th style="width:200px;">Send Mail to Client for Clarification</th></tr></thead>
+      <thead><tr><th style="width:160px;">Name of Company</th><th>News Headlines</th><th style="width:120px;">Link of Article</th><th style="width:110px;text-align:center;">Is Material?</th><th style="width:60px;text-align:center;">Mail</th><th style="width:60px;text-align:center;">Save</th></tr></thead>
       <tbody>${items.map((r, i) => `<tr>
         <td style="white-space:nowrap;font-weight:600;vertical-align:top;padding-top:0.9rem;">${r.company}</td>
-        <td style="max-width:420px;line-height:1.5;font-size:0.875rem;">
-          ${r.title}
-          ${r.pubDate ? `<div style="font-size:0.72rem;color:var(--muted);margin-top:0.25rem;">${new Date(r.pubDate).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div>` : ''}
-          <span style="font-size:0.7rem;color:var(--muted);">${r.source || ''}</span>
-        </td>
+        <td style="max-width:420px;line-height:1.5;font-size:0.875rem;">${r.title}</td>
         <td style="white-space:nowrap;vertical-align:top;padding-top:0.9rem;">
           <a href="${r.link}" target="_blank" style="color:#60a5fa;text-decoration:none;font-size:0.82rem;font-weight:500;">View Article ↗</a>
         </td>
-        <td style="vertical-align:top;padding-top:0.75rem;">
-          <button style="background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff;border:none;padding:0.4rem 0.9rem;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600;white-space:nowrap;" onclick="sendMailToClient(${i})">✉ Send Mail</button>
+        <td style="text-align:center;vertical-align:top;padding-top:0.75rem;">
+          <select style="background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.78rem;padding:0.3rem 0.5rem;cursor:pointer;">
+            <option value="">— Select —</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </td>
+        <td style="text-align:center;vertical-align:top;padding-top:0.7rem;">
+          <button title="Draft mail to client" style="background:none;border:1px solid var(--border);border-radius:6px;color:#60a5fa;cursor:pointer;font-size:1.1rem;padding:0.3rem 0.55rem;line-height:1;" onclick="sendMailToClient(${i})">✉</button>
+        </td>
+        <td style="text-align:center;vertical-align:top;padding-top:0.7rem;">
+          <button title="Save (coming soon)" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:not-allowed;font-size:1.1rem;padding:0.3rem 0.55rem;line-height:1;" disabled>🔖</button>
         </td>
       </tr>`).join('')}</tbody>
     </table></div>`;
@@ -2496,6 +2383,97 @@ Return ONLY valid JSON array, no markdown, no explanation.`;
   function copyDraftMail() {
     const text = document.getElementById('draftMailContent').textContent;
     navigator.clipboard.writeText(text).then(() => alert('Mail copied to clipboard!'));
+  }
+
+  /* ════════════════════════════════════════
+     LIST OF CASES
+  ════════════════════════════════════════ */
+  let _casesLoaded = false;
+  window._caseRows = [];
+
+  function loadListOfCases() {
+    if (!_casesLoaded) fetchListOfCases();
+  }
+
+  async function fetchListOfCases(force = false) {
+    _casesLoaded = true;
+    const portfolio = JSON.parse(localStorage.getItem('portfolio_data') || '[]');
+    const tbody = document.getElementById('casesBody');
+    if (!tbody) return;
+
+    if (!portfolio.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No companies in portfolio. Add companies via Edit Portfolio first.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = `<tr><td colspan="8"><div class="loading"><div class="spinner"></div> Fetching credit rating data for ${portfolio.length} company(ies)…</div></td></tr>`;
+
+    const results = await Promise.all(portfolio.map(async row => {
+      if (!row.screenerSymbol) return { company: row.company, ratings: [] };
+      try {
+        const resp = await fetch(`/api/credit?symbol=${encodeURIComponent(row.screenerSymbol)}`, {
+          signal: AbortSignal.timeout(60000)
+        });
+        const data = await resp.json();
+        return { company: row.company, ratings: data.ratings || [] };
+      } catch {
+        return { company: row.company, ratings: [] };
+      }
+    }));
+
+    // Build flat list: one entry per agency per company
+    window._caseRows = [];
+    results.forEach(({ company, ratings }) => {
+      if (!ratings.length) {
+        window._caseRows.push({ company, empty: true });
+      } else {
+        ratings.forEach((r, i) => window._caseRows.push({ company, r, firstInGroup: i === 0 }));
+      }
+    });
+
+    renderCaseRows();
+  }
+
+  function renderCaseRows() {
+    const tbody = document.getElementById('casesBody');
+    if (!tbody) return;
+    if (!window._caseRows.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No data found.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = window._caseRows.map((row, idx) => {
+      if (row.empty) {
+        return `<tr id="case-row-${idx}">
+          <td><b>${row.company}</b></td>
+          <td colspan="6" style="color:var(--muted);font-size:0.82rem;">No credit rating documents found on Screener.in</td>
+          <td><button class="tbl-action del" onclick="deleteCaseRow(${idx})">✕</button></td>
+        </tr>`;
+      }
+      const r = row.r;
+      return `<tr id="case-row-${idx}">
+        <td>${row.firstInGroup ? `<b>${row.company}</b>` : ''}</td>
+        <td>${r.agency || '—'}</td>
+        <td>${r.date || '—'}</td>
+        <td>${r.rating ? `<span class="rating-badge ${ratingClass(r.rating)}">${r.rating}</span>` : '<span style="color:var(--muted);">—</span>'}</td>
+        <td>${r.outlook || '<span style="color:var(--muted);">—</span>'}</td>
+        <td>${ratingActionBadge(r.action)}</td>
+        <td>${r.prUrl ? `<a href="${r.prUrl}" target="_blank" style="color:#60a5fa;font-size:0.8rem;text-decoration:none;">View ↗</a>` : '—'}</td>
+        <td><button class="tbl-action del" onclick="deleteCaseRow(${idx})">✕</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function deleteCaseRow(idx) {
+    window._caseRows.splice(idx, 1);
+    renderCaseRows();
+  }
+
+  function ratingActionBadge(action) {
+    if (!action) return '<span style="color:var(--muted);">—</span>';
+    if (action === 'Upgraded')   return '<span class="status-badge s-completed">Upgraded</span>';
+    if (action === 'Downgraded') return '<span class="status-badge" style="background:rgba(239,68,68,0.12);color:#f87171;">Downgraded</span>';
+    if (action === 'Reaffirmed') return '<span class="status-badge s-active">Reaffirmed</span>';
+    return `<span class="status-badge s-pending">${action}</span>`;
   }
 
   /* ── LOGOUT ── */
