@@ -2105,30 +2105,75 @@
     }
   }
 
+  function isMaterialNews(title) {
+    const t = title.toLowerCase();
+
+    // Results announced — actual only, not anticipated/expected
+    const resultsKw = ['q1 result','q2 result','q3 result','q4 result','quarterly result','annual result',
+      'posts net','reports net','net profit','net loss','pat rises','pat falls','pat surge','pat drop',
+      'revenue rises','revenue falls','declares dividend','posts loss','posts profit'];
+    const anticipationKw = ['anticipat','expect','forecast','preview','estimat','project','guidance','ahead of'];
+    if (resultsKw.some(k => t.includes(k)) && !anticipationKw.some(k => t.includes(k))) return true;
+
+    // Acquisition / merger (exclude demerger)
+    if (/\b(acqui\w*|takeover|acquisition|merger)\b/.test(t) && !/\bdemerger\b/.test(t)) return true;
+
+    // Demerger / spin-off
+    if (/\b(demerger|demerge|spin.?off|hive.?off)\b/.test(t)) return true;
+
+    // Fraud / financial irregularity
+    if (/\b(fraud|scam|embezzl\w*|misappropriat\w*|financial irregularit|siphon)\b/.test(t)) return true;
+
+    // Director removal — not resignation or voluntary retirement
+    const isRemoval = /\b(director|ceo|cfo|md|managing director|chairman)\b/.test(t)
+                   && /\b(remov\w*|sack\w*|dismiss\w*|terminat\w*|oust\w*)\b/.test(t);
+    const isVoluntary = /\b(resign\w*|stepped down|step down|quit|voluntary|retirement|retir\w*)\b/.test(t);
+    if (isRemoval && !isVoluntary) return true;
+
+    // Litigation / legal action
+    if (/\b(litigation|lawsuit|legal notice|court order|arbitration|fir\b|case filed|writ petition|\bpil\b|criminal complaint|insolvency|nclt|nclat|contempt)\b/.test(t)) return true;
+
+    // Inspection / raids / regulatory action
+    if (/\b(inspection|raided|raid\b|search operation|enforcement directorate|\bed\b|cbi\b|income tax|sebi notice|regulatory action|show.?cause)\b/.test(t)) return true;
+
+    // Production halt / plant shutdown
+    if (/\b(production halt|plant shut\w*|plant closure|shutdown|operations suspended|suspend\w* operation|capacity shut)\b/.test(t)) return true;
+
+    // Major dispute / strike
+    if (/\b(labour dispute|worker strike|\bstrike\b|lockout|industrial dispute|major dispute)\b/.test(t)) return true;
+
+    // Share price fall ≥ 20%
+    if (/\b(share price|stock price|shares|stock)\b/.test(t)
+        && /\b(2[0-9]|[3-9]\d|\d{3,})(\s*)%/.test(t)
+        && /\b(fall|fell|drop|crash|plunge|decline|down|lower|tumble|slip)\b/.test(t)) return true;
+
+    return false;
+  }
+
   function buildNewsTableHTML(items) {
     if (!items.length) return '<div style="color:var(--muted);font-size:0.875rem;padding:1rem 0;">No news generated.</div>';
     return `<div class="news-table-wrap"><table>
-      <thead><tr><th style="width:160px;">Name of Company</th><th>News Headlines</th><th style="width:120px;">Link of Article</th><th style="width:110px;text-align:center;">Is Material?</th><th style="width:60px;text-align:center;">Mail</th><th style="width:60px;text-align:center;">Save</th></tr></thead>
-      <tbody>${items.map((r, i) => `<tr>
+      <thead><tr><th style="width:160px;">Name of Company</th><th>News Headlines</th><th style="width:120px;">Link of Article</th><th style="width:100px;text-align:center;">Is Material?</th><th style="width:130px;text-align:center;">Draft Mail to Client</th><th style="width:60px;text-align:center;">Save</th></tr></thead>
+      <tbody>${items.map((r, i) => {
+        const mat = isMaterialNews(r.title);
+        const badge = mat
+          ? `<span style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:0.25rem 0.6rem;font-size:0.75rem;font-weight:600;">Yes</span>`
+          : `<span style="background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.25);border-radius:6px;padding:0.25rem 0.6rem;font-size:0.75rem;font-weight:600;">No</span>`;
+        return `<tr>
         <td style="white-space:nowrap;font-weight:600;vertical-align:top;padding-top:0.9rem;">${r.company}</td>
         <td style="max-width:420px;line-height:1.5;font-size:0.875rem;">${r.title}</td>
         <td style="white-space:nowrap;vertical-align:top;padding-top:0.9rem;">
           <a href="${r.link}" target="_blank" style="color:#60a5fa;text-decoration:none;font-size:0.82rem;font-weight:500;">View Article ↗</a>
         </td>
-        <td style="text-align:center;vertical-align:top;padding-top:0.75rem;">
-          <select style="background:var(--dark);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.78rem;padding:0.3rem 0.5rem;cursor:pointer;">
-            <option value="">— Select —</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-          </select>
-        </td>
+        <td style="text-align:center;vertical-align:top;padding-top:0.8rem;">${badge}</td>
         <td style="text-align:center;vertical-align:top;padding-top:0.7rem;">
           <button title="Draft mail to client" style="background:none;border:1px solid var(--border);border-radius:6px;color:#60a5fa;cursor:pointer;font-size:1.1rem;padding:0.3rem 0.55rem;line-height:1;" onclick="sendMailToClient(${i})">✉</button>
         </td>
         <td style="text-align:center;vertical-align:top;padding-top:0.7rem;">
           <button title="Save (coming soon)" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:not-allowed;font-size:1.1rem;padding:0.3rem 0.55rem;line-height:1;" disabled>🔖</button>
         </td>
-      </tr>`).join('')}</tbody>
+      </tr>`;
+      }).join('')}</tbody>
     </table></div>`;
   }
 
