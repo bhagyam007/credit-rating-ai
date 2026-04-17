@@ -19,6 +19,22 @@
       --header-h: 56px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* Custom + cursor */
+    html, body, #login-screen, #login-left {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect x='11' y='4' width='2' height='16' rx='1' fill='%2367e8f9'/%3E%3Crect x='4' y='11' width='16' height='2' rx='1' fill='%2367e8f9'/%3E%3C/svg%3E") 12 12, crosshair;
+    }
+    /* Restore pointer for interactive elements */
+    button, a, input, textarea, select,
+    .nav-subitem, .nav-section-header, .nav-direct,
+    .suggestion-chip, .btn-action, .toggle-info,
+    .sortable, .btn-save, .btn-modal, .btn-modal-cancel {
+      cursor: pointer;
+    }
+    input, textarea {
+      cursor: text;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg);
@@ -652,6 +668,21 @@
       margin-top: 10px;
       letter-spacing: 0.8px;
     }
+    .login-brand-credits {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .login-brand-credits span {
+      font-size: 11.5px;
+      color: rgba(148,163,184,0.6);
+      letter-spacing: 0.4px;
+    }
+    .login-brand-credits span strong {
+      color: rgba(148,163,184,0.85);
+      font-weight: 600;
+    }
 
 
     /* Floating rating badges */
@@ -671,10 +702,11 @@
       opacity: 0;
       animation: floatUp var(--dur) ease-in-out infinite var(--delay);
     }
-    .fbadge.aaa  { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
-    .fbadge.aa   { background: rgba(37,99,235,0.15);  color: #93c5fd; border: 1px solid rgba(37,99,235,0.3); }
-    .fbadge.a    { background: rgba(6,182,212,0.15);  color: #67e8f9; border: 1px solid rgba(6,182,212,0.3); }
-    .fbadge.bbb  { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+    .fbadge.aaa, .fbadge.aa, .fbadge.a, .fbadge.bbb {
+      background: rgba(6,182,212,0.12);
+      color: #67e8f9;
+      border: 1px solid rgba(6,182,212,0.28);
+    }
     @keyframes floatUp {
       0%   { opacity: 0;    transform: translateY(40px) scale(0.9); }
       15%  { opacity: 0.85; transform: translateY(0px)  scale(1); }
@@ -894,7 +926,11 @@
     <!-- Brand — centred -->
     <div class="login-brand">
       <div class="login-brand-name">Project AAAI+</div>
-      <div class="login-brand-tag">AI-Powered Credit Rating Surveillance Platform</div>
+      <div class="login-brand-tag">AI-Powered Credit Rating Platform</div>
+      <div class="login-brand-credits">
+        <span>Conceptualized by <strong>Samyuktha R</strong></span>
+        <span>Powered by <strong>Claude</strong></span>
+      </div>
     </div>
 
   </div>
