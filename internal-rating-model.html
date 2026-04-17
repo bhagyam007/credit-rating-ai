@@ -630,65 +630,29 @@
       position: relative;
       z-index: 2;
       text-align: center;
-      margin-bottom: 48px;
     }
     .login-brand-name {
-      font-size: 42px;
+      font-size: 56px;
       font-weight: 800;
-      letter-spacing: -1px;
+      letter-spacing: -2px;
       background: linear-gradient(135deg, #e2e8f0 0%, #93c5fd 50%, #06b6d4 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       line-height: 1.1;
+      animation: brandPulse 4s ease-in-out infinite;
+    }
+    @keyframes brandPulse {
+      0%,100% { filter: drop-shadow(0 0 18px rgba(6,182,212,0.25)); }
+      50%      { filter: drop-shadow(0 0 36px rgba(6,182,212,0.5));  }
     }
     .login-brand-tag {
       font-size: 13px;
       color: var(--muted);
-      margin-top: 8px;
-      letter-spacing: 0.5px;
+      margin-top: 10px;
+      letter-spacing: 0.8px;
     }
 
-    /* SVG Chart */
-    .anim-chart-wrap {
-      position: relative;
-      z-index: 2;
-      width: 380px;
-      height: 160px;
-    }
-    .anim-chart-wrap svg {
-      width: 100%;
-      height: 100%;
-    }
-    .chart-grid-line {
-      stroke: rgba(255,255,255,0.06);
-      stroke-width: 1;
-    }
-    .chart-area-fill {
-      fill: url(#chartGrad);
-      opacity: 0.5;
-    }
-    .chart-line {
-      fill: none;
-      stroke: #06b6d4;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      stroke-dasharray: 700;
-      stroke-dashoffset: 700;
-      animation: drawLine 2.5s ease forwards 0.5s;
-    }
-    .chart-dot {
-      fill: #06b6d4;
-      opacity: 0;
-      animation: popIn 0.3s ease forwards;
-    }
-    @keyframes drawLine {
-      to { stroke-dashoffset: 0; }
-    }
-    @keyframes popIn {
-      to { opacity: 1; }
-    }
 
     /* Floating rating badges */
     .float-badges {
@@ -718,61 +682,6 @@
       100% { opacity: 0;    transform: translateY(-80px) scale(0.95); }
     }
 
-    /* Gauge ring */
-    .gauge-wrap {
-      position: relative;
-      z-index: 2;
-      margin-top: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 28px;
-    }
-    .gauge-ring {
-      width: 90px;
-      height: 90px;
-      animation: rotatePulse 4s ease-in-out infinite;
-    }
-    .gauge-ring circle.track {
-      fill: none;
-      stroke: rgba(255,255,255,0.06);
-      stroke-width: 7;
-    }
-    .gauge-ring circle.fill {
-      fill: none;
-      stroke-width: 7;
-      stroke-linecap: round;
-      stroke-dasharray: 220;
-      stroke-dashoffset: 220;
-      animation: fillRing 2s ease forwards 1s;
-    }
-    .gauge-ring.ring1 circle.fill { stroke: #06b6d4; animation-delay: 0.8s; --target: 44; }
-    .gauge-ring.ring2 circle.fill { stroke: #2563eb; animation-delay: 1.2s; --target: 77; }
-    .gauge-ring.ring3 circle.fill { stroke: #34d399; animation-delay: 1.6s; --target: 55; }
-    @keyframes fillRing {
-      to { stroke-dashoffset: var(--target, 40); }
-    }
-    @keyframes rotatePulse {
-      0%,100% { transform: scale(1); }
-      50%      { transform: scale(1.04); }
-    }
-    .gauge-label {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .gauge-stat {
-      font-size: 11px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .gauge-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
 
     /* ── Right: login form ── */
     #login-right {
@@ -957,72 +866,35 @@
   <!-- Left: animated visual -->
   <div id="login-left">
 
-    <!-- Floating rating badges -->
+    <!-- Floating rating badges — spread across entire panel -->
     <div class="float-badges">
-      <span class="fbadge aaa" style="left:12%;bottom:10%;--dur:7s;--delay:0s">AAA</span>
-      <span class="fbadge aa"  style="left:25%;bottom:8%; --dur:9s;--delay:1.5s">AA+</span>
-      <span class="fbadge a"   style="left:55%;bottom:12%;--dur:8s;--delay:0.8s">A+</span>
-      <span class="fbadge bbb" style="left:70%;bottom:6%; --dur:11s;--delay:2.2s">BBB+</span>
-      <span class="fbadge aa"  style="left:40%;bottom:5%; --dur:10s;--delay:3s">AA</span>
-      <span class="fbadge aaa" style="left:82%;bottom:14%;--dur:8.5s;--delay:1s">AAA</span>
-      <span class="fbadge a"   style="left:6%; bottom:20%;--dur:12s;--delay:4s">A</span>
-      <span class="fbadge bbb" style="left:88%;bottom:22%;--dur:9.5s;--delay:2.5s">BBB</span>
+      <!-- bottom row -->
+      <span class="fbadge aaa" style="left:5%;  bottom:6%;  --dur:7s;  --delay:0s">AAA</span>
+      <span class="fbadge aa"  style="left:18%; bottom:9%;  --dur:9s;  --delay:1.4s">AA+</span>
+      <span class="fbadge a"   style="left:32%; bottom:5%;  --dur:8s;  --delay:0.6s">A+</span>
+      <span class="fbadge bbb" style="left:48%; bottom:8%;  --dur:11s; --delay:2s">BBB+</span>
+      <span class="fbadge aa"  style="left:63%; bottom:5%;  --dur:10s; --delay:3.2s">AA</span>
+      <span class="fbadge aaa" style="left:78%; bottom:10%; --dur:8.5s;--delay:0.9s">AAA</span>
+      <span class="fbadge a"   style="left:90%; bottom:7%;  --dur:12s; --delay:4s">A</span>
+      <!-- mid row -->
+      <span class="fbadge bbb" style="left:3%;  bottom:35%; --dur:9s;  --delay:1.8s">BBB</span>
+      <span class="fbadge aa"  style="left:22%; bottom:38%; --dur:10s; --delay:0.3s">AA-</span>
+      <span class="fbadge aaa" style="left:42%; bottom:32%; --dur:7.5s;--delay:2.7s">AAA</span>
+      <span class="fbadge a"   style="left:60%; bottom:40%; --dur:11s; --delay:1.1s">A-</span>
+      <span class="fbadge bbb" style="left:80%; bottom:33%; --dur:8s;  --delay:3.5s">BB+</span>
+      <span class="fbadge aa"  style="left:92%; bottom:42%; --dur:9.5s;--delay:2s">AA+</span>
+      <!-- upper row -->
+      <span class="fbadge a"   style="left:8%;  bottom:65%; --dur:10s; --delay:0.5s">A+</span>
+      <span class="fbadge aaa" style="left:28%; bottom:68%; --dur:8.5s;--delay:3s">AAA</span>
+      <span class="fbadge bbb" style="left:50%; bottom:62%; --dur:12s; --delay:1.6s">BBB+</span>
+      <span class="fbadge aa"  style="left:70%; bottom:70%; --dur:9s;  --delay:4.2s">AA</span>
+      <span class="fbadge a"   style="left:88%; bottom:64%; --dur:7s;  --delay:2.4s">A</span>
     </div>
 
-    <!-- Brand -->
+    <!-- Brand — centred -->
     <div class="login-brand">
       <div class="login-brand-name">Project AAAI+</div>
       <div class="login-brand-tag">AI-Powered Credit Rating Surveillance Platform</div>
-    </div>
-
-    <!-- Animated chart -->
-    <div class="anim-chart-wrap">
-      <svg viewBox="0 0 380 160" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.35"/>
-            <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        <!-- Grid lines -->
-        <line class="chart-grid-line" x1="0" y1="40"  x2="380" y2="40"/>
-        <line class="chart-grid-line" x1="0" y1="80"  x2="380" y2="80"/>
-        <line class="chart-grid-line" x1="0" y1="120" x2="380" y2="120"/>
-        <!-- Area fill -->
-        <polygon class="chart-area-fill"
-          points="0,140 0,110 48,95 96,75 144,90 192,55 240,70 288,42 336,58 380,30 380,140"/>
-        <!-- Line -->
-        <polyline class="chart-line"
-          points="0,110 48,95 96,75 144,90 192,55 240,70 288,42 336,58 380,30"/>
-        <!-- Dots -->
-        <circle class="chart-dot" cx="192" cy="55" r="4.5" style="animation-delay:2.2s"/>
-        <circle class="chart-dot" cx="288" cy="42" r="4.5" style="animation-delay:2.6s"/>
-        <circle class="chart-dot" cx="380" cy="30" r="4.5" style="animation-delay:3s"/>
-      </svg>
-    </div>
-
-    <!-- Gauge rings + labels -->
-    <div class="gauge-wrap">
-      <svg class="gauge-ring ring1" viewBox="0 0 90 90">
-        <circle class="track" cx="45" cy="45" r="35"/>
-        <circle class="fill"  cx="45" cy="45" r="35" transform="rotate(-90 45 45)" stroke-dasharray="220" stroke-dashoffset="220"/>
-        <text x="45" y="50" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700" font-family="Inter">AAA</text>
-      </svg>
-      <svg class="gauge-ring ring2" viewBox="0 0 90 90">
-        <circle class="track" cx="45" cy="45" r="35"/>
-        <circle class="fill"  cx="45" cy="45" r="35" transform="rotate(-90 45 45)" stroke-dasharray="220" stroke-dashoffset="220"/>
-        <text x="45" y="50" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700" font-family="Inter">AA+</text>
-      </svg>
-      <svg class="gauge-ring ring3" viewBox="0 0 90 90">
-        <circle class="track" cx="45" cy="45" r="35"/>
-        <circle class="fill"  cx="45" cy="45" r="35" transform="rotate(-90 45 45)" stroke-dasharray="220" stroke-dashoffset="220"/>
-        <text x="45" y="50" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700" font-family="Inter">A+</text>
-      </svg>
-      <div class="gauge-label">
-        <div class="gauge-stat"><span class="gauge-dot" style="background:#06b6d4"></span>Portfolio monitored</div>
-        <div class="gauge-stat"><span class="gauge-dot" style="background:#2563eb"></span>Ratings tracked</div>
-        <div class="gauge-stat"><span class="gauge-dot" style="background:#34d399"></span>Surveillance active</div>
-      </div>
     </div>
 
   </div>
