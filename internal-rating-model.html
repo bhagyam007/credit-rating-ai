@@ -346,6 +346,232 @@
       padding: 10px 20px; border-radius: 8px;
       font-size: 13px; display: none; z-index: 999;
     }
+
+    /* ── Portfolio Panel ── */
+    #portfolio-panel {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      padding: 24px;
+      gap: 24px;
+    }
+    #portfolio-panel.visible { display: flex; }
+    #portfolio-panel::-webkit-scrollbar { width: 4px; }
+    #portfolio-panel::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+    .section-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .section-card h2 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .add-form {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .form-group label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .form-group input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+      min-width: 180px;
+    }
+    .form-group input:focus { border-color: var(--primary); }
+    .form-group input::placeholder { color: var(--muted); }
+    .btn-save {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s, transform 0.1s;
+      height: 34px;
+    }
+    .btn-save:hover { background: #1d4ed8; }
+    .btn-save:active { transform: scale(0.97); }
+
+    /* Cases table */
+    .cases-table-wrap { overflow-x: auto; }
+    .cases-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    .cases-table th {
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap;
+    }
+    .cases-table th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+    .cases-table th.sortable:hover { color: var(--text); }
+    .sort-indicator { margin-left: 4px; font-size: 10px; opacity: 0.6; }
+    .sort-indicator.active { opacity: 1; color: var(--accent); }
+    .cases-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .cases-table tr:last-child td { border-bottom: none; }
+    .cases-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .badge-yes {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(16,185,129,0.15);
+      color: #34d399;
+      border: 1px solid rgba(16,185,129,0.25);
+    }
+    .badge-no {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(239,68,68,0.12);
+      color: #f87171;
+      border: 1px solid rgba(239,68,68,0.2);
+      cursor: pointer;
+    }
+    .badge-no:hover { background: rgba(239,68,68,0.22); }
+    .toggle-info {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--text);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .btn-action:hover { background: rgba(37,99,235,0.2); border-color: var(--primary); }
+    .btn-action.danger:hover { background: rgba(239,68,68,0.2); border-color: #ef4444; }
+
+    /* Mail type modal */
+    #mail-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #mail-modal-overlay.visible { display: flex; }
+    #mail-modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      min-width: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    #mail-modal h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    #mail-modal p {
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+    .mail-modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-modal {
+      flex: 1;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--text);
+      transition: background 0.15s;
+    }
+    .btn-modal:hover { background: rgba(37,99,235,0.25); border-color: var(--primary); }
+    .btn-modal-cancel {
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      transition: background 0.15s;
+    }
+    .btn-modal-cancel:hover { background: rgba(255,255,255,0.05); }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
@@ -426,6 +652,16 @@
       </div>
     </div>
 
+    <div class="nav-section" data-section="portfolio-overview">
+      <div class="nav-section-header" onclick="toggleSection('portfolio-overview')">
+        <span class="nav-section-title">Portfolio Overview</span>
+        <span class="nav-chevron" id="chev-portfolio-overview">›</span>
+      </div>
+      <div class="nav-subitems" id="sub-portfolio-overview">
+        <div class="nav-subitem" onclick="selectPortfolio(this)">Edit Portfolio</div>
+      </div>
+    </div>
+
     <div class="nav-direct active" id="nav-ai" onclick="selectAI()">
       <span class="icon">🤖</span>
       <span>AI Assistant</span>
@@ -471,12 +707,278 @@
       </div>
     </div>
 
+    <!-- Portfolio Panel -->
+    <div id="portfolio-panel">
+
+      <!-- Add Company -->
+      <div class="section-card">
+        <h2>Add Company</h2>
+        <div class="add-form">
+          <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" id="input-company" placeholder="e.g. Tata Steel Ltd" autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <label>Latest PR Date</label>
+            <input type="date" id="input-pr-date" />
+          </div>
+          <button class="btn-save" onclick="addCase()">Save Changes</button>
+        </div>
+      </div>
+
+      <!-- List of Cases -->
+      <div class="section-card">
+        <h2>List of Cases</h2>
+        <div class="cases-table-wrap">
+          <table class="cases-table" id="cases-table">
+            <thead>
+              <tr>
+                <th style="width:42px;">No.</th>
+                <th class="sortable" onclick="sortCases('name')" id="th-name">
+                  Company Name <span class="sort-indicator" id="si-name">⇅</span>
+                </th>
+                <th class="sortable" onclick="sortCases('due')" id="th-due">
+                  Surveillance Due <span class="sort-indicator" id="si-due">⇅</span>
+                </th>
+                <th style="width:120px;">Info Received</th>
+                <th style="width:190px;">Draft Info Req. Mail</th>
+                <th style="width:160px;">Draft INC Mail</th>
+              </tr>
+            </thead>
+            <tbody id="cases-tbody">
+              <tr><td colspan="6" class="empty-state">No cases added yet. Use the form above to add a company.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 </main>
+
+<!-- Mail type modal -->
+<div id="mail-modal-overlay">
+  <div id="mail-modal">
+    <h3>Draft Info Requirement Mail</h3>
+    <p>Select the type of mail to draft in Outlook:</p>
+    <div class="mail-modal-actions">
+      <button class="btn-modal" onclick="openInfoMail('initial')">📧 Initial Request</button>
+      <button class="btn-modal" onclick="openInfoMail('reminder')">🔔 Reminder</button>
+    </div>
+    <button class="btn-modal-cancel" onclick="closeMailModal()">Cancel</button>
+  </div>
+</div>
 
 <div id="toast"></div>
 
 <script>
+  // ── Portfolio State ──
+  let portfolioCases = JSON.parse(localStorage.getItem('irm_portfolio_cases') || '[]');
+  let sortField = null;   // 'name' | 'due'
+  let sortDir = 'asc';
+  let pendingMailIdx = null;
+
+  function saveCases() {
+    localStorage.setItem('irm_portfolio_cases', JSON.stringify(portfolioCases));
+  }
+
+  function addPRDate12Months(dateStr) {
+    // dateStr: 'YYYY-MM-DD', returns 'YYYY-MM-DD' + 12 months
+    const d = new Date(dateStr);
+    d.setFullYear(d.getFullYear() + 1);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function addCase() {
+    const name = document.getElementById('input-company').value.trim();
+    const prDate = document.getElementById('input-pr-date').value;
+    if (!name) { showToast('Please enter a company name.'); return; }
+    if (!prDate) { showToast('Please select the latest PR date.'); return; }
+    portfolioCases.push({ name, prDate, infoReceived: false });
+    saveCases();
+    document.getElementById('input-company').value = '';
+    document.getElementById('input-pr-date').value = '';
+    renderCasesTable();
+  }
+
+  function toggleInfoReceived(idx) {
+    portfolioCases[idx].infoReceived = !portfolioCases[idx].infoReceived;
+    saveCases();
+    renderCasesTable();
+  }
+
+  function sortCases(field) {
+    if (sortField === field) {
+      sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortField = field;
+      sortDir = 'asc';
+    }
+    // Update sort indicators
+    ['name', 'due'].forEach(f => {
+      const el = document.getElementById('si-' + f);
+      if (el) { el.textContent = '⇅'; el.classList.remove('active'); }
+    });
+    const activeEl = document.getElementById('si-' + field);
+    if (activeEl) {
+      activeEl.textContent = sortDir === 'asc' ? '↑' : '↓';
+      activeEl.classList.add('active');
+    }
+    renderCasesTable();
+  }
+
+  function getSortedCases() {
+    const arr = portfolioCases.map((c, i) => ({ ...c, origIdx: i }));
+    if (!sortField) return arr;
+    return arr.sort((a, b) => {
+      let va, vb;
+      if (sortField === 'name') {
+        va = a.name.toLowerCase();
+        vb = b.name.toLowerCase();
+        return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+      } else if (sortField === 'due') {
+        va = addPRDate12Months(a.prDate);
+        vb = addPRDate12Months(b.prDate);
+        return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+      }
+      return 0;
+    });
+  }
+
+  function renderCasesTable() {
+    const tbody = document.getElementById('cases-tbody');
+    if (!portfolioCases.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No cases added yet. Use the form above to add a company.</td></tr>';
+      return;
+    }
+    const sorted = getSortedCases();
+    tbody.innerHTML = sorted.map((c, rowIdx) => {
+      const due = formatDate(addPRDate12Months(c.prDate));
+      const infoBtn = c.infoReceived
+        ? `<span class="badge-yes toggle-info" onclick="toggleInfoReceived(${c.origIdx})" title="Click to toggle">Yes</span>`
+        : `<span class="badge-no toggle-info" onclick="toggleInfoReceived(${c.origIdx})" title="Click to mark as received">No</span>`;
+      return `<tr>
+        <td style="color:var(--muted);text-align:center;">${rowIdx + 1}</td>
+        <td style="font-weight:500;">${escHtml(c.name)}</td>
+        <td>${due}</td>
+        <td>${infoBtn}</td>
+        <td><button class="btn-action" onclick="openMailModal(${c.origIdx})">✉️ Draft Mail</button></td>
+        <td><button class="btn-action danger" onclick="draftINCMail(${c.origIdx})">⚠️ Draft INC Mail</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Mail modal
+  function openMailModal(idx) {
+    pendingMailIdx = idx;
+    document.getElementById('mail-modal-overlay').classList.add('visible');
+  }
+
+  function closeMailModal() {
+    pendingMailIdx = null;
+    document.getElementById('mail-modal-overlay').classList.remove('visible');
+  }
+
+  function openInfoMail(type) {
+    const idx = pendingMailIdx;
+    closeMailModal();
+    if (idx === null) return;
+    draftInfoMail(idx, type);
+  }
+
+  function draftInfoMail(idx, type) {
+    const c = portfolioCases[idx];
+    if (!c) return;
+    const due = formatDate(addPRDate12Months(c.prDate));
+    let subject, body;
+    if (type === 'initial') {
+      subject = encodeURIComponent(`Information Requirement - ${c.name} - Surveillance Review`);
+      body = encodeURIComponent(
+`Dear Team,
+
+Subject: Information Requirement for Surveillance Review – ${c.name}
+
+We are conducting the annual surveillance review for ${c.name}. As part of our process, we require the following information at the earliest convenience:
+
+1. Audited / Provisional Financial Statements (latest available)
+2. Latest Debt position and repayment schedule
+3. Order Book / Business pipeline update
+4. Any material developments since the last review
+
+The surveillance is due by ${due}. Kindly share the above information at the earliest to ensure timely completion of the review.
+
+Please feel free to reach out should you have any queries.
+
+Regards`
+      );
+    } else {
+      subject = encodeURIComponent(`REMINDER: Information Requirement - ${c.name} - Surveillance Review`);
+      body = encodeURIComponent(
+`Dear Team,
+
+Subject: REMINDER – Information Requirement for Surveillance Review – ${c.name}
+
+This is a reminder regarding our earlier communication requesting information for the annual surveillance review of ${c.name}.
+
+The surveillance is due by ${due}, and we have not yet received the required documents. We request you to kindly share the following at the earliest:
+
+1. Audited / Provisional Financial Statements (latest available)
+2. Latest Debt position and repayment schedule
+3. Order Book / Business pipeline update
+4. Any material developments since the last review
+
+Non-receipt of information may result in the rating being placed on Issuer Not Cooperating (INC) status.
+
+Regards`
+      );
+    }
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  }
+
+  function draftINCMail(idx) {
+    const c = portfolioCases[idx];
+    if (!c) return;
+    const due = formatDate(addPRDate12Months(c.prDate));
+    const subject = encodeURIComponent(`Issuer Not Cooperating (INC) – ${c.name}`);
+    const body = encodeURIComponent(
+`Dear Team,
+
+Subject: Issuer Not Cooperating (INC) – ${c.name}
+
+Despite our repeated requests for information required for the annual surveillance review of ${c.name}, we have not received the necessary documents to date.
+
+The surveillance was due by ${due}. In the absence of the required information, we are constrained to classify ${c.name} as an Issuer Not Cooperating (INC) entity.
+
+This communication is being issued as a formal notice. The rating will now be reviewed under the INC framework.
+
+Kindly note that the rating assigned on the basis of best available information may not reflect the current financial health of the entity.
+
+Regards`
+    );
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  }
+
+  function selectPortfolio(el) {
+    document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.nav-direct').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('breadcrumb-current').textContent = 'Edit Portfolio';
+    hideAllPanels();
+    document.getElementById('portfolio-panel').classList.add('visible');
+    renderCasesTable();
+  }
+
   // ── State ──
   const conversationHistory = [];
   let isLoading = false;
@@ -490,14 +992,19 @@
     chev.classList.toggle('open', !isOpen);
   }
 
+  function hideAllPanels() {
+    document.getElementById('ai-panel').classList.remove('visible');
+    document.getElementById('portfolio-panel').classList.remove('visible');
+    document.getElementById('placeholder-panel').style.display = 'none';
+  }
+
   function selectItem(el, section, item) {
-    // Clear active states
     document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.nav-direct').forEach(e => e.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('breadcrumb-current').textContent = item;
     document.getElementById('placeholder-text').textContent = `${item} — coming soon`;
-    document.getElementById('ai-panel').classList.remove('visible');
+    hideAllPanels();
     document.getElementById('placeholder-panel').style.display = 'flex';
   }
 
@@ -506,7 +1013,7 @@
     document.querySelectorAll('.nav-direct').forEach(e => e.classList.remove('active'));
     document.getElementById('nav-ai').classList.add('active');
     document.getElementById('breadcrumb-current').textContent = 'AI Assistant';
-    document.getElementById('placeholder-panel').style.display = 'none';
+    hideAllPanels();
     document.getElementById('ai-panel').classList.add('visible');
   }
 
