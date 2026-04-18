@@ -1504,12 +1504,8 @@
   <nav id="nav">
 
     <div class="nav-section" data-section="portfolio-overview">
-      <div class="nav-section-header" onclick="toggleSection('portfolio-overview')">
+      <div class="nav-section-header" id="nav-portfolio-header" onclick="selectPortfolio(this)">
         <span class="nav-section-title">Portfolio Overview</span>
-        <span class="nav-chevron" id="chev-portfolio-overview">›</span>
-      </div>
-      <div class="nav-subitems" id="sub-portfolio-overview">
-        <div class="nav-subitem" onclick="selectPortfolio(this)">Edit Portfolio</div>
       </div>
     </div>
 
@@ -1601,30 +1597,29 @@
       </div>
 
       <!-- Overview Tab -->
-      <div id="port-tab-overview" style="display:flex; flex:1; overflow:hidden;">
-        <!-- Left: compact case list -->
-        <div class="port-ov-left">
-          <div class="port-ov-list-header">
-            <span>Cases</span>
-            <span id="ov-case-count" style="font-weight:400;"></span>
-          </div>
-          <div class="port-ov-list-scroll" id="ov-cases-list">
-            <div class="empty-state" style="padding:24px;">No cases yet. Add companies in the Edit tab.</div>
+      <div id="port-tab-overview" style="display:flex; flex:1; overflow-y:auto; flex-direction:column; padding:20px; gap:16px;">
+        <!-- Pie chart at top -->
+        <div class="chart-card">
+          <div class="chart-card-title">FY <span id="fy-label"></span> — Completion Status</div>
+          <div class="chart-wrap-pie">
+            <canvas id="chart-status"></canvas>
+            <div class="pie-legend" id="pie-legend"></div>
           </div>
         </div>
-        <!-- Right: charts -->
-        <div class="port-ov-right">
-          <div class="chart-card">
-            <div class="chart-card-title">Quarterwise Surveillance Due — FY <span id="fy-label"></span></div>
-            <div class="chart-wrap"><canvas id="chart-quarterly"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <div class="chart-card-title">FY Completion Status</div>
-            <div class="chart-wrap-pie">
-              <canvas id="chart-status"></canvas>
-              <div class="pie-legend" id="pie-legend"></div>
-            </div>
-          </div>
+        <!-- Quarter-wise surveillance due -->
+        <div class="chart-card">
+          <div class="chart-card-title">Quarterwise Surveillance Due — FY <span id="fy-label-qtr"></span></div>
+          <div id="qtr-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;"></div>
+        </div>
+        <!-- Info Received — Surveillance Pending -->
+        <div class="chart-card">
+          <div class="chart-card-title">Info Received — Surveillance Pending</div>
+          <div id="ov-info-received"></div>
+        </div>
+        <!-- Information Pending -->
+        <div class="chart-card">
+          <div class="chart-card-title">Information Pending</div>
+          <div id="ov-info-pending"></div>
         </div>
       </div>
 
@@ -1680,10 +1675,16 @@
     <!-- News Feed Panel -->
     <div id="news-feed-panel">
       <div class="section-card">
-        <h2>Company News — Last 48 Hours</h2>
+        <h2>Company News</h2>
         <div class="news-toolbar">
           <select class="news-select" id="news-company-select" onchange="loadNewsFeed(this.value)">
             <option value="">Select a company…</option>
+          </select>
+          <select class="news-select" id="news-time-filter" style="min-width:200px;" onchange="loadNewsFeed(document.getElementById('news-company-select').value)">
+            <option value="48">Last 48 hours</option>
+            <option value="24">Last 24 hours</option>
+            <option value="week">Past week</option>
+            <option value="since_pr">Since last press release</option>
           </select>
           <button class="btn-refresh" onclick="loadNewsFeed(document.getElementById('news-company-select').value)">🔄 Refresh</button>
         </div>
@@ -2070,17 +2071,18 @@ Regards`
   function selectPortfolio(el) {
     document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.nav-direct').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.nav-section-header').forEach(e => e.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('breadcrumb-current').textContent = 'Portfolio Overview';
     hideAllPanels();
     document.getElementById('portfolio-panel').classList.add('visible');
     renderCasesTable();
-    // Default to overview tab and render charts
     switchPortfolioTab('overview', document.getElementById('ptab-overview'));
   }
 
   function selectCriteria(el, criteriaType) {
     document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.nav-section-header').forEach(e => e.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('breadcrumb-current').textContent = criteriaType;
     const chatInput = document.getElementById('chat-input');
@@ -2095,6 +2097,7 @@ Regards`
 
   function selectNewsFeed(el) {
     document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.nav-section-header').forEach(e => e.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('breadcrumb-current').textContent = 'News Feed';
     hideAllPanels();
@@ -2104,6 +2107,7 @@ Regards`
 
   function selectIndustryTopics(el) {
     document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.nav-section-header').forEach(e => e.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('breadcrumb-current').textContent = 'Industry Trending Topics';
     hideAllPanels();
@@ -2136,6 +2140,7 @@ Regards`
   function selectItem(el, section, item) {
     document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.nav-direct').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.nav-section-header').forEach(e => e.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('breadcrumb-current').textContent = item;
     document.getElementById('placeholder-text').textContent = `${item} — coming soon`;
@@ -2146,6 +2151,7 @@ Regards`
   function selectAI(el, label) {
     document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.nav-direct').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.nav-section-header').forEach(e => e.classList.remove('active'));
     if (el) el.classList.add('active');
     const title = label || 'CARE Cares';
     document.getElementById('breadcrumb-current').textContent = title;
@@ -2156,15 +2162,10 @@ Regards`
     document.getElementById('ai-panel').classList.add('visible');
   }
 
-  // Open Chatbox → CARE Cares by default on first load
+  // Open Portfolio Overview by default on first load
   (function initDefaultNav() {
-    const firstChatItem = document.querySelector('#sub-chatbox .nav-subitem');
-    if (firstChatItem) {
-      // Open the chatbox section
-      document.getElementById('sub-chatbox').classList.add('open');
-      document.getElementById('chev-chatbox').classList.add('open');
-      selectAI(firstChatItem, 'CARE Cares');
-    }
+    const portHeader = document.getElementById('nav-portfolio-header');
+    if (portHeader) selectPortfolio(portHeader);
   })();
 
   // Search filter
@@ -2404,7 +2405,6 @@ Regards`
   }
 
   function renderPortfolioOverview() {
-    renderOvCaseList();
     renderPortfolioCharts();
   }
 
@@ -2435,7 +2435,6 @@ Regards`
     }).join('');
   }
 
-  let chartQuarterly = null;
   let chartStatus = null;
 
   function getFY() {
@@ -2451,27 +2450,23 @@ Regards`
 
   function renderPortfolioCharts() {
     const fy = getFY();
-    const fyEl = document.getElementById('fy-label');
-    if (fyEl) fyEl.textContent = fy.label;
+    ['fy-label', 'fy-label-qtr'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = fy.label;
+    });
 
-    // Quarterwise: count surveillance due dates falling in each quarter of current FY
-    const qtCounts = [0, 0, 0, 0]; // Q1 Apr-Jun, Q2 Jul-Sep, Q3 Oct-Dec, Q4 Jan-Mar
+    // Quarterwise: collect company cases per quarter of current FY
+    const qtCases = [[], [], [], []]; // Q1 Apr-Jun, Q2 Jul-Sep, Q3 Oct-Dec, Q4 Jan-Mar
+    let received = 0, pending = 0;
+
     portfolioCases.forEach(c => {
       const due = new Date(addPRDate12Months(c.prDate) + 'T00:00:00');
       if (due >= fy.start && due <= fy.end) {
         const m = due.getMonth();
-        if (m >= 3 && m <= 5) qtCounts[0]++;
-        else if (m >= 6 && m <= 8) qtCounts[1]++;
-        else if (m >= 9 && m <= 11) qtCounts[2]++;
-        else qtCounts[3]++;
-      }
-    });
-
-    // Completion status: cases due in current FY
-    let received = 0, pending = 0;
-    portfolioCases.forEach(c => {
-      const due = new Date(addPRDate12Months(c.prDate) + 'T00:00:00');
-      if (due >= fy.start && due <= fy.end) {
+        if (m >= 3 && m <= 5) qtCases[0].push(c);
+        else if (m >= 6 && m <= 8) qtCases[1].push(c);
+        else if (m >= 9 && m <= 11) qtCases[2].push(c);
+        else qtCases[3].push(c);
         c.infoReceived ? received++ : pending++;
       }
     });
@@ -2480,57 +2475,8 @@ Regards`
       portfolioCases.forEach(c => { c.infoReceived ? received++ : pending++; });
     }
 
-    // Destroy existing charts before re-drawing
-    if (chartQuarterly) { chartQuarterly.destroy(); chartQuarterly = null; }
-    if (chartStatus)    { chartStatus.destroy();    chartStatus = null; }
-
-    // Bar chart — Quarterwise Surveillance Due
-    const ctxBar = document.getElementById('chart-quarterly');
-    if (ctxBar) {
-      chartQuarterly = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-          labels: ['Q1  Apr–Jun', 'Q2  Jul–Sep', 'Q3  Oct–Dec', 'Q4  Jan–Mar'],
-          datasets: [{
-            label: 'Cases Due',
-            data: qtCounts,
-            backgroundColor: [
-              'rgba(6,182,212,0.65)',
-              'rgba(37,99,235,0.65)',
-              'rgba(139,92,246,0.65)',
-              'rgba(16,185,129,0.65)'
-            ],
-            borderColor: [
-              'rgba(6,182,212,1)',
-              'rgba(37,99,235,1)',
-              'rgba(139,92,246,1)',
-              'rgba(16,185,129,1)'
-            ],
-            borderWidth: 1,
-            borderRadius: 5,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#1e293b',
-              borderColor: 'rgba(255,255,255,0.1)',
-              borderWidth: 1,
-              titleColor: '#e2e8f0',
-              bodyColor: '#94a3b8',
-              callbacks: { label: ctx => `  ${ctx.raw} case${ctx.raw !== 1 ? 's' : ''} due` }
-            }
-          },
-          scales: {
-            x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-            y: { ticks: { color: '#94a3b8', stepSize: 1, font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' }, beginAtZero: true }
-          }
-        }
-      });
-    }
+    // Destroy existing chart before re-drawing
+    if (chartStatus) { chartStatus.destroy(); chartStatus = null; }
 
     // Doughnut chart — Completion Status
     const ctxPie = document.getElementById('chart-status');
@@ -2577,6 +2523,70 @@ Regards`
           <div style="margin-top:10px;font-size:11px;color:var(--muted);">FY ${fy.label}</div>`;
       }
     }
+
+    // Quarter-wise company name grid
+    const qtrGrid = document.getElementById('qtr-grid');
+    if (qtrGrid) {
+      const qtrLabels = ['Q1 — Apr to Jun', 'Q2 — Jul to Sep', 'Q3 — Oct to Dec', 'Q4 — Jan to Mar'];
+      const qtrBg     = ['rgba(6,182,212,0.08)', 'rgba(37,99,235,0.08)', 'rgba(139,92,246,0.08)', 'rgba(16,185,129,0.08)'];
+      const qtrBorder = ['rgba(6,182,212,0.25)', 'rgba(37,99,235,0.25)', 'rgba(139,92,246,0.25)', 'rgba(16,185,129,0.25)'];
+      const qtrHead   = ['#67e8f9', '#93c5fd', '#c4b5fd', '#6ee7b7'];
+      qtrGrid.innerHTML = qtCases.map((cases, qi) => `
+        <div style="background:${qtrBg[qi]};border:1px solid ${qtrBorder[qi]};border-radius:8px;padding:12px 14px;">
+          <div style="font-size:11px;font-weight:700;color:${qtrHead[qi]};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;justify-content:space-between;">
+            <span>${qtrLabels[qi]}</span>
+            <span style="color:var(--text);">${cases.length}</span>
+          </div>
+          ${cases.length === 0
+            ? '<div style="font-size:12px;color:var(--muted);font-style:italic;">No cases due</div>'
+            : cases.map(c => `
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--text);padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+                <span>${escHtml(c.name)}</span>
+                <span style="font-size:10.5px;color:var(--muted);margin-left:8px;white-space:nowrap;">${formatDate(addPRDate12Months(c.prDate))}</span>
+              </div>`).join('')
+          }
+        </div>`).join('');
+    }
+
+    // Info Received — Surveillance Pending
+    const infoRecEl = document.getElementById('ov-info-received');
+    if (infoRecEl) {
+      const recCases = portfolioCases.filter(c => c.infoReceived);
+      if (!recCases.length) {
+        infoRecEl.innerHTML = '<div class="empty-state">No cases with information received yet.</div>';
+      } else {
+        infoRecEl.innerHTML = recCases.map(c =>
+          `<div style="font-size:12.5px;color:var(--text);padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);">${escHtml(c.name)}</div>`
+        ).join('');
+      }
+    }
+
+    // Information Pending table
+    const infPendEl = document.getElementById('ov-info-pending');
+    if (infPendEl) {
+      const pendCases = portfolioCases.filter(c => !c.infoReceived);
+      if (!pendCases.length) {
+        infPendEl.innerHTML = '<div class="empty-state" style="color:#34d399;">All information received — no pending cases!</div>';
+      } else {
+        infPendEl.innerHTML = `
+          <div class="cases-table-wrap">
+            <table class="cases-table">
+              <thead><tr>
+                <th>Company Name</th>
+                <th>Surveillance Due By</th>
+                <th>Info Received Date (PY)</th>
+              </tr></thead>
+              <tbody>
+                ${pendCases.map(c => `<tr>
+                  <td style="font-weight:500;">${escHtml(c.name)}</td>
+                  <td>${formatDate(addPRDate12Months(c.prDate))}</td>
+                  <td>${formatDate(c.prDate)}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>`;
+      }
+    }
   }
 
   // ══════════════════════════════════════
@@ -2611,6 +2621,7 @@ Regards`
     const idx = parseInt(idxStr);
     const company = portfolioCases[idx];
     if (!company) return;
+    const filterVal = document.getElementById('news-time-filter')?.value || '48';
     const tbody = document.getElementById('news-feed-tbody');
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--muted);"><span class="spinner"></span>Loading news for ${escHtml(company.name)}…</td></tr>`;
     try {
@@ -2618,9 +2629,9 @@ Regards`
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const xmlText = await resp.text();
       const items = parseRSS(xmlText);
-      const filtered = filterLast48h(items);
+      const filtered = filterByTimeWindow(items, filterVal, company);
       currentNewsFeedItems = filtered;
-      renderNewsFeedTable(filtered, company.name);
+      renderNewsFeedTable(filtered, company.name, filterVal);
     } catch (err) {
       tbody.innerHTML = `<tr><td colspan="6" class="empty-state">Failed to load news: ${escHtml(err.message)}</td></tr>`;
     }
@@ -2647,6 +2658,22 @@ Regards`
     return items.filter(item => item.pubDate && !isNaN(item.pubDate) && item.pubDate.getTime() >= cutoff);
   }
 
+  function filterByTimeWindow(items, filterVal, company) {
+    if (filterVal === '24') {
+      const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+      return items.filter(item => item.pubDate && !isNaN(item.pubDate) && item.pubDate.getTime() >= cutoff);
+    }
+    if (filterVal === 'week') {
+      const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      return items.filter(item => item.pubDate && !isNaN(item.pubDate) && item.pubDate.getTime() >= cutoff);
+    }
+    if (filterVal === 'since_pr' && company && company.prDate) {
+      const cutoff = new Date(company.prDate + 'T00:00:00').getTime();
+      return items.filter(item => item.pubDate && !isNaN(item.pubDate) && item.pubDate.getTime() >= cutoff);
+    }
+    return filterLast48h(items);
+  }
+
   function timeAgo(date) {
     if (!date || isNaN(date)) return '';
     const diff = Date.now() - date.getTime();
@@ -2657,10 +2684,11 @@ Regards`
     return m + 'm ago';
   }
 
-  function renderNewsFeedTable(items, companyName) {
+  function renderNewsFeedTable(items, companyName, filterVal) {
     const tbody = document.getElementById('news-feed-tbody');
+    const filterLabel = filterVal === '24' ? 'last 24 hours' : filterVal === '48' ? 'last 48 hours' : filterVal === 'week' ? 'past week' : 'since last press release';
     if (!items.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No news found in the last 48 hours for <strong>${escHtml(companyName)}</strong>. Try refreshing or check back later.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No news found for the ${filterLabel} for <strong>${escHtml(companyName)}</strong>. Try refreshing or adjust the time filter.</td></tr>`;
       return;
     }
     tbody.innerHTML = items.map((item, i) => {
