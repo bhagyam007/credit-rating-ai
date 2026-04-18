@@ -1866,6 +1866,18 @@
     localStorage.setItem('irm_portfolio_cases', JSON.stringify(portfolioCases));
   }
 
+  // Back-fill industry for cases saved before auto-detect was added
+  (function migrateIndustries() {
+    let changed = false;
+    portfolioCases.forEach(c => {
+      if (!c.industry) {
+        c.industry = detectIndustry(c.name);
+        changed = true;
+      }
+    });
+    if (changed) saveCases();
+  })();
+
   function addPRDate12Months(dateStr) {
     // dateStr: 'YYYY-MM-DD', returns 'YYYY-MM-DD' + 12 months
     const d = new Date(dateStr);
@@ -2716,8 +2728,8 @@ Regards`
   function getUniqueIndustries() {
     return [...new Set(
       portfolioCases
-        .map(c => (c.industry || '').trim())
-        .filter(i => i.length > 0)
+        .map(c => (c.industry && c.industry.trim()) || detectIndustry(c.name))
+        .filter(i => i && i !== 'General')
     )];
   }
 
