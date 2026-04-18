@@ -886,6 +886,365 @@
       #login-left { display: none; }
       #login-right { width: 100%; border-left: none; }
     }
+
+    /* ── News Feed Panel ── */
+    #news-feed-panel {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      padding: 24px;
+      gap: 16px;
+    }
+    #news-feed-panel.visible { display: flex; }
+    #news-feed-panel::-webkit-scrollbar { width: 4px; }
+    #news-feed-panel::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+    /* ── Industry Trending Topics Panel ── */
+    #industry-panel {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+    #industry-panel.visible { display: flex; }
+
+    .sub-tab-bar {
+      display: flex;
+      gap: 2px;
+      padding: 12px 24px 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      flex-shrink: 0;
+    }
+    .sub-tab {
+      padding: 8px 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      font-family: 'Inter', sans-serif;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .sub-tab:hover { color: var(--text); }
+    .sub-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .industry-info-bar {
+      padding: 9px 24px;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .industry-info-bar strong { color: var(--text); }
+
+    .industry-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 24px;
+    }
+    .industry-scroll::-webkit-scrollbar { width: 4px; }
+    .industry-scroll::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid var(--bg3);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 7px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* News toolbar */
+    .news-toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .news-select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 12px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      outline: none;
+      min-width: 220px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .news-select:focus { border-color: var(--primary); }
+    .news-select option { background: var(--bg2); }
+
+    .btn-refresh {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--text);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s;
+    }
+    .btn-refresh:hover { background: rgba(37,99,235,0.2); border-color: var(--primary); }
+
+    .btn-save-news {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid rgba(16,185,129,0.3);
+      background: rgba(16,185,129,0.1);
+      color: #34d399;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-save-news:hover { background: rgba(16,185,129,0.22); }
+    .btn-save-news.saved { opacity: 0.55; cursor: default; }
+
+    .btn-write {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid rgba(6,182,212,0.3);
+      background: rgba(6,182,212,0.1);
+      color: #67e8f9;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s;
+      white-space: nowrap;
+      margin-right: 4px;
+    }
+    .btn-write:hover { background: rgba(6,182,212,0.22); }
+    .btn-write.article {
+      border-color: rgba(37,99,235,0.35);
+      background: rgba(37,99,235,0.1);
+      color: #93c5fd;
+      margin-right: 0;
+    }
+    .btn-write.article:hover { background: rgba(37,99,235,0.22); }
+
+    .news-headline-cell {
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .news-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 12.5px;
+    }
+    .news-link:hover { text-decoration: underline; }
+
+    /* Criteria label in sidebar */
+    .nav-criteria-divider {
+      padding: 6px 16px 3px 32px;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 700;
+      user-select: none;
+      opacity: 0.7;
+    }
+
+    /* ── Content Wizard Modal ── */
+    #content-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+      padding: 20px;
+    }
+    #content-modal-overlay.visible { display: flex; }
+    #content-modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 720px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #content-modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+      background: var(--bg2);
+    }
+    #content-modal-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    #content-modal-headline {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 5px;
+      line-height: 1.45;
+      max-width: 580px;
+    }
+    .cm-close {
+      width: 28px; height: 28px;
+      border: none;
+      background: var(--bg3);
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .cm-close:hover { background: rgba(239,68,68,0.2); color: #f87171; }
+    #content-modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+    #content-modal-body::-webkit-scrollbar { width: 4px; }
+    #content-modal-body::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+    .cm-step-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 10px;
+    }
+    .cm-question {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 18px;
+      line-height: 1.45;
+    }
+    .cm-btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .cm-btn {
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--text);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+    .cm-btn:hover { background: rgba(37,99,235,0.2); border-color: var(--primary); color: #93c5fd; }
+    .cm-btn.selected { background: rgba(37,99,235,0.25); border-color: var(--primary); color: #93c5fd; }
+    .cm-btn.primary {
+      background: var(--primary); border-color: var(--primary); color: #fff;
+    }
+    .cm-btn.primary:hover { background: #1d4ed8; }
+    .cm-btn.primary:disabled { background: var(--bg3); border-color: var(--border); color: var(--muted); cursor: not-allowed; }
+    .cm-textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      resize: vertical;
+      outline: none;
+      min-height: 80px;
+      line-height: 1.55;
+      margin-bottom: 16px;
+      transition: border-color 0.15s;
+    }
+    .cm-textarea:focus { border-color: var(--primary); }
+    .cm-textarea::placeholder { color: var(--muted); }
+    .cm-result-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      font-size: 13.5px;
+      line-height: 1.75;
+      color: var(--text);
+      margin-bottom: 16px;
+      white-space: pre-wrap;
+    }
+    .cm-result-box p { margin-bottom: 10px; }
+    .cm-result-box p:last-child { margin-bottom: 0; }
+    .cm-result-box strong { color: #93c5fd; }
+    .cm-result-box h2, .cm-result-box h3 {
+      color: #93c5fd;
+      margin: 14px 0 6px;
+      font-size: 14px;
+    }
+    .cm-copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 7px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--text);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s;
+    }
+    .cm-copy-btn:hover { background: rgba(37,99,235,0.2); border-color: var(--primary); }
+    .cm-generating {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+    .cm-generating .spinner {
+      width: 28px; height: 28px;
+      border-width: 3px;
+      display: block;
+      margin: 0 auto 16px;
+    }
   </style>
 </head>
 <body>
@@ -1041,7 +1400,8 @@
         <span class="nav-chevron" id="chev-news-me">›</span>
       </div>
       <div class="nav-subitems" id="sub-news-me">
-        <div class="nav-subitem" onclick="selectItem(this,'News &amp; ME Checker','News Feed')">News Feed</div>
+        <div class="nav-subitem" onclick="selectNewsFeed(this)">News Feed</div>
+        <div class="nav-subitem" onclick="selectIndustryTopics(this)">Industry Trending Topics</div>
         <div class="nav-subitem" onclick="selectItem(this,'News &amp; ME Checker','Material Event Log')">Material Event Log</div>
       </div>
     </div>
@@ -1054,18 +1414,10 @@
       <div class="nav-subitems" id="sub-chatbox">
         <div class="nav-subitem" onclick="selectAI(this,'CARE Cares')">CARE Cares</div>
         <div class="nav-subitem" onclick="selectAI(this,'Ci3/Crest FAQs')">Ci3/Crest FAQs</div>
-      </div>
-    </div>
-
-    <div class="nav-section" data-section="criteria">
-      <div class="nav-section-header" onclick="toggleSection('criteria')">
-        <span class="nav-section-title">Criteria</span>
-        <span class="nav-chevron" id="chev-criteria">›</span>
-      </div>
-      <div class="nav-subitems" id="sub-criteria">
-        <div class="nav-subitem" onclick="selectItem(this,'Criteria','Rating Criteria')">Rating Criteria</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Criteria','Sector Criteria')">Sector Criteria</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Criteria','Policy Documents')">Policy Documents</div>
+        <div class="nav-criteria-divider">— Criteria —</div>
+        <div class="nav-subitem" onclick="selectCriteria(this,'Rating Criteria')">Rating Criteria</div>
+        <div class="nav-subitem" onclick="selectCriteria(this,'Sector Criteria')">Sector Criteria</div>
+        <div class="nav-subitem" onclick="selectCriteria(this,'Policy Documents')">Policy Documents</div>
       </div>
     </div>
 
@@ -1124,6 +1476,10 @@
             <label>Latest PR Date</label>
             <input type="date" id="input-pr-date" />
           </div>
+          <div class="form-group">
+            <label>Industry</label>
+            <input type="text" id="input-industry" placeholder="e.g. Steel, Banking" autocomplete="off" />
+          </div>
           <button class="btn-save" onclick="addCase()">Save Changes</button>
         </div>
       </div>
@@ -1156,6 +1512,63 @@
 
     </div>
 
+    <!-- News Feed Panel -->
+    <div id="news-feed-panel">
+      <div class="section-card">
+        <h2>Company News — Last 48 Hours</h2>
+        <div class="news-toolbar">
+          <select class="news-select" id="news-company-select" onchange="loadNewsFeed(this.value)">
+            <option value="">Select a company…</option>
+          </select>
+          <button class="btn-refresh" onclick="loadNewsFeed(document.getElementById('news-company-select').value)">🔄 Refresh</button>
+        </div>
+        <div class="cases-table-wrap">
+          <table class="cases-table" id="news-feed-table">
+            <thead>
+              <tr>
+                <th style="width:120px;">Company</th>
+                <th>Headline</th>
+                <th style="width:130px;">Source</th>
+                <th style="width:72px;">Time</th>
+                <th style="width:90px;">Save</th>
+                <th style="width:120px;">Draft Mail</th>
+              </tr>
+            </thead>
+            <tbody id="news-feed-tbody">
+              <tr><td colspan="6" class="empty-state">Select a company above to load its latest news.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Industry Trending Topics Panel -->
+    <div id="industry-panel">
+      <div class="sub-tab-bar">
+        <button class="sub-tab" id="tab-global" onclick="switchIndustryTab('global', this)">🌍 Global</button>
+        <button class="sub-tab active" id="tab-india" onclick="switchIndustryTab('india', this)">🇮🇳 Indian</button>
+      </div>
+      <div class="industry-info-bar">
+        Trending topics for industries: <strong id="industry-list-display">—</strong>
+      </div>
+      <div class="industry-scroll">
+        <table class="cases-table" id="industry-table" style="width:100%;">
+          <thead>
+            <tr>
+              <th style="min-width:280px;">Headline</th>
+              <th style="width:140px;">Source</th>
+              <th style="width:72px;">Time</th>
+              <th style="width:68px;">Link</th>
+              <th style="width:180px;">Write</th>
+            </tr>
+          </thead>
+          <tbody id="industry-tbody">
+            <tr><td colspan="5" class="empty-state">Select Industry Trending Topics from the sidebar to load.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </main>
 
@@ -1169,6 +1582,20 @@
       <button class="btn-modal" onclick="openInfoMail('reminder')">🔔 Reminder</button>
     </div>
     <button class="btn-modal-cancel" onclick="closeMailModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- Content Wizard Modal -->
+<div id="content-modal-overlay">
+  <div id="content-modal">
+    <div id="content-modal-header">
+      <div>
+        <div id="content-modal-title">Generate Content</div>
+        <div id="content-modal-headline"></div>
+      </div>
+      <button class="cm-close" onclick="closeContentWizard()" title="Close">✕</button>
+    </div>
+    <div id="content-modal-body"></div>
   </div>
 </div>
 
@@ -1290,12 +1717,14 @@
   function addCase() {
     const name = document.getElementById('input-company').value.trim();
     const prDate = document.getElementById('input-pr-date').value;
+    const industry = (document.getElementById('input-industry').value || '').trim();
     if (!name) { showToast('Please enter a company name.'); return; }
     if (!prDate) { showToast('Please select the latest PR date.'); return; }
-    portfolioCases.push({ name, prDate, infoReceived: false });
+    portfolioCases.push({ name, prDate, industry, infoReceived: false });
     saveCases();
     document.getElementById('input-company').value = '';
     document.getElementById('input-pr-date').value = '';
+    document.getElementById('input-industry').value = '';
     renderCasesTable();
   }
 
@@ -1470,6 +1899,39 @@ Regards`
     renderCasesTable();
   }
 
+  function selectCriteria(el, criteriaType) {
+    document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('breadcrumb-current').textContent = criteriaType;
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput) chatInput.placeholder = `Ask anything about ${criteriaType}…`;
+    hideAllPanels();
+    document.getElementById('ai-panel').classList.add('visible');
+    // Greet only if fresh conversation
+    if (conversationHistory.length === 0) {
+      appendMessage('assistant', `I'm ready to assist with **${criteriaType}**. Ask me anything about rating methodologies, sector frameworks, or policy guidelines.`);
+    }
+  }
+
+  function selectNewsFeed(el) {
+    document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('breadcrumb-current').textContent = 'News Feed';
+    hideAllPanels();
+    document.getElementById('news-feed-panel').classList.add('visible');
+    populateNewsCompanySelect();
+  }
+
+  function selectIndustryTopics(el) {
+    document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('breadcrumb-current').textContent = 'Industry Trending Topics';
+    hideAllPanels();
+    document.getElementById('industry-panel').classList.add('visible');
+    updateIndustryDisplay();
+    loadIndustryTopics(currentIndustryGeo);
+  }
+
   // ── State ──
   const conversationHistory = [];
   let isLoading = false;
@@ -1487,6 +1949,8 @@ Regards`
     document.getElementById('ai-panel').classList.remove('visible');
     document.getElementById('portfolio-panel').classList.remove('visible');
     document.getElementById('placeholder-panel').style.display = 'none';
+    document.getElementById('news-feed-panel').classList.remove('visible');
+    document.getElementById('industry-panel').classList.remove('visible');
   }
 
   function selectItem(el, section, item) {
@@ -1705,6 +2169,388 @@ Regards`
       isLoading = false;
       document.getElementById('send-btn').disabled = false;
     }
+  }
+
+  // ══════════════════════════════════════
+  // NEWS FEED
+  // ══════════════════════════════════════
+  let currentNewsFeedItems = [];
+  let savedNewsItems = JSON.parse(localStorage.getItem('irm_saved_news') || '[]');
+
+  function saveNewsToStorage() {
+    localStorage.setItem('irm_saved_news', JSON.stringify(savedNewsItems));
+  }
+
+  function populateNewsCompanySelect() {
+    const sel = document.getElementById('news-company-select');
+    const prev = sel.value;
+    sel.innerHTML = '<option value="">Select a company…</option>';
+    portfolioCases.forEach((c, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = c.name;
+      sel.appendChild(opt);
+    });
+    if (prev !== '' && sel.querySelector(`option[value="${prev}"]`)) sel.value = prev;
+    if (!portfolioCases.length) {
+      document.getElementById('news-feed-tbody').innerHTML =
+        '<tr><td colspan="6" class="empty-state">No companies in portfolio. Add companies first.</td></tr>';
+    }
+  }
+
+  async function loadNewsFeed(idxStr) {
+    if (idxStr === '' || idxStr === null || idxStr === undefined) return;
+    const idx = parseInt(idxStr);
+    const company = portfolioCases[idx];
+    if (!company) return;
+    const tbody = document.getElementById('news-feed-tbody');
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--muted);"><span class="spinner"></span>Loading news for ${escHtml(company.name)}…</td></tr>`;
+    try {
+      const resp = await fetch(`/api/news?company=${encodeURIComponent(company.name)}`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const xmlText = await resp.text();
+      const items = parseRSS(xmlText);
+      const filtered = filterLast48h(items);
+      currentNewsFeedItems = filtered;
+      renderNewsFeedTable(filtered, company.name);
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty-state">Failed to load news: ${escHtml(err.message)}</td></tr>`;
+    }
+  }
+
+  function parseRSS(xml) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xml, 'application/xml');
+    return Array.from(doc.querySelectorAll('item')).map(item => {
+      const title = item.querySelector('title')?.textContent?.replace(/^\s*<!\[CDATA\[|\]\]>\s*$/g,'').trim() || '';
+      let link = '';
+      const linkNode = item.querySelector('link');
+      if (linkNode) link = linkNode.textContent?.trim() || linkNode.getAttribute('href') || '';
+      const pubDateStr = item.querySelector('pubDate')?.textContent?.trim() || '';
+      const sourceNode = item.querySelector('source');
+      const source = sourceNode?.textContent?.trim() || sourceNode?.getAttribute('url') || '';
+      const pubDate = pubDateStr ? new Date(pubDateStr) : null;
+      return { title, link, pubDate, pubDateStr, source };
+    });
+  }
+
+  function filterLast48h(items) {
+    const cutoff = Date.now() - 48 * 60 * 60 * 1000;
+    return items.filter(item => item.pubDate && !isNaN(item.pubDate) && item.pubDate.getTime() >= cutoff);
+  }
+
+  function timeAgo(date) {
+    if (!date || isNaN(date)) return '';
+    const diff = Date.now() - date.getTime();
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    if (h >= 24) return Math.floor(h / 24) + 'd ago';
+    if (h > 0) return h + 'h ago';
+    return m + 'm ago';
+  }
+
+  function renderNewsFeedTable(items, companyName) {
+    const tbody = document.getElementById('news-feed-tbody');
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No news found in the last 48 hours for <strong>${escHtml(companyName)}</strong>. Try refreshing or check back later.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = items.map((item, i) => {
+      const isSaved = savedNewsItems.some(s => s.link === item.link);
+      return `<tr>
+        <td style="font-size:12px;color:var(--muted);white-space:nowrap;">${escHtml(companyName)}</td>
+        <td class="news-headline-cell" title="${escHtml(item.title)}">
+          <a href="${escHtml(item.link)}" target="_blank" class="news-link">${escHtml(item.title)}</a>
+        </td>
+        <td style="font-size:11.5px;color:var(--muted);white-space:nowrap;">${escHtml(item.source)}</td>
+        <td style="font-size:11.5px;color:var(--muted);white-space:nowrap;">${timeAgo(item.pubDate)}</td>
+        <td>
+          <button class="btn-save-news ${isSaved ? 'saved' : ''}" id="nf-save-${i}" onclick="saveNewsItem(${i})">
+            ${isSaved ? '✓ Saved' : '💾 Save'}
+          </button>
+        </td>
+        <td>
+          <button class="btn-action" onclick="draftClarificationMail(${i})">✉️ Draft Mail</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function saveNewsItem(rowIdx) {
+    const item = currentNewsFeedItems[rowIdx];
+    if (!item) return;
+    if (savedNewsItems.some(s => s.link === item.link)) { showToast('Already saved.'); return; }
+    const sel = document.getElementById('news-company-select');
+    const companyName = sel.options[sel.selectedIndex]?.text || '';
+    savedNewsItems.push({ company: companyName, title: item.title, link: item.link, pubDate: item.pubDateStr, savedAt: new Date().toISOString() });
+    saveNewsToStorage();
+    const btn = document.getElementById('nf-save-' + rowIdx);
+    if (btn) { btn.textContent = '✓ Saved'; btn.classList.add('saved'); }
+    showToast('Article saved.');
+  }
+
+  function draftClarificationMail(rowIdx) {
+    const item = currentNewsFeedItems[rowIdx];
+    if (!item) return;
+    const sel = document.getElementById('news-company-select');
+    const companyName = sel.options[sel.selectedIndex]?.text || 'the company';
+    const subject = encodeURIComponent(`Clarification Required – ${companyName}`);
+    const body = encodeURIComponent(
+`Dear Team,
+
+We have come across the following news item related to ${companyName}:
+
+"${item.title}"
+
+We would appreciate if you could provide clarification on the above at the earliest, as it may be relevant to our ongoing credit surveillance review.
+
+Please do let us know if you require any further information from our end.
+
+Regards`
+    );
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  }
+
+  // ══════════════════════════════════════
+  // INDUSTRY TRENDING TOPICS
+  // ══════════════════════════════════════
+  let currentIndustryGeo = 'india';
+  let currentIndustryItems = [];
+
+  function getUniqueIndustries() {
+    return [...new Set(
+      portfolioCases
+        .map(c => (c.industry || '').trim())
+        .filter(i => i.length > 0)
+    )];
+  }
+
+  function updateIndustryDisplay() {
+    const industries = getUniqueIndustries();
+    const el = document.getElementById('industry-list-display');
+    if (el) el.textContent = industries.length
+      ? industries.join(', ')
+      : 'No industries found — add companies with Industry to your portfolio';
+  }
+
+  function switchIndustryTab(geo, btn) {
+    currentIndustryGeo = geo;
+    document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    loadIndustryTopics(geo);
+  }
+
+  async function loadIndustryTopics(geo) {
+    const industries = getUniqueIndustries();
+    const tbody = document.getElementById('industry-tbody');
+    if (!industries.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Add companies with an Industry tag in Portfolio Overview to see trending topics here.</td></tr>`;
+      return;
+    }
+    const query = industries.slice(0, 5).join(' OR ');
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--muted);"><span class="spinner"></span>Loading ${geo === 'india' ? 'Indian' : 'Global'} industry news…</td></tr>`;
+    try {
+      const resp = await fetch(`/api/news?industry=${encodeURIComponent(query)}&geo=${geo}`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const xmlText = await resp.text();
+      const items = parseRSS(xmlText);
+      currentIndustryItems = items.slice(0, 50);
+      renderIndustryTable(currentIndustryItems);
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Failed to load industry news: ${escHtml(err.message)}</td></tr>`;
+    }
+  }
+
+  function renderIndustryTable(items) {
+    const tbody = document.getElementById('industry-tbody');
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No trending topics found for your portfolio industries right now.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = items.map((item, i) => `<tr>
+      <td class="news-headline-cell" style="max-width:340px;" title="${escHtml(item.title)}">${escHtml(item.title)}</td>
+      <td style="font-size:11.5px;color:var(--muted);white-space:nowrap;">${escHtml(item.source)}</td>
+      <td style="font-size:11.5px;color:var(--muted);white-space:nowrap;">${timeAgo(item.pubDate)}</td>
+      <td style="white-space:nowrap;">
+        <a href="${escHtml(item.link)}" target="_blank" class="btn-action news-link" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px;padding:4px 9px;font-size:11px;">🔗 Link</a>
+      </td>
+      <td style="white-space:nowrap;">
+        <button class="btn-write" onclick="openContentWizard('opinion',${i})">✍️ Opinion</button>
+        <button class="btn-write article" onclick="openContentWizard('article',${i})">📄 Article</button>
+      </td>
+    </tr>`).join('');
+  }
+
+  // ══════════════════════════════════════
+  // CONTENT WIZARD — OPINION PIECE & ARTICLE
+  // ══════════════════════════════════════
+  let cmMode = null;
+  let cmItemIdx = null;
+  let cmStance = null;
+  let cmStanceNote = '';
+
+  function openContentWizard(mode, itemIdx) {
+    cmMode = mode;
+    cmItemIdx = itemIdx;
+    cmStance = null;
+    cmStanceNote = '';
+    const item = currentIndustryItems[itemIdx];
+    document.getElementById('content-modal-title').textContent =
+      mode === 'opinion' ? '✍️ Write Opinion Piece' : '📄 Generate Article';
+    document.getElementById('content-modal-headline').textContent = item.title;
+    if (mode === 'opinion') {
+      showCMStep1();
+    } else {
+      showCMGenerating('Writing your article…');
+      generateArticle(item.title, item.link);
+    }
+    document.getElementById('content-modal-overlay').classList.add('visible');
+  }
+
+  function closeContentWizard() {
+    document.getElementById('content-modal-overlay').classList.remove('visible');
+    cmMode = null; cmItemIdx = null; cmStance = null; cmStanceNote = '';
+  }
+
+  function showCMGenerating(msg) {
+    document.getElementById('content-modal-body').innerHTML =
+      `<div class="cm-generating"><span class="spinner"></span>${escHtml(msg)}</div>`;
+  }
+
+  function showCMStep1() {
+    document.getElementById('content-modal-body').innerHTML = `
+      <div class="cm-step-label">Step 1 of 2</div>
+      <div class="cm-question">Do you align with or differ from the conclusion in this article?</div>
+      <div class="cm-btn-row">
+        <button class="cm-btn" id="stance-align" onclick="selectStance('align')">👍 Align with article</button>
+        <button class="cm-btn" id="stance-differ" onclick="selectStance('differ')">🤔 Differ from article</button>
+      </div>
+      <textarea class="cm-textarea" id="cm-stance-text" placeholder="Add your thoughts on the article's conclusion (optional)…"></textarea>
+      <div class="cm-btn-row">
+        <button class="cm-btn primary" id="cm-next-btn" onclick="goToCMStep2()" disabled>Next →</button>
+      </div>`;
+  }
+
+  function selectStance(stance) {
+    cmStance = stance;
+    document.getElementById('stance-align').classList.toggle('selected', stance === 'align');
+    document.getElementById('stance-differ').classList.toggle('selected', stance === 'differ');
+    const btn = document.getElementById('cm-next-btn');
+    if (btn) btn.disabled = false;
+  }
+
+  function goToCMStep2() {
+    if (!cmStance) return;
+    cmStanceNote = document.getElementById('cm-stance-text')?.value?.trim() || '';
+    document.getElementById('content-modal-body').innerHTML = `
+      <div class="cm-step-label">Step 2 of 2</div>
+      <div class="cm-question">Is there anything specific you'd like changed or included in the opinion piece?</div>
+      <textarea class="cm-textarea" id="cm-changes-text" style="min-height:100px;"
+        placeholder="e.g. Focus on Indian market impact, include export data, reference RBI policy implications…"></textarea>
+      <div class="cm-btn-row">
+        <button class="cm-btn" onclick="showCMStep1()">← Back</button>
+        <button class="cm-btn primary" onclick="submitOpinionRequest()">✍️ Generate Opinion Piece</button>
+      </div>`;
+  }
+
+  async function submitOpinionRequest() {
+    const changes = document.getElementById('cm-changes-text')?.value?.trim() || '';
+    const item = currentIndustryItems[cmItemIdx];
+    showCMGenerating('Writing your opinion piece…');
+    await generateOpinionPiece(item.title, item.link, cmStance, cmStanceNote, changes);
+  }
+
+  async function generateOpinionPiece(headline, link, stance, stanceNote, changes) {
+    const stanceLabel = stance === 'align' ? 'aligns with' : 'differs from';
+    const prompt = `Write a concise, plagiarism-free opinion piece of exactly 10 sentences on the following news article:
+
+Headline: "${headline}"
+Reference: ${link}
+
+The writer ${stanceLabel} the conclusion of this article.${stanceNote ? `\nWriter's perspective: ${stanceNote}` : ''}${changes ? `\nSpecific requirements: ${changes}` : ''}
+
+Write exactly 10 well-crafted, original sentences as a flowing opinion piece. The piece should have a clear opening stance, analytical mid-section, and a definitive conclusion. Use professional language suitable for a financial/credit analyst audience. Do not copy phrases from the article — express ideas in completely original language.
+
+Return only the opinion piece text — no title, no headers, no meta-commentary.`;
+    try {
+      const resp = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+      showCMResult('Opinion Piece', data.reply || '');
+    } catch (err) { showCMError(err.message); }
+  }
+
+  async function generateArticle(headline, link) {
+    const prompt = `Write a comprehensive, well-structured article (~850 words) on the following topic:
+
+Headline: "${headline}"
+Source: ${link}
+
+Structure the article exactly as follows (use **bold** for section headings):
+
+**[Compelling Article Title]**
+
+**Introduction**
+[2–3 paragraphs setting the context and significance]
+
+**Market Overview & Size**
+[Current state of the market, key statistics and scale]
+
+**Growth Drivers**
+[Key factors and trends driving growth in this space]
+
+**Threats & Challenges**
+[Headwinds, risks, competitive pressures, and structural challenges]
+
+**Opportunities**
+[Strategic opportunities for investors, businesses, and policymakers]
+
+**Conclusion**
+[Summary, outlook, and forward-looking perspective]
+
+Write in professional, analytical language suitable for a financial or industry publication. Use original content — do not reproduce verbatim phrases from the source article.`;
+    try {
+      const resp = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+      showCMResult('Article', data.reply || '');
+    } catch (err) { showCMError(err.message); }
+  }
+
+  function showCMResult(type, text) {
+    document.getElementById('content-modal-body').innerHTML = `
+      <div class="cm-step-label">${escHtml(type)} — Generated</div>
+      <div class="cm-result-box" id="cm-result-content">${formatText(text)}</div>
+      <div class="cm-btn-row">
+        <button class="cm-copy-btn" onclick="copyCMResult()">📋 Copy to Clipboard</button>
+        ${cmMode === 'opinion' ? `<button class="cm-btn" onclick="showCMStep1()">🔄 Regenerate</button>` : ''}
+      </div>`;
+  }
+
+  function showCMError(msg) {
+    document.getElementById('content-modal-body').innerHTML = `
+      <div style="color:#f87171;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:16px;font-size:13px;margin-bottom:16px;">
+        Failed to generate content: ${escHtml(msg)}
+      </div>
+      <div class="cm-btn-row">
+        <button class="cm-btn" onclick="closeContentWizard()">Close</button>
+      </div>`;
+  }
+
+  function copyCMResult() {
+    const el = document.getElementById('cm-result-content');
+    if (!el) return;
+    navigator.clipboard.writeText(el.innerText)
+      .then(() => showToast('Copied to clipboard!'))
+      .catch(() => showToast('Copy failed — please select and copy manually.'));
   }
 </script>
 </body>
