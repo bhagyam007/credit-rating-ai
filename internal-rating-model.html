@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Project AAAI+</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
       --bg: #0f172a;
@@ -368,13 +369,142 @@
       display: none;
       flex-direction: column;
       height: 100%;
+      overflow: hidden;
+    }
+    #portfolio-panel.visible { display: flex; }
+
+    /* Portfolio tab bar (reuses .sub-tab-bar / .sub-tab styles from industry panel) */
+    .port-tab-bar {
+      display: flex;
+      gap: 2px;
+      padding: 12px 24px 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      flex-shrink: 0;
+    }
+    .port-tab {
+      padding: 8px 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      font-family: 'Inter', sans-serif;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .port-tab:hover { color: var(--text); }
+    .port-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* Overview tab layout */
+    #port-tab-overview {
+      flex: 1;
+      overflow: hidden;
+    }
+    .port-ov-left {
+      width: 300px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .port-ov-list-header {
+      padding: 13px 16px 11px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .port-ov-list-scroll {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .port-ov-list-scroll::-webkit-scrollbar { width: 4px; }
+    .port-ov-list-scroll::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+    .ov-case-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      transition: background 0.1s;
+    }
+    .ov-case-row:hover { background: rgba(255,255,255,0.03); }
+    .ov-case-num {
+      width: 20px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .ov-case-info { flex: 1; overflow: hidden; }
+    .ov-case-name {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ov-case-due { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .ov-case-badge { flex-shrink: 0; }
+
+    /* Right charts column */
+    .port-ov-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 16px 20px;
+      gap: 14px;
+    }
+    .port-ov-right::-webkit-scrollbar { width: 4px; }
+    .port-ov-right::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+    .chart-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+    .chart-card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+    .chart-wrap { position: relative; height: 180px; }
+    .chart-wrap-pie {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      height: auto;
+    }
+    .chart-wrap-pie canvas { height: 150px !important; width: 150px !important; flex-shrink: 0; }
+    .pie-legend { font-size: 12px; color: var(--muted); }
+    .pie-legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+    .pie-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Edit tab */
+    #port-tab-edit {
+      flex: 1;
       overflow-y: auto;
       padding: 24px;
       gap: 24px;
+      flex-direction: column;
     }
-    #portfolio-panel.visible { display: flex; }
-    #portfolio-panel::-webkit-scrollbar { width: 4px; }
-    #portfolio-panel::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+    #port-tab-edit::-webkit-scrollbar { width: 4px; }
+    #port-tab-edit::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
 
     .section-card {
       background: var(--bg2);
@@ -1464,50 +1594,85 @@
     <!-- Portfolio Panel -->
     <div id="portfolio-panel">
 
-      <!-- Add Company -->
-      <div class="section-card">
-        <h2>Add Company</h2>
-        <div class="add-form">
-          <div class="form-group">
-            <label>Company Name</label>
-            <input type="text" id="input-company" placeholder="e.g. Tata Steel Ltd" autocomplete="off" />
+      <!-- Tab Bar -->
+      <div class="port-tab-bar">
+        <button class="port-tab active" id="ptab-overview" onclick="switchPortfolioTab('overview', this)">Overview</button>
+        <button class="port-tab" id="ptab-edit" onclick="switchPortfolioTab('edit', this)">Edit Portfolio</button>
+      </div>
+
+      <!-- Overview Tab -->
+      <div id="port-tab-overview" style="display:flex; flex:1; overflow:hidden;">
+        <!-- Left: compact case list -->
+        <div class="port-ov-left">
+          <div class="port-ov-list-header">
+            <span>Cases</span>
+            <span id="ov-case-count" style="font-weight:400;"></span>
           </div>
-          <div class="form-group">
-            <label>Latest PR Date</label>
-            <input type="date" id="input-pr-date" />
+          <div class="port-ov-list-scroll" id="ov-cases-list">
+            <div class="empty-state" style="padding:24px;">No cases yet. Add companies in the Edit tab.</div>
           </div>
-          <div class="form-group">
-            <label>Industry</label>
-            <input type="text" id="input-industry" placeholder="e.g. Steel, Banking" autocomplete="off" />
+        </div>
+        <!-- Right: charts -->
+        <div class="port-ov-right">
+          <div class="chart-card">
+            <div class="chart-card-title">Quarterwise Surveillance Due — FY <span id="fy-label"></span></div>
+            <div class="chart-wrap"><canvas id="chart-quarterly"></canvas></div>
           </div>
-          <button class="btn-save" onclick="addCase()">Save Changes</button>
+          <div class="chart-card">
+            <div class="chart-card-title">FY Completion Status</div>
+            <div class="chart-wrap-pie">
+              <canvas id="chart-status"></canvas>
+              <div class="pie-legend" id="pie-legend"></div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- List of Cases -->
-      <div class="section-card">
-        <h2>List of Cases</h2>
-        <div class="cases-table-wrap">
-          <table class="cases-table" id="cases-table">
-            <thead>
-              <tr>
-                <th style="width:42px;">No.</th>
-                <th class="sortable" onclick="sortCases('name')" id="th-name">
-                  Company Name <span class="sort-indicator" id="si-name">⇅</span>
-                </th>
-                <th class="sortable" onclick="sortCases('due')" id="th-due">
-                  Surveillance Due <span class="sort-indicator" id="si-due">⇅</span>
-                </th>
-                <th style="width:120px;">Info Received</th>
-                <th style="width:190px;">Draft Info Req. Mail</th>
-                <th style="width:160px;">Draft INC Mail</th>
-              </tr>
-            </thead>
-            <tbody id="cases-tbody">
-              <tr><td colspan="6" class="empty-state">No cases added yet. Use the form above to add a company.</td></tr>
-            </tbody>
-          </table>
+      <!-- Edit Tab -->
+      <div id="port-tab-edit" style="display:none; flex:1; flex-direction:column; overflow-y:auto; padding:24px; gap:24px;">
+
+        <!-- Add Company -->
+        <div class="section-card">
+          <h2>Add Company</h2>
+          <div class="add-form">
+            <div class="form-group">
+              <label>Company Name</label>
+              <input type="text" id="input-company" placeholder="e.g. Sun Pharma Ltd" autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label>Latest PR Date</label>
+              <input type="date" id="input-pr-date" />
+            </div>
+            <button class="btn-save" onclick="addCase()">Save Changes</button>
+          </div>
         </div>
+
+        <!-- List of Cases -->
+        <div class="section-card">
+          <h2>List of Cases</h2>
+          <div class="cases-table-wrap">
+            <table class="cases-table" id="cases-table">
+              <thead>
+                <tr>
+                  <th style="width:42px;">No.</th>
+                  <th class="sortable" onclick="sortCases('name')" id="th-name">
+                    Company Name <span class="sort-indicator" id="si-name">⇅</span>
+                  </th>
+                  <th class="sortable" onclick="sortCases('due')" id="th-due">
+                    Surveillance Due <span class="sort-indicator" id="si-due">⇅</span>
+                  </th>
+                  <th style="width:120px;">Info Received</th>
+                  <th style="width:190px;">Draft Info Req. Mail</th>
+                  <th style="width:160px;">Draft INC Mail</th>
+                </tr>
+              </thead>
+              <tbody id="cases-tbody">
+                <tr><td colspan="6" class="empty-state">No cases added yet. Use the form above to add a company.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -1717,21 +1882,22 @@
   function addCase() {
     const name = document.getElementById('input-company').value.trim();
     const prDate = document.getElementById('input-pr-date').value;
-    const industry = (document.getElementById('input-industry').value || '').trim();
     if (!name) { showToast('Please enter a company name.'); return; }
     if (!prDate) { showToast('Please select the latest PR date.'); return; }
+    const industry = detectIndustry(name);
     portfolioCases.push({ name, prDate, industry, infoReceived: false });
     saveCases();
     document.getElementById('input-company').value = '';
     document.getElementById('input-pr-date').value = '';
-    document.getElementById('input-industry').value = '';
     renderCasesTable();
+    refreshOverviewIfVisible();
   }
 
   function toggleInfoReceived(idx) {
     portfolioCases[idx].infoReceived = !portfolioCases[idx].infoReceived;
     saveCases();
     renderCasesTable();
+    refreshOverviewIfVisible();
   }
 
   function sortCases(field) {
@@ -1893,10 +2059,12 @@ Regards`
     document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.nav-direct').forEach(e => e.classList.remove('active'));
     el.classList.add('active');
-    document.getElementById('breadcrumb-current').textContent = 'Edit Portfolio';
+    document.getElementById('breadcrumb-current').textContent = 'Portfolio Overview';
     hideAllPanels();
     document.getElementById('portfolio-panel').classList.add('visible');
     renderCasesTable();
+    // Default to overview tab and render charts
+    switchPortfolioTab('overview', document.getElementById('ptab-overview'));
   }
 
   function selectCriteria(el, criteriaType) {
@@ -2168,6 +2336,234 @@ Regards`
     } finally {
       isLoading = false;
       document.getElementById('send-btn').disabled = false;
+    }
+  }
+
+  // ══════════════════════════════════════
+  // PORTFOLIO OVERVIEW — TABS + CHARTS
+  // ══════════════════════════════════════
+
+  // Industry auto-detection from company name
+  function detectIndustry(companyName) {
+    const n = companyName.toLowerCase();
+    const map = [
+      ['Pharma',        ['pharma', 'drug', 'medicine', 'labs', 'biocon', 'cipla', 'lupin', 'ranbaxy', 'aurobindo', 'sun pharma', 'dr reddy', 'glenmark', 'cadila', 'divi', 'alkem', 'abbott', 'pfizer', 'torrent pharma', 'ipca', 'ajanta', 'strides', 'jubilant', 'natco', 'granules', 'laurus']],
+      ['Banking',       ['bank', 'hdfc bank', 'icici bank', 'kotak', 'axis bank', 'yes bank', 'idbi', 'rbl', 'federal bank', 'bandhan', 'indusind', 'dcb']],
+      ['NBFC',          ['finance', 'finserv', 'bajaj finance', 'shriram', 'muthoot', 'chola', 'l&t finance', 'piramal capital', 'tata capital', 'manappuram', 'aavas']],
+      ['Steel',         ['steel', 'iron', 'jsw steel', 'sail', 'jindal steel', 'essar', 'bhushan', 'kalyani', 'tata steel']],
+      ['IT',            ['infotech', 'infosys', 'wipro', 'hcl tech', 'tech mahindra', 'software', 'mphasis', 'hexaware', 'persistent', 'ltimindtree', 'coforge', 'mastek', 'niit', 'cyient']],
+      ['Power',         ['power', 'energy', 'adani power', 'ntpc', 'tata power', 'torrent power', 'cesc', 'jsw energy', 'nhpc', 'sjvn', 'renew']],
+      ['Cement',        ['cement', 'ultratech', 'acc cement', 'ambuja', 'shree cement', 'dalmia', 'ramco', 'birla corp', 'jk cement', 'india cement']],
+      ['Telecom',       ['telecom', 'airtel', 'vodafone', 'jio', 'bsnl', 'bharti', 'sterlite']],
+      ['Auto',          ['motors', 'automobiles', 'auto', 'maruti', 'mahindra', 'bajaj auto', 'hero motocorp', 'tata motors', 'eicher', 'ashok leyland', 'bosch', 'minda']],
+      ['Realty',        ['real estate', 'realty', 'builders', 'construction', 'dlf', 'godrej properties', 'prestige', 'oberoi', 'brigade', 'kolte']],
+      ['FMCG',          ['fmcg', 'foods', 'beverages', 'hindustan unilever', 'itc', 'dabur', 'marico', 'nestle', 'britannia', 'godrej consumer', 'emami', 'tata consumer']],
+      ['Oil & Gas',     ['oil', 'petroleum', 'refinery', 'ongc', 'reliance industries', 'ioc', 'bpcl', 'hpcl', 'castrol', 'aegis']],
+      ['Infrastructure',['infra', 'highway', 'road', 'port', 'airport', 'irfc', 'nhai', 'irb', 'ashoka buildcon', 'pnc infratech', 'knr']],
+      ['Chemicals',     ['chemical', 'pidilite', 'asian paint', 'berger paint', 'aarti', 'deepak nitrite', 'navin fluorine', 'vinati']],
+      ['Textiles',      ['textile', 'fabric', 'yarn', 'arvind', 'raymond', 'vardhman', 'welspun', 'trident']],
+    ];
+    for (const [industry, keywords] of map) {
+      if (keywords.some(kw => n.includes(kw))) return industry;
+    }
+    return 'General';
+  }
+
+  function switchPortfolioTab(tab, btn) {
+    document.querySelectorAll('.port-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const ovPane  = document.getElementById('port-tab-overview');
+    const editPane = document.getElementById('port-tab-edit');
+    if (tab === 'overview') {
+      ovPane.style.display  = 'flex';
+      editPane.style.display = 'none';
+      renderPortfolioOverview();
+    } else {
+      ovPane.style.display  = 'none';
+      editPane.style.display = 'flex';
+    }
+  }
+
+  function refreshOverviewIfVisible() {
+    const ov = document.getElementById('port-tab-overview');
+    if (ov && ov.style.display !== 'none' && document.getElementById('portfolio-panel').classList.contains('visible')) {
+      renderPortfolioOverview();
+    }
+  }
+
+  function renderPortfolioOverview() {
+    renderOvCaseList();
+    renderPortfolioCharts();
+  }
+
+  function renderOvCaseList() {
+    const container = document.getElementById('ov-cases-list');
+    const countEl   = document.getElementById('ov-case-count');
+    if (!container) return;
+    if (!portfolioCases.length) {
+      container.innerHTML = '<div class="empty-state" style="padding:24px 16px;">No cases yet. Add companies in the Edit tab.</div>';
+      if (countEl) countEl.textContent = '';
+      return;
+    }
+    if (countEl) countEl.textContent = portfolioCases.length + ' case' + (portfolioCases.length !== 1 ? 's' : '');
+    const sorted = getSortedCases();
+    container.innerHTML = sorted.map((c, i) => {
+      const due = formatDate(addPRDate12Months(c.prDate));
+      const badge = c.infoReceived
+        ? `<span class="badge-yes" style="font-size:10px;padding:2px 6px;">Done</span>`
+        : `<span class="badge-no" style="font-size:10px;padding:2px 6px;cursor:default;">Pending</span>`;
+      return `<div class="ov-case-row">
+        <div class="ov-case-num">${i + 1}</div>
+        <div class="ov-case-info">
+          <div class="ov-case-name" title="${escHtml(c.name)}">${escHtml(c.name)}</div>
+          <div class="ov-case-due">Due ${due}</div>
+        </div>
+        <div class="ov-case-badge">${badge}</div>
+      </div>`;
+    }).join('');
+  }
+
+  let chartQuarterly = null;
+  let chartStatus = null;
+
+  function getFY() {
+    const now = new Date();
+    // Indian FY: starts Apr 1. If month < 3 (Jan/Feb/Mar), FY started previous year
+    const yr = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+    return {
+      start: new Date(yr, 3, 1),
+      end:   new Date(yr + 1, 2, 31, 23, 59, 59),
+      label: `${yr}-${String(yr + 1).slice(2)}`
+    };
+  }
+
+  function renderPortfolioCharts() {
+    const fy = getFY();
+    const fyEl = document.getElementById('fy-label');
+    if (fyEl) fyEl.textContent = fy.label;
+
+    // Quarterwise: count surveillance due dates falling in each quarter of current FY
+    const qtCounts = [0, 0, 0, 0]; // Q1 Apr-Jun, Q2 Jul-Sep, Q3 Oct-Dec, Q4 Jan-Mar
+    portfolioCases.forEach(c => {
+      const due = new Date(addPRDate12Months(c.prDate) + 'T00:00:00');
+      if (due >= fy.start && due <= fy.end) {
+        const m = due.getMonth();
+        if (m >= 3 && m <= 5) qtCounts[0]++;
+        else if (m >= 6 && m <= 8) qtCounts[1]++;
+        else if (m >= 9 && m <= 11) qtCounts[2]++;
+        else qtCounts[3]++;
+      }
+    });
+
+    // Completion status: cases due in current FY
+    let received = 0, pending = 0;
+    portfolioCases.forEach(c => {
+      const due = new Date(addPRDate12Months(c.prDate) + 'T00:00:00');
+      if (due >= fy.start && due <= fy.end) {
+        c.infoReceived ? received++ : pending++;
+      }
+    });
+    // Fallback: use all cases if none in current FY
+    if (received + pending === 0) {
+      portfolioCases.forEach(c => { c.infoReceived ? received++ : pending++; });
+    }
+
+    // Destroy existing charts before re-drawing
+    if (chartQuarterly) { chartQuarterly.destroy(); chartQuarterly = null; }
+    if (chartStatus)    { chartStatus.destroy();    chartStatus = null; }
+
+    // Bar chart — Quarterwise Surveillance Due
+    const ctxBar = document.getElementById('chart-quarterly');
+    if (ctxBar) {
+      chartQuarterly = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: ['Q1  Apr–Jun', 'Q2  Jul–Sep', 'Q3  Oct–Dec', 'Q4  Jan–Mar'],
+          datasets: [{
+            label: 'Cases Due',
+            data: qtCounts,
+            backgroundColor: [
+              'rgba(6,182,212,0.65)',
+              'rgba(37,99,235,0.65)',
+              'rgba(139,92,246,0.65)',
+              'rgba(16,185,129,0.65)'
+            ],
+            borderColor: [
+              'rgba(6,182,212,1)',
+              'rgba(37,99,235,1)',
+              'rgba(139,92,246,1)',
+              'rgba(16,185,129,1)'
+            ],
+            borderWidth: 1,
+            borderRadius: 5,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              borderColor: 'rgba(255,255,255,0.1)',
+              borderWidth: 1,
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              callbacks: { label: ctx => `  ${ctx.raw} case${ctx.raw !== 1 ? 's' : ''} due` }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+            y: { ticks: { color: '#94a3b8', stepSize: 1, font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' }, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    // Doughnut chart — Completion Status
+    const ctxPie = document.getElementById('chart-status');
+    if (ctxPie) {
+      chartStatus = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: ['Info Received', 'Pending'],
+          datasets: [{
+            data: [received, pending],
+            backgroundColor: ['rgba(16,185,129,0.8)', 'rgba(239,68,68,0.7)'],
+            borderColor:     ['rgba(16,185,129,1)',   'rgba(239,68,68,1)'],
+            borderWidth: 2,
+            hoverOffset: 6,
+          }]
+        },
+        options: {
+          responsive: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              borderColor: 'rgba(255,255,255,0.1)',
+              borderWidth: 1,
+              titleColor: '#e2e8f0',
+              bodyColor: '#94a3b8',
+              callbacks: { label: ctx => `  ${ctx.raw} case${ctx.raw !== 1 ? 's' : ''}` }
+            }
+          },
+          cutout: '62%',
+        }
+      });
+      const legendEl = document.getElementById('pie-legend');
+      if (legendEl) {
+        legendEl.innerHTML = `
+          <div class="pie-legend-item">
+            <div class="pie-legend-dot" style="background:rgba(16,185,129,0.85);"></div>
+            <span>Info Received &nbsp;<strong style="color:var(--text);">${received}</strong></span>
+          </div>
+          <div class="pie-legend-item">
+            <div class="pie-legend-dot" style="background:rgba(239,68,68,0.75);"></div>
+            <span>Pending &nbsp;<strong style="color:var(--text);">${pending}</strong></span>
+          </div>
+          <div style="margin-top:10px;font-size:11px;color:var(--muted);">FY ${fy.label}</div>`;
+      }
     }
   }
 
