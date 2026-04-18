@@ -1014,71 +1014,6 @@
   </div>
   <nav id="nav">
 
-    <div class="nav-section" data-section="rating-setup">
-      <div class="nav-section-header" onclick="toggleSection('rating-setup')">
-        <span class="nav-section-title">Rating Set Up</span>
-        <span class="nav-chevron" id="chev-rating-setup">›</span>
-      </div>
-      <div class="nav-subitems" id="sub-rating-setup">
-        <div class="nav-subitem" onclick="selectItem(this,'Rating Set Up','Rating Scale')">Rating Scale</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Rating Set Up','Rating Criteria')">Rating Criteria</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Rating Set Up','Weighting Scheme')">Weighting Scheme</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Rating Set Up','Benchmark Thresholds')">Benchmark Thresholds</div>
-      </div>
-    </div>
-
-    <div class="nav-section" data-section="model-setup">
-      <div class="nav-section-header" onclick="toggleSection('model-setup')">
-        <span class="nav-section-title">Model Set Up</span>
-        <span class="nav-chevron" id="chev-model-setup">›</span>
-      </div>
-      <div class="nav-subitems" id="sub-model-setup">
-        <div class="nav-subitem" onclick="selectItem(this,'Model Set Up','Financial Metrics')">Financial Metrics</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Model Set Up','Qualitative Factors')">Qualitative Factors</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Model Set Up','Industry Adjustments')">Industry Adjustments</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Model Set Up','Model Calibration')">Model Calibration</div>
-      </div>
-    </div>
-
-    <div class="nav-section" data-section="rating-request">
-      <div class="nav-section-header" onclick="toggleSection('rating-request')">
-        <span class="nav-section-title">Rating Request</span>
-        <span class="nav-chevron" id="chev-rating-request">›</span>
-      </div>
-      <div class="nav-subitems" id="sub-rating-request">
-        <div class="nav-subitem" onclick="selectItem(this,'Rating Request','New Request')">New Request</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Rating Request','Review Queue')">Review Queue</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Rating Request','Rating History')">Rating History</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Rating Request','Upload Documents')">Upload Documents</div>
-      </div>
-    </div>
-
-    <div class="nav-section" data-section="rating-report">
-      <div class="nav-section-header" onclick="toggleSection('rating-report')">
-        <span class="nav-section-title">Rating Report</span>
-        <span class="nav-chevron" id="chev-rating-report">›</span>
-      </div>
-      <div class="nav-subitems" id="sub-rating-report">
-        <div class="nav-subitem" onclick="selectItem(this,'Rating Report','Generate Report')">Generate Report</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Rating Report','Report Templates')">Report Templates</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Rating Report','Published Reports')">Published Reports</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Rating Report','Export')">Export</div>
-      </div>
-    </div>
-
-    <div class="nav-section" data-section="peer-group">
-      <div class="nav-section-header" onclick="toggleSection('peer-group')">
-        <span class="nav-section-title">Peer Group Analysis</span>
-        <span class="nav-chevron" id="chev-peer-group">›</span>
-      </div>
-      <div class="nav-subitems" id="sub-peer-group">
-        <div class="nav-subitem" onclick="selectItem(this,'Peer Group Analysis','Create Peer Group')">Create Peer Group</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Peer Group Analysis','Benchmarking')">Benchmarking</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Peer Group Analysis','Industry Analysis')">Industry Analysis</div>
-        <div class="nav-subitem" onclick="selectItem(this,'Peer Group Analysis','Comparative Reports')">Comparative Reports</div>
-      </div>
-    </div>
-
     <div class="nav-section" data-section="portfolio-overview">
       <div class="nav-section-header" onclick="toggleSection('portfolio-overview')">
         <span class="nav-section-title">Portfolio Overview</span>
@@ -1089,9 +1024,49 @@
       </div>
     </div>
 
-    <div class="nav-direct active" id="nav-ai" onclick="selectAI()">
-      <span class="icon">🤖</span>
-      <span>AI Assistant</span>
+    <div class="nav-section" data-section="rating-note">
+      <div class="nav-section-header" onclick="toggleSection('rating-note')">
+        <span class="nav-section-title">Rating Note</span>
+        <span class="nav-chevron" id="chev-rating-note">›</span>
+      </div>
+      <div class="nav-subitems" id="sub-rating-note">
+        <div class="nav-subitem" onclick="selectItem(this,'Rating Note','Draft Rating Note')">Draft Rating Note</div>
+        <div class="nav-subitem" onclick="selectItem(this,'Rating Note','Rating History')">Rating History</div>
+      </div>
+    </div>
+
+    <div class="nav-section" data-section="news-me">
+      <div class="nav-section-header" onclick="toggleSection('news-me')">
+        <span class="nav-section-title">News &amp; ME Checker</span>
+        <span class="nav-chevron" id="chev-news-me">›</span>
+      </div>
+      <div class="nav-subitems" id="sub-news-me">
+        <div class="nav-subitem" onclick="selectItem(this,'News &amp; ME Checker','News Feed')">News Feed</div>
+        <div class="nav-subitem" onclick="selectItem(this,'News &amp; ME Checker','Material Event Log')">Material Event Log</div>
+      </div>
+    </div>
+
+    <div class="nav-section" data-section="chatbox">
+      <div class="nav-section-header" onclick="toggleSection('chatbox')">
+        <span class="nav-section-title">Chatbox</span>
+        <span class="nav-chevron" id="chev-chatbox">›</span>
+      </div>
+      <div class="nav-subitems" id="sub-chatbox">
+        <div class="nav-subitem" onclick="selectAI(this,'CARE Cares')">CARE Cares</div>
+        <div class="nav-subitem" onclick="selectAI(this,'Ci3/Crest FAQs')">Ci3/Crest FAQs</div>
+      </div>
+    </div>
+
+    <div class="nav-section" data-section="criteria">
+      <div class="nav-section-header" onclick="toggleSection('criteria')">
+        <span class="nav-section-title">Criteria</span>
+        <span class="nav-chevron" id="chev-criteria">›</span>
+      </div>
+      <div class="nav-subitems" id="sub-criteria">
+        <div class="nav-subitem" onclick="selectItem(this,'Criteria','Rating Criteria')">Rating Criteria</div>
+        <div class="nav-subitem" onclick="selectItem(this,'Criteria','Sector Criteria')">Sector Criteria</div>
+        <div class="nav-subitem" onclick="selectItem(this,'Criteria','Policy Documents')">Policy Documents</div>
+      </div>
     </div>
 
   </nav>
@@ -1100,7 +1075,7 @@
 <!-- Main -->
 <main id="main">
   <div id="main-header">
-    <div id="breadcrumb">Internal Rating Model &nbsp;›&nbsp; <span id="breadcrumb-current">AI Assistant</span></div>
+    <div id="breadcrumb">Project AAAI+ &nbsp;›&nbsp; <span id="breadcrumb-current">CARE Cares</span></div>
   </div>
   <div id="content">
 
@@ -1110,8 +1085,8 @@
       <p id="placeholder-text">Select an item from the sidebar</p>
     </div>
 
-    <!-- AI Assistant panel -->
-    <div id="ai-panel" class="visible">
+    <!-- AI Assistant panel (Chatbox) -->
+    <div id="ai-panel">
       <div id="chat-messages">
         <div class="msg assistant">
           <div class="msg-avatar">🤖</div>
@@ -1524,14 +1499,29 @@ Regards`
     document.getElementById('placeholder-panel').style.display = 'flex';
   }
 
-  function selectAI() {
+  function selectAI(el, label) {
     document.querySelectorAll('.nav-subitem').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.nav-direct').forEach(e => e.classList.remove('active'));
-    document.getElementById('nav-ai').classList.add('active');
-    document.getElementById('breadcrumb-current').textContent = 'AI Assistant';
+    if (el) el.classList.add('active');
+    const title = label || 'CARE Cares';
+    document.getElementById('breadcrumb-current').textContent = title;
+    // Update chat placeholder to reflect the active chatbox
+    const chatInput = document.getElementById('chat-input');
+    if (chatInput) chatInput.placeholder = `Ask anything about ${title}…`;
     hideAllPanels();
     document.getElementById('ai-panel').classList.add('visible');
   }
+
+  // Open Chatbox → CARE Cares by default on first load
+  (function initDefaultNav() {
+    const firstChatItem = document.querySelector('#sub-chatbox .nav-subitem');
+    if (firstChatItem) {
+      // Open the chatbox section
+      document.getElementById('sub-chatbox').classList.add('open');
+      document.getElementById('chev-chatbox').classList.add('open');
+      selectAI(firstChatItem, 'CARE Cares');
+    }
+  })();
 
   // Search filter
   document.getElementById('search-input').addEventListener('input', function() {
