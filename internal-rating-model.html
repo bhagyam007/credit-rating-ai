@@ -1711,6 +1711,179 @@
     .av-anim-whale   { animation: avWhaleSwim 2s ease-in-out infinite; display: block; }
     .av-anim-croco   { animation: avCrocoSway 1.8s ease-in-out infinite; transform-origin: center bottom; display: block; }
 
+    /* ══ QUEST MAIN PANEL ══ */
+    #quest-main-panel {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+    #quest-main-panel.visible { display: flex; }
+
+    .qmp-header {
+      flex-shrink: 0;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, rgba(6,182,212,0.08) 0%, transparent 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .qmp-header-left { display: flex; align-items: center; gap: 10px; }
+    .qmp-header-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .qmp-header-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .qmp-avatar-pill {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(6,182,212,0.1);
+      border: 1px solid rgba(6,182,212,0.25);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px; font-weight: 600; color: var(--accent);
+    }
+    .qmp-change-avatar {
+      font-size: 11px; color: var(--muted); cursor: pointer;
+      background: none; border: none; font-family: 'Inter',sans-serif;
+      padding: 0; transition: color 0.15s;
+    }
+    .qmp-change-avatar:hover { color: var(--accent); }
+
+    .qmp-body {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      gap: 0;
+    }
+
+    /* Left: maze column */
+    .qmp-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .qmp-maze-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 20px 10px;
+      background: linear-gradient(180deg, #080f1e 0%, #0a1628 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    /* Dot grid bg for maze */
+    .qmp-maze-wrap::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(37,99,235,0.14) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+    #quest-main-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 260px;
+      position: relative; z-index: 1;
+    }
+    .qmp-progress-wrap {
+      flex-shrink: 0;
+      padding: 10px 20px 12px;
+      border-top: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    .qmp-progress-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 7px;
+    }
+    .qmp-progress-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+    .qmp-progress-count { font-size: 12px; color: var(--text); font-weight: 700; }
+
+    .qmp-inspo {
+      flex-shrink: 0;
+      padding: 9px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 12px; font-weight: 500;
+      color: var(--accent);
+      background: rgba(6,182,212,0.06);
+      line-height: 1.55;
+      display: none;
+    }
+
+    /* Right: task column */
+    .qmp-right {
+      width: 300px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .qmp-tasks-header {
+      flex-shrink: 0;
+      padding: 13px 16px 11px;
+      font-size: 11px; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .qmp-tasks-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    .qmp-tasks-scroll::-webkit-scrollbar { width: 3px; }
+    .qmp-tasks-scroll::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+
+    .qmp-task {
+      display: flex; align-items: flex-start; gap: 9px;
+      padding: 10px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.12s;
+      border: 1px solid transparent;
+      margin-bottom: 4px;
+      user-select: none;
+    }
+    .qmp-task:hover { background: rgba(255,255,255,0.04); border-color: var(--border); }
+    .qmp-task.done { opacity: 0.5; }
+    .qmp-task.done .qmp-task-label { text-decoration: line-through; color: var(--muted); }
+    .qmp-check {
+      width: 18px; height: 18px; flex-shrink: 0;
+      border: 1.5px solid var(--border); border-radius: 5px;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #34d399; font-weight: 700;
+      transition: background 0.12s, border-color 0.12s;
+      margin-top: 1px;
+    }
+    .qmp-task.done .qmp-check { background: rgba(16,185,129,0.18); border-color: rgba(16,185,129,0.45); }
+    .qmp-task:not(.done):hover .qmp-check { border-color: var(--accent); }
+    .qmp-task-info { flex: 1; overflow: hidden; }
+    .qmp-task-label { font-size: 12.5px; color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .qmp-task-sub { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .qmp-section-label {
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      padding: 8px 10px 4px; opacity: 0.7;
+    }
+    .qmp-chill {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 12px;
+      padding: 24px 14px; text-align: center; height: 100%;
+    }
+    .qmp-chill-emoji { font-size: 36px; }
+    .qmp-chill-msg { font-size: 12px; color: var(--muted); line-height: 1.65; }
+    .qmp-chill-btn {
+      width: 100%; padding: 9px 12px;
+      border-radius: 8px; font-size: 12px; font-weight: 600;
+      border: 1px solid var(--border); background: var(--bg3); color: var(--text);
+      cursor: pointer; font-family: 'Inter',sans-serif; transition: background 0.15s;
+    }
+    .qmp-chill-btn:hover { background: rgba(37,99,235,0.2); border-color: var(--primary); }
+
     /* Quest inspirational banner */
     #quest-inspo-banner {
       padding: 9px 14px;
@@ -2026,6 +2199,11 @@
   </div>
   <nav id="nav">
 
+    <div class="nav-direct" id="nav-quest-home" onclick="selectQuestPanel(this)">
+      <span class="icon">🏠</span>
+      <span>Daily Quest</span>
+    </div>
+
     <div class="nav-section" data-section="portfolio-overview">
       <div class="nav-section-header" id="nav-portfolio-header" onclick="selectPortfolio(this)">
         <span class="nav-section-title">Portfolio Overview</span>
@@ -2079,6 +2257,48 @@
     <div id="breadcrumb">Project AAAI+ &nbsp;›&nbsp; <span id="breadcrumb-current">CARE Cares</span></div>
   </div>
   <div id="content">
+
+    <!-- Daily Quest Main Panel -->
+    <div id="quest-main-panel">
+      <div class="qmp-header">
+        <div class="qmp-header-left">
+          <div>
+            <div class="qmp-header-title">🏠 Daily Quest</div>
+            <div class="qmp-header-sub" id="qmp-date-sub">Loading…</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="qmp-avatar-pill" id="qmp-avatar-pill">🦁 Lion</div>
+          <button class="qmp-change-avatar" onclick="showAvatarPicker()" title="Change avatar">✦ Change Avatar</button>
+        </div>
+      </div>
+      <div class="qmp-body">
+        <!-- Left: maze -->
+        <div class="qmp-left">
+          <div class="qmp-maze-wrap">
+            <svg id="quest-main-svg" viewBox="0 0 560 210" xmlns="http://www.w3.org/2000/svg"></svg>
+          </div>
+          <div class="qmp-progress-wrap">
+            <div class="qmp-progress-row">
+              <span class="qmp-progress-label" id="qmp-progress-label">Loading…</span>
+              <span class="qmp-progress-count" id="qmp-progress-count"></span>
+            </div>
+            <div class="quest-progress-track">
+              <div class="quest-progress-fill" id="qmp-progress-fill" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="qmp-inspo" id="qmp-inspo"></div>
+        </div>
+        <!-- Right: tasks -->
+        <div class="qmp-right">
+          <div class="qmp-tasks-header">
+            <span>Tasks for Today</span>
+            <span id="qmp-task-count" style="color:var(--text);"></span>
+          </div>
+          <div class="qmp-tasks-scroll" id="qmp-task-list"></div>
+        </div>
+      </div>
+    </div>
 
     <!-- Default / placeholder panel -->
     <div class="placeholder-panel" id="placeholder-panel" style="display:none;">
@@ -2388,7 +2608,14 @@
     if (!_pendingAvatar) return;
     localStorage.setItem('irm_selected_avatar', _pendingAvatar);
     document.getElementById('avatar-picker-overlay').classList.remove('visible');
-    initTaskPanel();
+    // If quest panel is already visible, just re-render it; else do full init
+    var qmp = document.getElementById('quest-main-panel');
+    if (qmp && qmp.classList.contains('visible')) {
+      renderQuestMainPanel();
+      renderTaskPanel();
+    } else {
+      initTaskPanel();
+    }
   }
 
   function doLogin() {
@@ -2776,6 +3003,7 @@ Regards`
     document.getElementById('placeholder-panel').style.display = 'none';
     document.getElementById('news-feed-panel').classList.remove('visible');
     document.getElementById('industry-panel').classList.remove('visible');
+    document.getElementById('quest-main-panel').classList.remove('visible');
   }
 
   function selectItem(el, section, item) {
@@ -2803,7 +3031,7 @@ Regards`
     document.getElementById('ai-panel').classList.add('visible');
   }
 
-  // Open Portfolio Overview by default on first load
+  // Open Quest panel by default on first load (pre-login placeholder)
   (function initDefaultNav() {
     const portHeader = document.getElementById('nav-portfolio-header');
     if (portHeader) selectPortfolio(portHeader);
@@ -3633,6 +3861,198 @@ Write in professional, analytical language suitable for a financial or industry 
   // ══════════════════════════════════════
   // DAILY QUEST PANEL — Gamified Tasks
   // ══════════════════════════════════════
+  // ══════════════════════════════════════
+  // QUEST MAIN PANEL (full-page game view)
+  // ══════════════════════════════════════
+  var MAIN_MAZE_WPS = [
+    {x:35,  y:196},
+    {x:100, y:175},
+    {x:162, y:188},
+    {x:218, y:158},
+    {x:178, y:122},
+    {x:262, y:106},
+    {x:338, y:128},
+    {x:398, y:94},
+    {x:458, y:112},
+    {x:516, y:74},
+    {x:548, y:44}
+  ];
+
+  function selectQuestPanel(el) {
+    document.querySelectorAll('.nav-subitem,.nav-direct,.nav-section-header').forEach(function(e) { e.classList.remove('active'); });
+    if (el) el.classList.add('active');
+    document.getElementById('breadcrumb-current').textContent = 'Daily Quest';
+    hideAllPanels();
+    document.getElementById('quest-main-panel').classList.add('visible');
+    renderQuestMainPanel();
+  }
+
+  function renderQuestMainPanel() {
+    try {
+      if (!dailyQuestState) dailyQuestState = loadDailyQuestState();
+      var tasks = getDailyTasks();
+      var ids = dailyQuestState.completedIds || [];
+      var done = 0;
+      tasks.forEach(function(t) { if (ids.indexOf(t.id) >= 0) done++; });
+      var total = tasks.length;
+      var pct = total > 0 ? Math.round((done / total) * 100) : 0;
+      var avatar = getSavedAvatar() || 'lion';
+      var avLabel = AVATAR_LABEL[avatar] || 'Avatar';
+      var avEmoji = AVATAR_EMOJI[avatar] || '🌟';
+      var today = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+      // Header info
+      var subEl = document.getElementById('qmp-date-sub');
+      if (subEl) subEl.textContent = today;
+      var pillEl = document.getElementById('qmp-avatar-pill');
+      if (pillEl) pillEl.textContent = avEmoji + ' ' + avLabel;
+
+      // Main maze SVG
+      var svgEl = document.getElementById('quest-main-svg');
+      if (svgEl) svgEl.innerHTML = buildMainMazeSVG(done, total, avatar);
+
+      // Progress bar
+      var fill = document.getElementById('qmp-progress-fill');
+      if (fill) fill.style.width = pct + '%';
+      var lbl = document.getElementById('qmp-progress-label');
+      var cnt = document.getElementById('qmp-progress-count');
+      if (done === total && total > 0) {
+        if (lbl) { lbl.textContent = 'All tasks done — you\'re home! 🎉'; lbl.style.color = '#34d399'; }
+        if (cnt) cnt.textContent = '';
+      } else if (total === 0) {
+        if (lbl) { lbl.textContent = 'Chillax day — no tasks!'; lbl.style.color = 'var(--accent)'; }
+        if (cnt) cnt.textContent = '';
+      } else {
+        if (lbl) { lbl.textContent = avEmoji + ' Walking home…'; lbl.style.color = 'var(--muted)'; }
+        if (cnt) cnt.textContent = done + ' / ' + total + ' complete';
+      }
+
+      // Inspo banner
+      var inspoEl = document.getElementById('qmp-inspo');
+      if (inspoEl) {
+        if (total > 5 && done < total) {
+          var msg = INSPO_MSGS[Math.floor(Date.now() / 86400000) % INSPO_MSGS.length];
+          inspoEl.innerHTML = avEmoji + ' <strong>Long day ahead, mighty ' + avLabel + '!</strong> ' + msg;
+          inspoEl.style.display = 'block';
+        } else {
+          inspoEl.style.display = 'none';
+        }
+      }
+
+      // Task count badge
+      var tcEl = document.getElementById('qmp-task-count');
+      if (tcEl) tcEl.textContent = total ? (done + '/' + total) : '';
+
+      // Task list
+      var listEl = document.getElementById('qmp-task-list');
+      if (!listEl) return;
+
+      if (!total) {
+        listEl.innerHTML = '<div class="qmp-chill">'
+          + '<div class="qmp-chill-emoji">' + avEmoji + '</div>'
+          + '<div class="qmp-chill-msg">Looks like a <strong style="color:var(--accent)">chillax day!</strong><br>No urgent tasks right now.<br><br>Want to explore something?</div>'
+          + '<button class="qmp-chill-btn" onclick="selectIndustryTopics(document.querySelector(\'[onclick*=selectIndustryTopics]\'))">🌐 Explore Industry Trends</button>'
+          + '<button class="qmp-chill-btn" style="margin-top:6px;" onclick="selectCriteria(document.querySelector(\'[onclick*=Rating Criteria]\'),\'Rating Criteria\')">📚 Strengthen Criteria Knowledge</button>'
+          + '</div>';
+        return;
+      }
+
+      var sections = {};
+      tasks.forEach(function(t) {
+        if (!sections[t.section]) sections[t.section] = [];
+        sections[t.section].push(t);
+      });
+      var html = '';
+      Object.keys(sections).forEach(function(sec) {
+        html += '<div class="qmp-section-label">' + escHtml(sec) + '</div>';
+        sections[sec].forEach(function(t) {
+          var isDone = ids.indexOf(t.id) >= 0;
+          var safeId = t.id.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+          html += '<div class="qmp-task' + (isDone ? ' done' : '') + '" onclick="toggleQuestTask(\'' + safeId + '\')">';
+          html += '<div class="qmp-check">' + (isDone ? '✓' : '') + '</div>';
+          html += '<div class="qmp-task-info">';
+          html += '<div class="qmp-task-label">' + taskIconHtml(t.icon) + escHtml(t.label) + '</div>';
+          html += '<div class="qmp-task-sub">' + escHtml(t.sublabel) + '</div>';
+          html += '</div></div>';
+        });
+      });
+      listEl.innerHTML = html;
+
+      updateTaskToggleBtn();
+    } catch(e) {}
+  }
+
+  function buildMainMazeSVG(done, total, avatar) {
+    var wps = MAIN_MAZE_WPS;
+    var ratio = total > 0 ? done / total : 0;
+    var figIdx = Math.min(Math.round(ratio * (wps.length - 1)), wps.length - 1);
+    var figPos = wps[figIdx];
+    var atHome = figIdx === wps.length - 1;
+    var fullPath = smoothPath(wps);
+    var compPath = figIdx > 0 ? smoothPath(wps.slice(0, figIdx + 1)) : '';
+    var home = wps[wps.length - 1];
+    var out = '';
+
+    // Background glow
+    out += '<radialGradient id="mazeGlow" cx="85%" cy="20%" r="40%"><stop offset="0%" stop-color="rgba(6,182,212,0.12)"/><stop offset="100%" stop-color="transparent"/></radialGradient>';
+    out += '<rect x="0" y="0" width="560" height="210" fill="url(#mazeGlow)"/>';
+
+    // Full path (dashed)
+    out += '<path d="' + fullPath + '" stroke="#1e3a4a" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10,5"/>';
+    // Completed path (teal)
+    if (compPath) {
+      out += '<path d="' + compPath + '" stroke="#06b6d4" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>';
+    }
+
+    // Waypoint gems (skipping start and home)
+    for (var i = 1; i < wps.length - 1; i++) {
+      var p = wps[i];
+      var wp_done = i <= figIdx;
+      if (wp_done) {
+        // Completed gem (star-like)
+        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="7" fill="rgba(6,182,212,0.15)" stroke="#06b6d4" stroke-width="1.5"/>';
+        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="4" fill="#06b6d4"/>';
+        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="1.8" fill="#e0f9fe"/>';
+      } else {
+        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="5" fill="#1e3a4a" stroke="#334155" stroke-width="1.5" opacity="0.8"/>';
+        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="2" fill="#334155" opacity="0.6"/>';
+      }
+    }
+
+    // Start marker
+    out += '<circle cx="' + wps[0].x + '" cy="' + wps[0].y + '" r="8" fill="#0c2a3a" stroke="#06b6d4" stroke-width="2"/>';
+    out += '<text x="' + wps[0].x + '" y="' + (wps[0].y + 16) + '" text-anchor="middle" fill="#475569" font-size="8.5" font-family="Inter,sans-serif" font-weight="700">START</text>';
+
+    // Home (large house)
+    out += '<g transform="translate(' + home.x + ',' + home.y + ')">';
+    if (atHome) {
+      out += '<circle cx="0" cy="-8" r="34" fill="rgba(6,182,212,0.12)" opacity="0.9"/>';
+      out += '<circle cx="0" cy="-8" r="24" fill="rgba(6,182,212,0.08)" opacity="0.9"/>';
+    }
+    out += '<polygon points="-22,-10 22,-10 0,-38" fill="' + (atHome ? '#06b6d4' : '#0c4a6e') + '" opacity="' + (atHome ? 1 : 0.7) + '"/>';
+    out += '<rect x="-6" y="-40" width="6" height="14" fill="#0284c7" opacity="0.8"/>';
+    out += '<rect x="-20" y="-10" width="40" height="30" rx="3" fill="' + (atHome ? '#0e7490' : '#0c3a4a') + '" opacity="' + (atHome ? 1 : 0.65) + '"/>';
+    out += '<rect x="-6" y="5" width="12" height="14" rx="2" fill="#67e8f9" opacity="' + (atHome ? 0.9 : 0.3) + '"/>';
+    out += '<rect x="-17" y="-6" width="9" height="9" rx="1.5" fill="#67e8f9" opacity="' + (atHome ? 0.65 : 0.2) + '"/>';
+    out += '<rect x="8" y="-6" width="9" height="9" rx="1.5" fill="#67e8f9" opacity="' + (atHome ? 0.65 : 0.2) + '"/>';
+    out += '<text x="0" y="32" text-anchor="middle" fill="' + (atHome ? '#67e8f9' : '#475569') + '" font-size="8.5" font-family="Inter,sans-serif" font-weight="700">HOME</text>';
+    out += '</g>';
+    if (atHome) {
+      out += '<text x="' + home.x + '" y="' + (home.y - 48) + '" text-anchor="middle" font-size="20">🎉</text>';
+    }
+
+    // Avatar character (not at home)
+    if (!atHome) {
+      var cx = figPos.x;
+      var cy = figPos.y - 28;
+      out += '<g transform="translate(' + cx + ',' + cy + ') scale(1.5)">';
+      out += buildAvatarChar(avatar || getSavedAvatar() || 'lion');
+      out += '</g>';
+    }
+
+    return out;
+  }
+
   var MAZE_WPS = [
     {x:18,y:112},{x:52,y:96},{x:94,y:106},{x:126,y:80},
     {x:82,y:62},{x:150,y:50},{x:194,y:65},{x:220,y:40},{x:248,y:25}
@@ -3643,7 +4063,9 @@ Write in professional, analytical language suitable for a financial or industry 
   function initTaskPanel() {
     try {
       dailyQuestState = loadDailyQuestState();
-      showTaskPanel();
+      // Show quest as the main landing page
+      var navEl = document.getElementById('nav-quest-home');
+      if (navEl) selectQuestPanel(navEl);
     } catch(e) {}
   }
 
@@ -3818,6 +4240,7 @@ Write in professional, analytical language suitable for a financial or industry 
     if (idx >= 0) dailyQuestState.completedIds.splice(idx, 1);
     else dailyQuestState.completedIds.push(taskId);
     saveDailyQuestState();
+    renderQuestMainPanel();
     renderTaskPanel();
   }
 
