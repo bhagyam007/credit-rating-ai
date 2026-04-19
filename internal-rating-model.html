@@ -1584,6 +1584,173 @@
       color: #34d399;
     }
     .btn-action.save:hover { background: rgba(16,185,129,0.25); border-color: #34d399; }
+
+    /* ══════════════════════════════════════
+       AVATAR PICKER
+    ══════════════════════════════════════ */
+    #avatar-picker-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2500;
+      background: rgba(10,18,36,0.97);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s, visibility 0.4s;
+    }
+    #avatar-picker-overlay.visible { opacity: 1; visibility: visible; }
+    .avatar-picker-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 40px;
+      max-width: 700px;
+      width: 94%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+    }
+    .avatar-picker-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      text-align: center;
+    }
+    .avatar-picker-sub {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: -14px;
+    }
+    .avatar-grid {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .avatar-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 12px 10px;
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      background: var(--bg);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s, box-shadow 0.2s;
+      min-width: 108px;
+      user-select: none;
+    }
+    .avatar-card:hover {
+      border-color: var(--accent);
+      background: rgba(6,182,212,0.06);
+      transform: translateY(-4px);
+    }
+    .avatar-card.selected {
+      border-color: var(--accent);
+      background: rgba(6,182,212,0.1);
+      box-shadow: 0 0 22px rgba(6,182,212,0.25);
+    }
+    .avatar-card .av-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .avatar-card.selected .av-name { color: var(--accent); }
+
+    .btn-confirm-avatar {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 38px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s, transform 0.1s, opacity 0.2s;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .btn-confirm-avatar.ready { opacity: 1; pointer-events: all; }
+    .btn-confirm-avatar.ready:hover { background: #1d4ed8; }
+    .btn-confirm-avatar.ready:active { transform: scale(0.97); }
+
+    /* Avatar SVG animations */
+    @keyframes avLionBreath {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.07); }
+    }
+    @keyframes avCheetahBounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-5px); }
+    }
+    @keyframes avLeopardProwl {
+      0%,100% { transform: translateX(0) rotate(0deg); }
+      33%      { transform: translateX(-3px) rotate(-2deg); }
+      66%      { transform: translateX(3px) rotate(2deg); }
+    }
+    @keyframes avWhaleSwim {
+      0%,100% { transform: translateY(0) rotate(-2deg); }
+      50%      { transform: translateY(-6px) rotate(2deg); }
+    }
+    @keyframes avCrocoSway {
+      0%,100% { transform: rotate(0deg); }
+      33%      { transform: rotate(-4deg); }
+      66%      { transform: rotate(4deg); }
+    }
+    .av-anim-lion    { animation: avLionBreath 2.5s ease-in-out infinite; display: block; }
+    .av-anim-cheetah { animation: avCheetahBounce 1.3s ease-in-out infinite; display: block; }
+    .av-anim-leopard { animation: avLeopardProwl 2.2s ease-in-out infinite; display: block; }
+    .av-anim-whale   { animation: avWhaleSwim 2s ease-in-out infinite; display: block; }
+    .av-anim-croco   { animation: avCrocoSway 1.8s ease-in-out infinite; transform-origin: center bottom; display: block; }
+
+    /* Quest inspirational banner */
+    #quest-inspo-banner {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11.5px;
+      color: var(--accent);
+      background: rgba(6,182,212,0.06);
+      flex-shrink: 0;
+      line-height: 1.55;
+      font-weight: 500;
+      display: none;
+    }
+    /* Quest chill state */
+    .quest-chill-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 20px 14px;
+      text-align: center;
+    }
+    .quest-chill-emoji { font-size: 34px; }
+    .quest-chill-msg { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .quest-chill-btns { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .quest-chill-btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--text);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s, border-color 0.15s;
+      text-align: center;
+    }
+    .quest-chill-btn:hover { background: rgba(37,99,235,0.2); border-color: var(--primary); }
   </style>
 </head>
 <body>
@@ -1700,6 +1867,153 @@
 
 </div>
 <!-- END LOGIN SCREEN -->
+
+<!-- ══════════════════════════════════════
+     AVATAR PICKER OVERLAY
+══════════════════════════════════════ -->
+<div id="avatar-picker-overlay">
+  <div class="avatar-picker-box">
+    <div class="avatar-picker-title">Choose Your Spirit Avatar</div>
+    <div class="avatar-picker-sub">Your companion through the daily quest maze — saved for future sessions</div>
+    <div class="avatar-grid">
+
+      <!-- LION -->
+      <div class="avatar-card" id="acard-lion" onclick="selectAvatar('lion')">
+        <svg class="av-anim-lion" viewBox="0 0 80 80" width="88" height="88">
+          <circle cx="40" cy="38" r="25" fill="#b45309" opacity="0.85"/>
+          <circle cx="40" cy="38" r="19" fill="#d97706"/>
+          <circle cx="40" cy="36" r="15" fill="#f59e0b"/>
+          <polygon points="27,23 24,13 34,21" fill="#f59e0b"/>
+          <polygon points="53,23 56,13 46,21" fill="#f59e0b"/>
+          <polygon points="27,23 25,16 32,21" fill="#fcd34d" opacity="0.6"/>
+          <polygon points="53,23 55,16 48,21" fill="#fcd34d" opacity="0.6"/>
+          <circle cx="34" cy="32" r="3.2" fill="#1c1917"/>
+          <circle cx="46" cy="32" r="3.2" fill="#1c1917"/>
+          <circle cx="35" cy="31" r="1.2" fill="white" opacity="0.9"/>
+          <circle cx="47" cy="31" r="1.2" fill="white" opacity="0.9"/>
+          <ellipse cx="40" cy="41" rx="7" ry="5" fill="#f59e0b"/>
+          <ellipse cx="40" cy="39" rx="3" ry="2" fill="#92400e"/>
+          <path d="M 36 43 Q 40 47 44 43" stroke="#78350f" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <line x1="22" y1="40" x2="33" y2="41" stroke="#92400e" stroke-width="1" opacity="0.55"/>
+          <line x1="58" y1="40" x2="47" y2="41" stroke="#92400e" stroke-width="1" opacity="0.55"/>
+          <ellipse cx="40" cy="65" rx="14" ry="10" fill="#d97706"/>
+          <ellipse cx="29" cy="72" rx="7" ry="4" fill="#b45309"/>
+          <ellipse cx="51" cy="72" rx="7" ry="4" fill="#b45309"/>
+          <path d="M 53 62 Q 68 66 65 74" stroke="#b45309" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <circle cx="64" cy="75" r="4" fill="#b45309"/>
+        </svg>
+        <div class="av-name">Lion</div>
+      </div>
+
+      <!-- CHEETAH -->
+      <div class="avatar-card" id="acard-cheetah" onclick="selectAvatar('cheetah')">
+        <svg class="av-anim-cheetah" viewBox="0 0 80 80" width="88" height="88">
+          <ellipse cx="44" cy="56" rx="18" ry="12" fill="#c2410c"/>
+          <circle cx="32" cy="37" r="14" fill="#ea580c"/>
+          <ellipse cx="27" cy="42" rx="6" ry="4" fill="#fed7aa"/>
+          <polygon points="38,25 44,17 46,26" fill="#ea580c"/>
+          <polygon points="25,26 22,17 30,24" fill="#ea580c"/>
+          <polygon points="38,26 43,20 44,26" fill="#fbbf24" opacity="0.45"/>
+          <circle cx="30" cy="34" r="3" fill="#1c1917"/>
+          <circle cx="38" cy="33" r="3" fill="#1c1917"/>
+          <circle cx="31" cy="33" r="1.2" fill="white" opacity="0.9"/>
+          <circle cx="39" cy="32" r="1.2" fill="white" opacity="0.9"/>
+          <path d="M 26 37 Q 22 43 21 50" stroke="#1c1917" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M 28 37 Q 25 43 24 50" stroke="#1c1917" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <ellipse cx="26" cy="42" rx="2.5" ry="1.5" fill="#7c2d12"/>
+          <circle cx="40" cy="50" r="2.5" fill="#7c2d12"/>
+          <circle cx="50" cy="55" r="2.5" fill="#7c2d12"/>
+          <circle cx="36" cy="58" r="2" fill="#7c2d12"/>
+          <circle cx="48" cy="62" r="2.5" fill="#7c2d12"/>
+          <circle cx="56" cy="50" r="2" fill="#7c2d12"/>
+          <circle cx="34" cy="42" r="1.5" fill="#7c2d12" opacity="0.6"/>
+          <rect x="28" y="64" width="7" height="12" rx="3" fill="#c2410c"/>
+          <rect x="43" y="64" width="7" height="12" rx="3" fill="#c2410c"/>
+          <path d="M 60 55 Q 72 52 74 62 Q 72 70 64 72" stroke="#c2410c" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <circle cx="63" cy="73" r="4" fill="#1c1917"/>
+        </svg>
+        <div class="av-name">Cheetah</div>
+      </div>
+
+      <!-- LEOPARD -->
+      <div class="avatar-card" id="acard-leopard" onclick="selectAvatar('leopard')">
+        <svg class="av-anim-leopard" viewBox="0 0 80 80" width="88" height="88">
+          <ellipse cx="44" cy="57" rx="20" ry="14" fill="#d97706"/>
+          <circle cx="34" cy="38" r="15" fill="#f59e0b"/>
+          <ellipse cx="28" cy="43" rx="7" ry="5" fill="#fde68a"/>
+          <polygon points="36,24 42,16 46,26" fill="#f59e0b"/>
+          <polygon points="24,26 20,16 30,24" fill="#f59e0b"/>
+          <polygon points="37,25 41,19 44,26" fill="#000" opacity="0.25"/>
+          <circle cx="30" cy="35" r="3.5" fill="#166534"/>
+          <circle cx="40" cy="34" r="3.5" fill="#166534"/>
+          <circle cx="30" cy="35" r="2" fill="#1c1917"/>
+          <circle cx="40" cy="34" r="2" fill="#1c1917"/>
+          <circle cx="31" cy="34" r="1" fill="white" opacity="0.9"/>
+          <circle cx="41" cy="33" r="1" fill="white" opacity="0.9"/>
+          <ellipse cx="27" cy="43" rx="3" ry="2" fill="#92400e"/>
+          <circle cx="42" cy="50" r="4.5" fill="none" stroke="#7c2d12" stroke-width="2"/>
+          <circle cx="42" cy="50" r="1.5" fill="#7c2d12"/>
+          <circle cx="56" cy="55" r="4" fill="none" stroke="#7c2d12" stroke-width="2"/>
+          <circle cx="56" cy="55" r="1.5" fill="#7c2d12"/>
+          <circle cx="34" cy="61" r="3.5" fill="none" stroke="#7c2d12" stroke-width="1.8"/>
+          <circle cx="50" cy="64" r="3.5" fill="none" stroke="#7c2d12" stroke-width="1.8"/>
+          <circle cx="26" cy="38" r="1.5" fill="#92400e" opacity="0.6"/>
+          <rect x="29" y="67" width="8" height="11" rx="3" fill="#d97706"/>
+          <rect x="47" y="67" width="8" height="11" rx="3" fill="#d97706"/>
+          <path d="M 62 56 Q 72 51 74 61 Q 72 70 66 72" stroke="#d97706" stroke-width="5" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="av-name">Leopard</div>
+      </div>
+
+      <!-- WHALE -->
+      <div class="avatar-card" id="acard-whale" onclick="selectAvatar('whale')">
+        <svg class="av-anim-whale" viewBox="0 0 80 80" width="88" height="88">
+          <path d="M 40 9 Q 38 4 40 2 Q 42 4 40 9" stroke="#bae6fd" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.9"/>
+          <path d="M 40 9 Q 35 3 37 0 Q 42 2 40 9" stroke="#bae6fd" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <ellipse cx="40" cy="47" rx="22" ry="28" fill="#1e40af"/>
+          <ellipse cx="40" cy="53" rx="13" ry="18" fill="#bfdbfe"/>
+          <path d="M 30 73 Q 36 80 40 77 Q 44 80 50 73 Q 44 69 40 73 Q 36 69 30 73Z" fill="#1e40af"/>
+          <path d="M 20 45 Q 12 51 14 59 Q 22 51 22 47Z" fill="#1e3a8a"/>
+          <path d="M 60 45 Q 68 51 66 59 Q 58 51 58 47Z" fill="#1e3a8a"/>
+          <circle cx="33" cy="36" r="5" fill="white"/>
+          <circle cx="33" cy="36" r="3" fill="#1c1917"/>
+          <circle cx="34" cy="35" r="1.2" fill="white" opacity="0.9"/>
+          <path d="M 30 43 Q 36 47 42 43" stroke="#1e3a8a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="av-name">Whale</div>
+      </div>
+
+      <!-- CROCODILE -->
+      <div class="avatar-card" id="acard-croco" onclick="selectAvatar('croco')">
+        <svg class="av-anim-croco" viewBox="0 0 80 80" width="88" height="88">
+          <path d="M 14 57 Q 8 65 12 73 Q 20 69 22 61Z" fill="#166534"/>
+          <ellipse cx="44" cy="53" rx="28" ry="14" fill="#16a34a"/>
+          <polygon points="24,41 26,51 28,41" fill="#166534"/>
+          <polygon points="32,39 34,50 36,39" fill="#166534"/>
+          <polygon points="40,38 42,50 44,38" fill="#166534"/>
+          <polygon points="48,39 50,50 52,39" fill="#166534"/>
+          <polygon points="56,41 58,51 60,41" fill="#166534"/>
+          <ellipse cx="64" cy="51" rx="14" ry="9" fill="#16a34a"/>
+          <ellipse cx="72" cy="53" rx="8" ry="5" fill="#15803d"/>
+          <circle cx="70" cy="51" r="1.5" fill="#166534"/>
+          <circle cx="74" cy="51" r="1.5" fill="#166534"/>
+          <circle cx="63" cy="44" r="5.5" fill="#fef08a"/>
+          <circle cx="63" cy="44" r="3" fill="#166534"/>
+          <circle cx="63" cy="44" r="1.5" fill="#1c1917"/>
+          <polygon points="66,56 68,63 70,56" fill="white"/>
+          <polygon points="58,56 60,63 62,56" fill="white"/>
+          <ellipse cx="32" cy="65" rx="6" ry="4" fill="#15803d"/>
+          <ellipse cx="52" cy="65" rx="6" ry="4" fill="#15803d"/>
+          <ellipse cx="44" cy="55" rx="20" ry="9" fill="#4ade80" opacity="0.4"/>
+        </svg>
+        <div class="av-name">Croco</div>
+      </div>
+
+    </div>
+    <button class="btn-confirm-avatar" id="btn-confirm-avatar" onclick="confirmAvatar()">Let's Go! →</button>
+  </div>
+</div>
+<!-- END AVATAR PICKER -->
 
 <!-- Sidebar -->
 <aside id="sidebar">
@@ -1990,6 +2304,7 @@
       <div class="quest-progress-fill" id="quest-progress-fill" style="width:0%"></div>
     </div>
   </div>
+  <div id="quest-inspo-banner"></div>
   <div id="quest-task-list-wrap">
     <div id="quest-task-list"></div>
   </div>
@@ -2030,7 +2345,50 @@
   function enterApp() {
     const screen = document.getElementById('login-screen');
     screen.classList.add('hidden');
-    setTimeout(() => initTaskPanel(), 900);
+    setTimeout(function() {
+      if (!getSavedAvatar()) {
+        showAvatarPicker();
+      } else {
+        initTaskPanel();
+      }
+    }, 700);
+  }
+
+  // ══════════════════════════════════════
+  // AVATAR SELECTION
+  // ══════════════════════════════════════
+  var _pendingAvatar = null;
+
+  function getSavedAvatar() {
+    return localStorage.getItem('irm_selected_avatar') || null;
+  }
+
+  function showAvatarPicker() {
+    _pendingAvatar = getSavedAvatar();
+    if (_pendingAvatar) {
+      document.querySelectorAll('.avatar-card').forEach(function(c) { c.classList.remove('selected'); });
+      var existing = document.getElementById('acard-' + _pendingAvatar);
+      if (existing) existing.classList.add('selected');
+      var btn = document.getElementById('btn-confirm-avatar');
+      if (btn) btn.classList.add('ready');
+    }
+    document.getElementById('avatar-picker-overlay').classList.add('visible');
+  }
+
+  function selectAvatar(name) {
+    _pendingAvatar = name;
+    document.querySelectorAll('.avatar-card').forEach(function(c) { c.classList.remove('selected'); });
+    var card = document.getElementById('acard-' + name);
+    if (card) card.classList.add('selected');
+    var btn = document.getElementById('btn-confirm-avatar');
+    if (btn) btn.classList.add('ready');
+  }
+
+  function confirmAvatar() {
+    if (!_pendingAvatar) return;
+    localStorage.setItem('irm_selected_avatar', _pendingAvatar);
+    document.getElementById('avatar-picker-overlay').classList.remove('visible');
+    initTaskPanel();
   }
 
   function doLogin() {
@@ -3367,6 +3725,16 @@ Write in professional, analytical language suitable for a financial or industry 
     return '';
   }
 
+  var INSPO_MSGS = [
+    'Every step forward counts. One task at a time — you\'ve got this!',
+    'The mightiest warriors face the longest journeys. Let\'s power through!',
+    'Big days build great analysts. Your avatar believes in you!',
+    'The maze is long, but every checkpoint brings you closer to home.',
+    'Challenge accepted! Let\'s check off these tasks one by one.'
+  ];
+  var AVATAR_EMOJI = { lion: '🦁', cheetah: '🐆', leopard: '🐆', whale: '🐋', croco: '🐊' };
+  var AVATAR_LABEL = { lion: 'Lion', cheetah: 'Cheetah', leopard: 'Leopard', whale: 'Whale', croco: 'Croco' };
+
   function renderTaskPanel() {
     try {
       if (!dailyQuestState) dailyQuestState = loadDailyQuestState();
@@ -3376,6 +3744,9 @@ Write in professional, analytical language suitable for a financial or industry 
       tasks.forEach(function(t) { if (ids.indexOf(t.id) >= 0) done++; });
       var total = tasks.length;
       var pct = total > 0 ? Math.round((done / total) * 100) : 0;
+      var avatar = getSavedAvatar() || 'lion';
+      var avLabel = AVATAR_LABEL[avatar] || 'Avatar';
+      var avEmoji = AVATAR_EMOJI[avatar] || '🌟';
 
       var mazeEl = document.getElementById('quest-maze');
       if (mazeEl) mazeEl.innerHTML = buildMazeSVG(done, total);
@@ -3386,13 +3757,34 @@ Write in professional, analytical language suitable for a financial or industry 
       var prog = document.getElementById('quest-progress-text');
       if (prog) {
         if (done === total && total > 0) { prog.textContent = 'All done — you\'re home! \uD83C\uDF89'; prog.style.color = '#34d399'; }
+        else if (total === 0) { prog.textContent = 'Chillax day ahead! ' + avEmoji; prog.style.color = 'var(--accent)'; }
         else { prog.textContent = done + ' / ' + total + ' tasks complete'; prog.style.color = 'var(--muted)'; }
+      }
+
+      // Inspirational banner for 5+ tasks
+      var inspo = document.getElementById('quest-inspo-banner');
+      if (inspo) {
+        if (total > 5 && done < total) {
+          var msg = INSPO_MSGS[Math.floor(Date.now() / 86400000) % INSPO_MSGS.length];
+          inspo.innerHTML = avEmoji + ' <strong>Long day ahead, mighty ' + avLabel + '!</strong> ' + msg;
+          inspo.style.display = 'block';
+        } else {
+          inspo.style.display = 'none';
+        }
       }
 
       var listEl = document.getElementById('quest-task-list');
       if (listEl) {
         if (!total) {
-          listEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:12.5px;">No tasks for today!</div>';
+          // Chillax state
+          listEl.innerHTML = '<div class="quest-chill-wrap">'
+            + '<div class="quest-chill-emoji">' + avEmoji + '</div>'
+            + '<div class="quest-chill-msg">Looks like a <strong style="color:var(--accent)">chillax day</strong>! No urgent tasks right now.<br><br>Want to explore something?</div>'
+            + '<div class="quest-chill-btns">'
+            + '<button class="quest-chill-btn" onclick="hideTaskPanel();selectIndustryTopics(document.querySelector(\'[onclick*=selectIndustryTopics]\'))">🌐 Explore Industry Trends</button>'
+            + '<button class="quest-chill-btn" onclick="hideTaskPanel();selectCriteria(document.querySelector(\'[onclick*=Rating Criteria]\'),\'Rating Criteria\')">📚 Strengthen Criteria Knowledge</button>'
+            + '</div>'
+            + '</div>';
         } else {
           var sections = {};
           tasks.forEach(function(t) {
@@ -3404,8 +3796,8 @@ Write in professional, analytical language suitable for a financial or industry 
             html += '<div class="quest-section-label">' + escHtml(sec) + '</div>';
             sections[sec].forEach(function(t) {
               var isDone = ids.indexOf(t.id) >= 0;
-              var safeId = t.id.replace(/'/g, '&#39;');
-              html += '<div class="quest-task' + (isDone ? ' done' : '') + '" onclick="toggleQuestTask(\'' + safeId.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">';
+              var safeId = t.id.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+              html += '<div class="quest-task' + (isDone ? ' done' : '') + '" onclick="toggleQuestTask(\'' + safeId + '\')">';
               html += '<div class="quest-task-check">' + (isDone ? '\u2713' : '') + '</div>';
               html += '<div class="quest-task-info">';
               html += '<div class="quest-task-label">' + taskIconHtml(t.icon) + escHtml(t.label) + '</div>';
@@ -3439,6 +3831,143 @@ Write in professional, analytical language suitable for a financial or industry 
     }
     d += ' L ' + pts[pts.length-1].x + ' ' + pts[pts.length-1].y;
     return d;
+  }
+
+  // Returns SVG elements for the avatar character, relative to (0,0)
+  // head ~y=-12, body y=-1..12, legs to y=22, shadow at y=23
+  function buildAvatarChar(avatar) {
+    var o = '';
+    o += '<ellipse cx="0" cy="23" rx="8" ry="2.5" fill="rgba(0,0,0,0.2)"/>';
+
+    if (avatar === 'lion') {
+      // Mane + head
+      o += '<circle cx="0" cy="-12" r="11" fill="#b45309"/>';
+      o += '<circle cx="0" cy="-12" r="8" fill="#f59e0b"/>';
+      // Ears
+      o += '<polygon points="-7,-19 -4,-13 -11,-14" fill="#f59e0b"/>';
+      o += '<polygon points="7,-19 4,-13 11,-14" fill="#f59e0b"/>';
+      // Eyes
+      o += '<circle cx="-3.5" cy="-14" r="2.2" fill="#1c1917"/>';
+      o += '<circle cx="3.5" cy="-14" r="2.2" fill="#1c1917"/>';
+      o += '<circle cx="-3" cy="-15" r="0.9" fill="white" opacity="0.9"/>';
+      o += '<circle cx="4" cy="-15" r="0.9" fill="white" opacity="0.9"/>';
+      o += '<ellipse cx="0" cy="-9" rx="2" ry="1.2" fill="#92400e"/>';
+      // Body
+      o += '<rect x="-6" y="-1" width="12" height="13" rx="4" fill="#d97706"/>';
+      // Arms
+      o += '<line x1="-6" y1="4" x2="-13" y2="9" stroke="#b45309" stroke-width="2.5" stroke-linecap="round"/>';
+      o += '<line x1="6" y1="4" x2="13" y2="9" stroke="#b45309" stroke-width="2.5" stroke-linecap="round"/>';
+      // Legs
+      o += '<line x1="-3" y1="11" x2="-5" y2="22" stroke="#b45309" stroke-width="2.5" stroke-linecap="round"/>';
+      o += '<line x1="3" y1="11" x2="5" y2="22" stroke="#b45309" stroke-width="2.5" stroke-linecap="round"/>';
+      // Tail
+      o += '<path d="M 5 10 Q 14 14 12 22" stroke="#b45309" stroke-width="2" fill="none" stroke-linecap="round"/>';
+
+    } else if (avatar === 'cheetah') {
+      // Head (orange)
+      o += '<circle cx="0" cy="-12" r="9" fill="#ea580c"/>';
+      o += '<polygon points="-6,-19 -4,-13 -10,-14" fill="#ea580c"/>';
+      o += '<polygon points="6,-19 4,-13 10,-14" fill="#ea580c"/>';
+      o += '<circle cx="-3.5" cy="-14" r="2.2" fill="#1c1917"/>';
+      o += '<circle cx="3.5" cy="-14" r="2.2" fill="#1c1917"/>';
+      o += '<circle cx="-3" cy="-15" r="0.9" fill="white" opacity="0.9"/>';
+      o += '<circle cx="4" cy="-15" r="0.9" fill="white" opacity="0.9"/>';
+      // Tear streaks (cheetah hallmark)
+      o += '<path d="M -4 -10 Q -5 -7 -4 -4" stroke="#7c2d12" stroke-width="1" fill="none" opacity="0.85"/>';
+      o += '<path d="M 4 -10 Q 5 -7 4 -4" stroke="#7c2d12" stroke-width="1" fill="none" opacity="0.85"/>';
+      o += '<ellipse cx="0" cy="-9" rx="2" ry="1.2" fill="#7c2d12"/>';
+      // Body with spots
+      o += '<rect x="-6" y="-1" width="12" height="13" rx="4" fill="#c2410c"/>';
+      o += '<circle cx="-2" cy="3" r="1.5" fill="#7c2d12"/>';
+      o += '<circle cx="3" cy="8" r="1.5" fill="#7c2d12"/>';
+      // Arms + legs
+      o += '<line x1="-6" y1="4" x2="-13" y2="9" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round"/>';
+      o += '<line x1="6" y1="4" x2="13" y2="9" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round"/>';
+      o += '<line x1="-3" y1="11" x2="-5" y2="22" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round"/>';
+      o += '<line x1="3" y1="11" x2="5" y2="22" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round"/>';
+      // Tail with dashed rings
+      o += '<path d="M 5 10 Q 14 14 12 22" stroke="#7c2d12" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-dasharray="3,2"/>';
+
+    } else if (avatar === 'leopard') {
+      // Head (tawny gold, wider)
+      o += '<circle cx="0" cy="-12" r="9" fill="#f59e0b"/>';
+      o += '<polygon points="-7,-19 -4,-13 -11,-14" fill="#f59e0b"/>';
+      o += '<polygon points="7,-19 4,-13 11,-14" fill="#f59e0b"/>';
+      // Green eyes (distinctive!)
+      o += '<circle cx="-3.5" cy="-14" r="2.5" fill="#15803d"/>';
+      o += '<circle cx="3.5" cy="-14" r="2.5" fill="#15803d"/>';
+      o += '<circle cx="-3.5" cy="-14" r="1.3" fill="#1c1917"/>';
+      o += '<circle cx="3.5" cy="-14" r="1.3" fill="#1c1917"/>';
+      o += '<circle cx="-3" cy="-15" r="0.7" fill="white" opacity="0.9"/>';
+      o += '<circle cx="4" cy="-15" r="0.7" fill="white" opacity="0.9"/>';
+      // Rosette on face
+      o += '<circle cx="-3" cy="-9" r="2" fill="none" stroke="#7c2d12" stroke-width="1.2"/>';
+      o += '<circle cx="-3" cy="-9" r="0.7" fill="#7c2d12"/>';
+      o += '<ellipse cx="0" cy="-8" rx="2" ry="1.2" fill="#92400e"/>';
+      // Body (wider)
+      o += '<rect x="-7" y="-1" width="14" height="13" rx="4" fill="#d97706"/>';
+      // Rosette on body
+      o += '<circle cx="0" cy="5" r="2.5" fill="none" stroke="#7c2d12" stroke-width="1.2"/>';
+      o += '<circle cx="0" cy="5" r="0.8" fill="#7c2d12"/>';
+      // Arms + legs (wider stance)
+      o += '<line x1="-7" y1="4" x2="-14" y2="9" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/>';
+      o += '<line x1="7" y1="4" x2="14" y2="9" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/>';
+      o += '<line x1="-3" y1="11" x2="-5" y2="22" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/>';
+      o += '<line x1="3" y1="11" x2="5" y2="22" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/>';
+      // Tail (thick)
+      o += '<path d="M 5 10 Q 15 14 13 22" stroke="#d97706" stroke-width="3" fill="none" stroke-linecap="round"/>';
+
+    } else if (avatar === 'whale') {
+      // Upright friendly whale
+      o += '<ellipse cx="0" cy="6" rx="8" ry="14" fill="#1e40af"/>';
+      o += '<ellipse cx="0" cy="8" rx="4.5" ry="9" fill="#bfdbfe"/>';
+      // Side fins
+      o += '<path d="M -8 2 Q -15 6 -12 13 Q -8 8 -8 2Z" fill="#1e3a8a"/>';
+      o += '<path d="M 8 2 Q 15 6 12 13 Q 8 8 8 2Z" fill="#1e3a8a"/>';
+      // Tail fluke
+      o += '<path d="M -7 18 Q -3 23 0 20 Q 3 23 7 18 Q 3 16 0 19 Q -3 16 -7 18Z" fill="#1e40af"/>';
+      // Head
+      o += '<circle cx="0" cy="-10" r="9" fill="#1e40af"/>';
+      // Spout
+      o += '<path d="M 0 -19 Q -2 -23 0 -21" stroke="#bae6fd" stroke-width="1.5" fill="none" stroke-linecap="round"/>';
+      // Eye
+      o += '<circle cx="-4" cy="-11" r="3" fill="white"/>';
+      o += '<circle cx="-4" cy="-11" r="1.8" fill="#1c1917"/>';
+      o += '<circle cx="-3.5" cy="-12" r="0.8" fill="white" opacity="0.9"/>';
+      // Smile
+      o += '<path d="M -2 -7 Q 2 -5 5 -7" stroke="#1e3a8a" stroke-width="1.5" fill="none" stroke-linecap="round"/>';
+
+    } else if (avatar === 'croco') {
+      // Raptor-like standing croc
+      o += '<rect x="-6" y="-1" width="12" height="14" rx="3" fill="#16a34a"/>';
+      o += '<ellipse cx="0" cy="6" rx="4.5" ry="7" fill="#4ade80" opacity="0.45"/>';
+      // Back spines
+      o += '<polygon points="-2,-6 0,-1 2,-6" fill="#166534"/>';
+      o += '<polygon points="-2,-9 0,-4 2,-9" fill="#166534" opacity="0.7"/>';
+      // Tail
+      o += '<path d="M 5 10 Q 14 13 15 22" stroke="#166534" stroke-width="4" fill="none" stroke-linecap="round"/>';
+      // Head
+      o += '<ellipse cx="0" cy="-13" rx="9" ry="7" fill="#16a34a"/>';
+      // Snout
+      o += '<ellipse cx="0" cy="-8" rx="6.5" ry="4" fill="#15803d"/>';
+      o += '<circle cx="-3" cy="-8" r="1.2" fill="#166534"/>';
+      o += '<circle cx="3" cy="-8" r="1.2" fill="#166534"/>';
+      // Teeth
+      o += '<polygon points="-4,-6 -3,-2 -2,-6" fill="white"/>';
+      o += '<polygon points="2,-6 3,-2 4,-6" fill="white"/>';
+      // Yellow eyes
+      o += '<circle cx="-4" cy="-18" r="3" fill="#fef08a"/>';
+      o += '<circle cx="4" cy="-18" r="3" fill="#fef08a"/>';
+      o += '<circle cx="-4" cy="-18" r="1.5" fill="#1c1917"/>';
+      o += '<circle cx="4" cy="-18" r="1.5" fill="#1c1917"/>';
+      // Arms + legs
+      o += '<line x1="-6" y1="4" x2="-13" y2="9" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>';
+      o += '<line x1="6" y1="4" x2="13" y2="9" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>';
+      o += '<line x1="-3" y1="12" x2="-5" y2="22" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>';
+      o += '<line x1="3" y1="12" x2="5" y2="22" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>';
+    }
+
+    return o;
   }
 
   function buildMazeSVG(done, total) {
@@ -3482,23 +4011,12 @@ Write in professional, analytical language suitable for a financial or industry 
     out += '<rect x="4" y="-5" width="5" height="5" rx="1" fill="#67e8f9" opacity="' + (atHome ? 0.6 : 0.2) + '"/>';
     out += '<text x="0" y="18" text-anchor="middle" fill="' + (atHome ? '#67e8f9' : '#475569') + '" font-size="6" font-family="Inter,sans-serif" font-weight="700">HOME</text>';
     out += '</g>';
-    // Character (not shown at home)
+    // Character — avatar-specific (not shown at home)
     if (!atHome) {
       var cx = figPos.x;
       var cy = figPos.y - 22;
       out += '<g transform="translate(' + cx + ',' + cy + ')">';
-      out += '<ellipse cx="0" cy="23" rx="8" ry="2.5" fill="rgba(0,0,0,0.2)"/>';
-      out += '<line x1="-3" y1="11" x2="-5" y2="23" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round"/>';
-      out += '<line x1="3" y1="11" x2="5" y2="23" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round"/>';
-      out += '<rect x="-6" y="-1" width="12" height="13" rx="4" fill="#0891b2"/>';
-      out += '<line x1="-6" y1="5" x2="-13" y2="10" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round"/>';
-      out += '<line x1="6" y1="5" x2="13" y2="10" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round"/>';
-      out += '<circle cx="0" cy="-11" r="9" fill="#164e63"/>';
-      out += '<circle cx="-3.5" cy="-12" r="2.2" fill="#67e8f9"/>';
-      out += '<circle cx="3.5" cy="-12" r="2.2" fill="#67e8f9"/>';
-      out += '<circle cx="-3.5" cy="-12" r="0.9" fill="white" opacity="0.9"/>';
-      out += '<circle cx="3.5" cy="-12" r="0.9" fill="white" opacity="0.9"/>';
-      out += '<path d="M -3 -8 Q 0 -6 3 -8" stroke="#67e8f9" stroke-width="1.2" fill="none" stroke-linecap="round"/>';
+      out += buildAvatarChar(getSavedAvatar() || 'lion');
       out += '</g>';
     }
     if (atHome) {
