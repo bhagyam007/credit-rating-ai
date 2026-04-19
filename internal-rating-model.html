@@ -3275,31 +3275,24 @@ Write in professional, analytical language suitable for a financial or industry 
   // ══════════════════════════════════════
   // DAILY QUEST PANEL — Gamified Tasks
   // ══════════════════════════════════════
-  const MAZE_WPS = [
-    {x:18,  y:112},
-    {x:52,  y:96 },
-    {x:94,  y:106},
-    {x:126, y:80 },
-    {x:82,  y:62 },
-    {x:150, y:50 },
-    {x:194, y:65 },
-    {x:220, y:40 },
-    {x:248, y:25 },
+  var MAZE_WPS = [
+    {x:18,y:112},{x:52,y:96},{x:94,y:106},{x:126,y:80},
+    {x:82,y:62},{x:150,y:50},{x:194,y:65},{x:220,y:40},{x:248,y:25}
   ];
-
-  let taskPanelOpen = false;
-  let dailyQuestState = null;
+  var taskPanelOpen = false;
+  var dailyQuestState = null;
 
   function initTaskPanel() {
-    dailyQuestState = loadDailyQuestState();
-    renderTaskPanel();
-    showTaskPanel();
+    try {
+      dailyQuestState = loadDailyQuestState();
+      showTaskPanel();
+    } catch(e) {}
   }
 
   function loadDailyQuestState() {
-    const today = new Date().toISOString().slice(0, 10);
+    var today = new Date().toISOString().slice(0, 10);
     try {
-      const s = JSON.parse(localStorage.getItem('irm_daily_quest') || '{}');
+      var s = JSON.parse(localStorage.getItem('irm_daily_quest') || '{}');
       if (s.date === today) return s;
     } catch(e) {}
     return { date: today, completedIds: [] };
@@ -3310,36 +3303,24 @@ Write in professional, analytical language suitable for a financial or industry 
   }
 
   function getDailyTasks() {
-    const tasks = [];
-    const now = new Date();
-    portfolioCases.forEach(c => {
+    var tasks = [];
+    var now = new Date();
+    portfolioCases.forEach(function(c) {
       if (!c.infoReceived) {
-        tasks.push({
-          id: 'info:' + c.name,
-          label: c.name,
-          sublabel: 'Send info request mail',
-          icon: '✉️',
-          section: 'Info Pending'
-        });
+        tasks.push({ id: 'info:' + c.name, label: c.name, sublabel: 'Send info request mail', icon: 'mail', section: 'Info Pending' });
       }
     });
-    portfolioCases.forEach(c => {
-      const due = new Date(addPRDate12Months(c.prDate) + 'T00:00:00');
-      const diff = (due - now) / 86400000;
+    portfolioCases.forEach(function(c) {
+      var due = new Date(addPRDate12Months(c.prDate) + 'T00:00:00');
+      var diff = (due - now) / 86400000;
       if (diff >= 0 && diff <= 45) {
-        tasks.push({
-          id: 'surv:' + c.name,
-          label: c.name,
-          sublabel: `Surveillance due ${formatDate(addPRDate12Months(c.prDate))}`,
-          icon: '📋',
-          section: 'Surveillance Due'
-        });
+        tasks.push({ id: 'surv:' + c.name, label: c.name, sublabel: 'Surveillance due ' + formatDate(addPRDate12Months(c.prDate)), icon: 'review', section: 'Surveillance Due' });
       }
     });
     if (tasks.length === 0) {
-      tasks.push({ id: 'default:news',      label: 'Check news feed',        sublabel: 'Review today\'s company news',  icon: '📰', section: 'Daily' });
-      tasks.push({ id: 'default:portfolio', label: 'Review portfolio',        sublabel: 'Check overview & charts',       icon: '📊', section: 'Daily' });
-      tasks.push({ id: 'default:industry',  label: 'Industry topics',         sublabel: 'Scan trending industry news',   icon: '🌏', section: 'Daily' });
+      tasks.push({ id: 'default:news',     label: 'Check news feed',   sublabel: 'Review company news',      icon: 'news',   section: 'Daily' });
+      tasks.push({ id: 'default:overview', label: 'Review portfolio',  sublabel: 'Check overview & charts',  icon: 'chart',  section: 'Daily' });
+      tasks.push({ id: 'default:industry', label: 'Industry topics',   sublabel: 'Scan trending industry news', icon: 'globe', section: 'Daily' });
     }
     return tasks;
   }
@@ -3350,85 +3331,98 @@ Write in professional, analytical language suitable for a financial or industry 
 
   function showTaskPanel() {
     taskPanelOpen = true;
-    document.getElementById('task-panel').classList.add('open');
-    document.getElementById('task-toggle-wrap').style.display = 'none';
+    var p = document.getElementById('task-panel');
+    var b = document.getElementById('task-toggle-wrap');
+    if (p) p.classList.add('open');
+    if (b) b.style.display = 'none';
     renderTaskPanel();
   }
 
   function hideTaskPanel() {
     taskPanelOpen = false;
-    document.getElementById('task-panel').classList.remove('open');
-    document.getElementById('task-toggle-wrap').style.display = '';
+    var p = document.getElementById('task-panel');
+    var b = document.getElementById('task-toggle-wrap');
+    if (p) p.classList.remove('open');
+    if (b) b.style.display = '';
   }
 
   function updateTaskToggleBtn() {
-    const badge = document.getElementById('task-badge');
+    var badge = document.getElementById('task-badge');
     if (!badge) return;
-    const tasks = getDailyTasks();
-    const done = tasks.filter(t => (dailyQuestState?.completedIds || []).includes(t.id)).length;
-    const rem = tasks.length - done;
-    if (rem > 0) {
-      badge.textContent = rem;
-      badge.style.display = 'flex';
-    } else {
-      badge.style.display = 'none';
-    }
+    var tasks = getDailyTasks();
+    var ids = (dailyQuestState && dailyQuestState.completedIds) ? dailyQuestState.completedIds : [];
+    var done = 0;
+    tasks.forEach(function(t) { if (ids.indexOf(t.id) >= 0) done++; });
+    var rem = tasks.length - done;
+    if (rem > 0) { badge.textContent = rem; badge.style.display = 'flex'; }
+    else { badge.style.display = 'none'; }
+  }
+
+  function taskIconHtml(icon) {
+    if (icon === 'mail')   return '&#9993; ';
+    if (icon === 'review') return '&#128203; ';
+    if (icon === 'news')   return '&#128240; ';
+    if (icon === 'chart')  return '&#128202; ';
+    if (icon === 'globe')  return '&#127758; ';
+    return '';
   }
 
   function renderTaskPanel() {
-    if (!dailyQuestState) dailyQuestState = loadDailyQuestState();
-    const tasks = getDailyTasks();
-    const completedIds = dailyQuestState.completedIds || [];
-    const done = tasks.filter(t => completedIds.includes(t.id)).length;
-    const total = tasks.length;
-    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    try {
+      if (!dailyQuestState) dailyQuestState = loadDailyQuestState();
+      var tasks = getDailyTasks();
+      var ids = dailyQuestState.completedIds || [];
+      var done = 0;
+      tasks.forEach(function(t) { if (ids.indexOf(t.id) >= 0) done++; });
+      var total = tasks.length;
+      var pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
-    const mazeEl = document.getElementById('quest-maze');
-    if (mazeEl) mazeEl.innerHTML = buildMazeSVG(done, total);
+      var mazeEl = document.getElementById('quest-maze');
+      if (mazeEl) mazeEl.innerHTML = buildMazeSVG(done, total);
 
-    const fill = document.getElementById('quest-progress-fill');
-    if (fill) fill.style.width = pct + '%';
+      var fill = document.getElementById('quest-progress-fill');
+      if (fill) fill.style.width = pct + '%';
 
-    const prog = document.getElementById('quest-progress-text');
-    if (prog) {
-      if (done === total && total > 0) {
-        prog.textContent = '🎉 All done — you\'re home!';
-        prog.style.color = '#34d399';
-      } else {
-        prog.textContent = `${done} / ${total} tasks complete`;
-        prog.style.color = 'var(--muted)';
+      var prog = document.getElementById('quest-progress-text');
+      if (prog) {
+        if (done === total && total > 0) { prog.textContent = 'All done — you\'re home! \uD83C\uDF89'; prog.style.color = '#34d399'; }
+        else { prog.textContent = done + ' / ' + total + ' tasks complete'; prog.style.color = 'var(--muted)'; }
       }
-    }
 
-    const list = document.getElementById('quest-task-list');
-    if (list) {
-      if (!total) {
-        list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:12.5px;">✨ No tasks for today!</div>';
-      } else {
-        let sections = {};
-        tasks.forEach(t => { (sections[t.section] = sections[t.section] || []).push(t); });
-        list.innerHTML = Object.entries(sections).map(([sec, secTasks]) =>
-          `<div class="quest-section-label">${escHtml(sec)}</div>` +
-          secTasks.map(t => {
-            const isDone = completedIds.includes(t.id);
-            const safeId = t.id.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-            return `<div class="quest-task ${isDone ? 'done' : ''}" onclick="toggleQuestTask('${safeId}')">
-              <div class="quest-task-check">${isDone ? '✓' : ''}</div>
-              <div class="quest-task-info">
-                <div class="quest-task-label">${escHtml(t.icon)} ${escHtml(t.label)}</div>
-                <div class="quest-task-sub">${escHtml(t.sublabel)}</div>
-              </div>
-            </div>`;
-          }).join('')
-        ).join('');
+      var listEl = document.getElementById('quest-task-list');
+      if (listEl) {
+        if (!total) {
+          listEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:12.5px;">No tasks for today!</div>';
+        } else {
+          var sections = {};
+          tasks.forEach(function(t) {
+            if (!sections[t.section]) sections[t.section] = [];
+            sections[t.section].push(t);
+          });
+          var html = '';
+          Object.keys(sections).forEach(function(sec) {
+            html += '<div class="quest-section-label">' + escHtml(sec) + '</div>';
+            sections[sec].forEach(function(t) {
+              var isDone = ids.indexOf(t.id) >= 0;
+              var safeId = t.id.replace(/'/g, '&#39;');
+              html += '<div class="quest-task' + (isDone ? ' done' : '') + '" onclick="toggleQuestTask(\'' + safeId.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">';
+              html += '<div class="quest-task-check">' + (isDone ? '\u2713' : '') + '</div>';
+              html += '<div class="quest-task-info">';
+              html += '<div class="quest-task-label">' + taskIconHtml(t.icon) + escHtml(t.label) + '</div>';
+              html += '<div class="quest-task-sub">' + escHtml(t.sublabel) + '</div>';
+              html += '</div></div>';
+            });
+          });
+          listEl.innerHTML = html;
+        }
       }
-    }
-    updateTaskToggleBtn();
+      updateTaskToggleBtn();
+    } catch(e) {}
   }
 
   function toggleQuestTask(taskId) {
     if (!dailyQuestState) dailyQuestState = loadDailyQuestState();
-    const idx = dailyQuestState.completedIds.indexOf(taskId);
+    var idx = dailyQuestState.completedIds.indexOf(taskId);
     if (idx >= 0) dailyQuestState.completedIds.splice(idx, 1);
     else dailyQuestState.completedIds.push(taskId);
     saveDailyQuestState();
@@ -3437,79 +3431,80 @@ Write in professional, analytical language suitable for a financial or industry 
 
   function smoothPath(pts) {
     if (!pts || pts.length < 2) return '';
-    if (pts.length === 2) return `M ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y}`;
-    let d = `M ${pts[0].x} ${pts[0].y}`;
-    for (let i = 1; i < pts.length - 1; i++) {
-      const mid = { x: (pts[i].x + pts[i+1].x) / 2, y: (pts[i].y + pts[i+1].y) / 2 };
-      d += ` Q ${pts[i].x} ${pts[i].y} ${mid.x} ${mid.y}`;
+    var d = 'M ' + pts[0].x + ' ' + pts[0].y;
+    for (var i = 1; i < pts.length - 1; i++) {
+      var midX = (pts[i].x + pts[i+1].x) / 2;
+      var midY = (pts[i].y + pts[i+1].y) / 2;
+      d += ' Q ' + pts[i].x + ' ' + pts[i].y + ' ' + midX + ' ' + midY;
     }
-    d += ` L ${pts[pts.length-1].x} ${pts[pts.length-1].y}`;
+    d += ' L ' + pts[pts.length-1].x + ' ' + pts[pts.length-1].y;
     return d;
   }
 
   function buildMazeSVG(done, total) {
-    const wps = MAZE_WPS;
-    const ratio = total > 0 ? done / total : 0;
-    const figIdx = Math.min(Math.round(ratio * (wps.length - 1)), wps.length - 1);
-    const figPos = wps[figIdx];
-    const atHome = figIdx === wps.length - 1;
+    var wps = MAZE_WPS;
+    var ratio = total > 0 ? done / total : 0;
+    var figIdx = Math.min(Math.round(ratio * (wps.length - 1)), wps.length - 1);
+    var figPos = wps[figIdx];
+    var atHome = figIdx === wps.length - 1;
+    var fullPath = smoothPath(wps);
+    var compPath = figIdx > 0 ? smoothPath(wps.slice(0, figIdx + 1)) : '';
+    var home = wps[wps.length - 1];
+    var out = '';
 
-    const fullPath = smoothPath(wps);
-    const compPath = figIdx > 0 ? smoothPath(wps.slice(0, figIdx + 1)) : '';
-
-    const dots = wps.slice(1, -1).map((p, i) => {
-      const wi = i + 1;
-      const isDone = wi <= figIdx;
-      return `<circle cx="${p.x}" cy="${p.y}" r="${isDone ? 4.5 : 3.5}"
-        fill="${isDone ? '#06b6d4' : '#1e3a4a'}"
-        stroke="${isDone ? '#67e8f9' : '#334155'}" stroke-width="1.5" opacity="${isDone ? 1 : 0.65}"/>`;
-    }).join('');
-
-    const home = wps[wps.length - 1];
-    const houseG = `<g transform="translate(${home.x},${home.y})">
-      ${atHome ? `<circle cx="0" cy="-5" r="22" fill="rgba(6,182,212,0.12)">
-        <animate attributeName="r" values="20;25;20" dur="2s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/>
-      </circle>` : ''}
-      <polygon points="-13,-7 13,-7 0,-22" fill="${atHome ? '#06b6d4' : '#0c4a6e'}" opacity="${atHome ? 1 : 0.7}"/>
-      <rect x="-4" y="-22" width="4" height="8" fill="#0284c7" opacity="0.7"/>
-      <rect x="-11" y="-7" width="22" height="17" rx="2" fill="${atHome ? '#0e7490' : '#0c3a4a'}" opacity="${atHome ? 0.95 : 0.65}"/>
-      <rect x="-4" y="2" width="8" height="7" rx="1" fill="#67e8f9" opacity="${atHome ? 0.9 : 0.3}"/>
-      <rect x="-9" y="-5" width="5" height="5" rx="1" fill="#67e8f9" opacity="${atHome ? 0.6 : 0.2}"/>
-      <rect x="4" y="-5" width="5" height="5" rx="1" fill="#67e8f9" opacity="${atHome ? 0.6 : 0.2}"/>
-      <text x="0" y="18" text-anchor="middle" fill="${atHome ? '#67e8f9' : '#475569'}" font-size="6" font-family="Inter,sans-serif" font-weight="700">HOME</text>
-    </g>`;
-
-    const charG = atHome ? '' : `<g transform="translate(${figPos.x},${figPos.y - 22})">
-      <ellipse cx="0" cy="23" rx="8" ry="2.5" fill="rgba(0,0,0,0.2)"/>
-      <line x1="-3" y1="11" x2="-5" y2="23" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="3" y1="11" x2="5" y2="23" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round"/>
-      <rect x="-6" y="-1" width="12" height="13" rx="4" fill="#0891b2"/>
-      <line x1="-6" y1="5" x2="-13" y2="10" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="6" y1="5" x2="13" y2="10" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round"/>
-      <circle cx="0" cy="-11" r="9" fill="#164e63"/>
-      <circle cx="-3.5" cy="-12" r="2.2" fill="#67e8f9"/>
-      <circle cx="3.5" cy="-12" r="2.2" fill="#67e8f9"/>
-      <circle cx="-3.5" cy="-12" r="0.9" fill="white" opacity="0.9"/>
-      <circle cx="3.5" cy="-12" r="0.9" fill="white" opacity="0.9"/>
-      <path d="M -3 -8 Q 0 -6 3 -8" stroke="#67e8f9" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-      <circle cx="0" cy="-7" r="14" fill="none" stroke="rgba(103,232,249,0.15)" stroke-width="1.5"/>
-    </g>`;
-
-    const celebG = atHome ? `<text x="${home.x}" y="${home.y - 30}" text-anchor="middle" font-size="14">🎉</text>` : '';
-
-    const startDot = `<circle cx="${wps[0].x}" cy="${wps[0].y}" r="5" fill="#1e3a4a" stroke="#06b6d4" stroke-width="1.5"/>
-      <text x="${wps[0].x}" y="${wps[0].y + 12}" text-anchor="middle" fill="#475569" font-size="6" font-family="Inter,sans-serif" font-weight="600">START</text>`;
-
-    return `
-      <path d="${fullPath}" stroke="#1e3a4a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8,4"/>
-      ${compPath ? `<path d="${compPath}" stroke="#06b6d4" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>` : ''}
-      ${dots}
-      ${startDot}
-      ${houseG}
-      ${charG}
-      ${celebG}
-    `;
+    // Background path (dashed)
+    out += '<path d="' + fullPath + '" stroke="#1e3a4a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8,4"/>';
+    // Completed path (solid teal)
+    if (compPath) {
+      out += '<path d="' + compPath + '" stroke="#06b6d4" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>';
+    }
+    // Waypoint dots
+    for (var i = 1; i < wps.length - 1; i++) {
+      var p = wps[i];
+      var wp_done = i <= figIdx;
+      out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="' + (wp_done ? 4.5 : 3.5) + '"';
+      out += ' fill="' + (wp_done ? '#06b6d4' : '#1e3a4a') + '"';
+      out += ' stroke="' + (wp_done ? '#67e8f9' : '#334155') + '" stroke-width="1.5" opacity="' + (wp_done ? 1 : 0.65) + '"/>';
+    }
+    // Start marker
+    out += '<circle cx="' + wps[0].x + '" cy="' + wps[0].y + '" r="5" fill="#1e3a4a" stroke="#06b6d4" stroke-width="1.5"/>';
+    out += '<text x="' + wps[0].x + '" y="' + (wps[0].y + 12) + '" text-anchor="middle" fill="#475569" font-size="6" font-family="Inter,sans-serif" font-weight="600">START</text>';
+    // House
+    out += '<g transform="translate(' + home.x + ',' + home.y + ')">';
+    if (atHome) {
+      out += '<circle cx="0" cy="-5" r="22" fill="rgba(6,182,212,0.15)" opacity="0.8"/>';
+    }
+    out += '<polygon points="-13,-7 13,-7 0,-22" fill="' + (atHome ? '#06b6d4' : '#0c4a6e') + '" opacity="' + (atHome ? 1 : 0.7) + '"/>';
+    out += '<rect x="-4" y="-22" width="4" height="8" fill="#0284c7" opacity="0.7"/>';
+    out += '<rect x="-11" y="-7" width="22" height="17" rx="2" fill="' + (atHome ? '#0e7490' : '#0c3a4a') + '" opacity="' + (atHome ? 0.95 : 0.65) + '"/>';
+    out += '<rect x="-4" y="2" width="8" height="7" rx="1" fill="#67e8f9" opacity="' + (atHome ? 0.9 : 0.3) + '"/>';
+    out += '<rect x="-9" y="-5" width="5" height="5" rx="1" fill="#67e8f9" opacity="' + (atHome ? 0.6 : 0.2) + '"/>';
+    out += '<rect x="4" y="-5" width="5" height="5" rx="1" fill="#67e8f9" opacity="' + (atHome ? 0.6 : 0.2) + '"/>';
+    out += '<text x="0" y="18" text-anchor="middle" fill="' + (atHome ? '#67e8f9' : '#475569') + '" font-size="6" font-family="Inter,sans-serif" font-weight="700">HOME</text>';
+    out += '</g>';
+    // Character (not shown at home)
+    if (!atHome) {
+      var cx = figPos.x;
+      var cy = figPos.y - 22;
+      out += '<g transform="translate(' + cx + ',' + cy + ')">';
+      out += '<ellipse cx="0" cy="23" rx="8" ry="2.5" fill="rgba(0,0,0,0.2)"/>';
+      out += '<line x1="-3" y1="11" x2="-5" y2="23" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round"/>';
+      out += '<line x1="3" y1="11" x2="5" y2="23" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round"/>';
+      out += '<rect x="-6" y="-1" width="12" height="13" rx="4" fill="#0891b2"/>';
+      out += '<line x1="-6" y1="5" x2="-13" y2="10" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round"/>';
+      out += '<line x1="6" y1="5" x2="13" y2="10" stroke="#0369a1" stroke-width="2.5" stroke-linecap="round"/>';
+      out += '<circle cx="0" cy="-11" r="9" fill="#164e63"/>';
+      out += '<circle cx="-3.5" cy="-12" r="2.2" fill="#67e8f9"/>';
+      out += '<circle cx="3.5" cy="-12" r="2.2" fill="#67e8f9"/>';
+      out += '<circle cx="-3.5" cy="-12" r="0.9" fill="white" opacity="0.9"/>';
+      out += '<circle cx="3.5" cy="-12" r="0.9" fill="white" opacity="0.9"/>';
+      out += '<path d="M -3 -8 Q 0 -6 3 -8" stroke="#67e8f9" stroke-width="1.2" fill="none" stroke-linecap="round"/>';
+      out += '</g>';
+    }
+    if (atHome) {
+      out += '<text x="' + home.x + '" y="' + (home.y - 30) + '" text-anchor="middle" font-size="13">\uD83C\uDF89</text>';
+    }
+    return out;
   }
 </script>
 </body>
