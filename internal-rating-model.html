@@ -1927,6 +1927,220 @@
       text-align: center;
     }
     .quest-chill-btn:hover { background: rgba(37,99,235,0.2); border-color: var(--primary); }
+    /* ══════════════════════════════════════
+       MINI CALENDAR (Quest Panel)
+    ══════════════════════════════════════ */
+    .qmp-cal-wrap {
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+      padding: 10px 10px 12px;
+      background: rgba(6,182,212,0.03);
+    }
+    .qmp-cal-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .qmp-cal-nav-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 24px; height: 24px;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s, color 0.12s;
+      font-family: 'Inter', sans-serif;
+      line-height: 1;
+    }
+    .qmp-cal-nav-btn:hover { background: rgba(6,182,212,0.15); color: var(--accent); }
+    .qmp-cal-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.3px;
+    }
+    .qmp-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+    .qmp-cal-dayname {
+      text-align: center;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 2px 0 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .qmp-cal-day {
+      text-align: center;
+      font-size: 10.5px;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 4px 2px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      line-height: 1.3;
+      position: relative;
+      min-height: 24px;
+    }
+    .qmp-cal-day:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+    .qmp-cal-day.today {
+      background: rgba(6,182,212,0.18);
+      color: #67e8f9;
+      font-weight: 700;
+    }
+    .qmp-cal-day.has-tasks::after {
+      content: '';
+      display: block;
+      width: 4px; height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin: 1px auto 0;
+    }
+    .qmp-cal-day.empty { cursor: default; }
+    .qmp-cal-day.empty:hover { background: none; }
+    .qmp-cal-day.other-month { color: rgba(148,163,184,0.2); cursor: default; }
+    .qmp-cal-day.other-month:hover { background: none; }
+
+    /* Calendar task modal */
+    #cal-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2200;
+      padding: 20px;
+    }
+    #cal-modal-overlay.visible { display: flex; }
+    #cal-modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    #cal-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(6,182,212,0.06);
+    }
+    #cal-modal-date {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .cal-modal-close {
+      width: 26px; height: 26px;
+      background: var(--bg3);
+      border: none;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .cal-modal-close:hover { background: rgba(239,68,68,0.2); color: #f87171; }
+    #cal-modal-tasks {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px;
+      min-height: 80px;
+      max-height: 240px;
+    }
+    #cal-modal-tasks::-webkit-scrollbar { width: 4px; }
+    #cal-modal-tasks::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+    .cal-task-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 12.5px;
+      color: var(--text);
+    }
+    .cal-task-row:last-child { border-bottom: none; }
+    .cal-task-check {
+      width: 16px; height: 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg);
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: #34d399;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .cal-task-check.done { background: rgba(16,185,129,0.18); border-color: rgba(16,185,129,0.45); }
+    .cal-task-row.done-row .cal-task-text { text-decoration: line-through; color: var(--muted); opacity: 0.6; }
+    .cal-task-text { flex: 1; line-height: 1.4; }
+    .cal-task-del {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0 2px;
+      opacity: 0.5;
+      transition: opacity 0.12s, color 0.12s;
+    }
+    .cal-task-del:hover { opacity: 1; color: #f87171; }
+    .cal-empty-msg {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      padding: 16px 0 8px;
+      font-style: italic;
+    }
+    #cal-modal-add {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    #cal-task-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    #cal-task-input:focus { border-color: var(--accent); }
+    #cal-task-input::placeholder { color: var(--muted); }
+    #cal-add-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s;
+    }
+    #cal-add-btn:hover { background: #0891b2; }
+
   </style>
 </head>
 <body>
@@ -2292,13 +2506,38 @@
           </div>
           <div class="qmp-inspo" id="qmp-inspo"></div>
         </div>
-        <!-- Right: tasks -->
+        <!-- Right: tasks + calendar -->
         <div class="qmp-right">
           <div class="qmp-tasks-header">
             <span>Tasks for Today</span>
             <span id="qmp-task-count" style="color:var(--text);"></span>
           </div>
           <div class="qmp-tasks-scroll" id="qmp-task-list"></div>
+          <!-- Mini Calendar -->
+          <div class="qmp-cal-wrap">
+            <div class="qmp-cal-nav">
+              <button class="qmp-cal-nav-btn" onclick="prevCalMonth()" title="Previous month">‹</button>
+              <span class="qmp-cal-title" id="qmp-cal-title">April 2026</span>
+              <button class="qmp-cal-nav-btn" onclick="nextCalMonth()" title="Next month">›</button>
+            </div>
+            <div class="qmp-cal-grid" id="qmp-cal-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendar Task Modal -->
+    <div id="cal-modal-overlay" onclick="if(event.target===this)closeCalModal()">
+      <div id="cal-modal">
+        <div id="cal-modal-header">
+          <span id="cal-modal-date">Tasks for Date</span>
+          <button class="cal-modal-close" onclick="closeCalModal()">✕</button>
+        </div>
+        <div id="cal-modal-tasks"></div>
+        <div id="cal-modal-add">
+          <input type="text" id="cal-task-input" placeholder="Add a task for this day…" maxlength="120"
+            onkeydown="if(event.key==='Enter')addCalTask()"/>
+          <button id="cal-add-btn" onclick="addCalTask()">+ Add</button>
         </div>
       </div>
     </div>
@@ -3464,8 +3703,8 @@ Regards`
   // ══════════════════════════════════════
   // NEWS FEED
   // ══════════════════════════════════════
-  let currentNewsFeedItems = [];
-  let savedNewsItems = JSON.parse(localStorage.getItem('irm_saved_news') || '[]');
+  var currentNewsFeedItems = [];
+  var savedNewsItems = JSON.parse(localStorage.getItem('irm_saved_news') || '[]');
 
   function saveNewsToStorage() {
     localStorage.setItem('irm_saved_news', JSON.stringify(savedNewsItems));
@@ -3982,6 +4221,7 @@ Write in professional, analytical language suitable for a financial or industry 
       listEl.innerHTML = html;
 
       updateTaskToggleBtn();
+      renderMiniCal();
     } catch(e) {}
   }
 
@@ -3997,14 +4237,17 @@ Write in professional, analytical language suitable for a financial or industry 
     var out = '';
 
     // Background glow
-    out += '<defs><radialGradient id="mazeGlow" cx="85%" cy="20%" r="40%"><stop offset="0%" stop-color="rgba(6,182,212,0.18)"/><stop offset="100%" stop-color="rgba(0,0,0,0)"/></radialGradient></defs>';
-    out += '<rect x="0" y="0" width="560" height="210" fill="url(#mazeGlow)"/>';
+    out += '<defs><radialGradient id="mazeGlowMain" cx="85%" cy="20%" r="40%"><stop offset="0%" stop-color="rgba(6,182,212,0.22)"/><stop offset="100%" stop-color="rgba(0,0,0,0)"/></radialGradient></defs>';
+    out += '<rect x="0" y="0" width="560" height="210" fill="url(#mazeGlowMain)"/>';
 
-    // Full path (dashed) — lighter so it's visible against dark background
-    out += '<path d="' + fullPath + '" stroke="#254570" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10,5"/>';
-    // Completed path (teal)
+    // Full path (dashed) — visible against dark background
+    out += '<path d="' + fullPath + '" stroke="#1e4d7a" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="12,6"/>';
+    out += '<path d="' + fullPath + '" stroke="#2d7ab5" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="12,6" opacity="0.55"/>';
+    // Completed path (bright teal glow)
     if (compPath) {
-      out += '<path d="' + compPath + '" stroke="#06b6d4" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>';
+      out += '<path d="' + compPath + '" stroke="rgba(6,182,212,0.35)" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+      out += '<path d="' + compPath + '" stroke="#06b6d4" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+      out += '<path d="' + compPath + '" stroke="#a5f3fc" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>';
     }
 
     // Waypoint gems (skipping start and home)
@@ -4012,13 +4255,12 @@ Write in professional, analytical language suitable for a financial or industry 
       var p = wps[i];
       var wp_done = i <= figIdx;
       if (wp_done) {
-        // Completed gem (star-like)
-        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="7" fill="rgba(6,182,212,0.15)" stroke="#06b6d4" stroke-width="1.5"/>';
-        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="4" fill="#06b6d4"/>';
-        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="1.8" fill="#e0f9fe"/>';
+        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="9" fill="rgba(6,182,212,0.2)" stroke="#06b6d4" stroke-width="0"/>';
+        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="6" fill="#0891b2" stroke="#67e8f9" stroke-width="1.5"/>';
+        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="2.5" fill="#e0f9fe"/>';
       } else {
-        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="5" fill="#1e3a5a" stroke="#3b5a8a" stroke-width="1.5" opacity="0.9"/>';
-        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="2" fill="#3b5a8a" opacity="0.8"/>';
+        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="6" fill="#1e3d5c" stroke="#4a7fa8" stroke-width="1.5"/>';
+        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="2.5" fill="#3a6a96" opacity="0.9"/>';
       }
     }
 
@@ -4101,9 +4343,13 @@ Write in professional, analytical language suitable for a financial or industry 
       }
     });
     if (tasks.length === 0) {
-      tasks.push({ id: 'default:news',     label: 'Check news feed',   sublabel: 'Review company news',      icon: 'news',   section: 'Daily' });
-      tasks.push({ id: 'default:overview', label: 'Review portfolio',  sublabel: 'Check overview & charts',  icon: 'chart',  section: 'Daily' });
-      tasks.push({ id: 'default:industry', label: 'Industry topics',   sublabel: 'Scan trending industry news', icon: 'globe', section: 'Daily' });
+      tasks.push({ id: 'default:news',     label: 'Check news feed',       sublabel: 'Review company news',            icon: 'news',   section: 'Daily Routine' });
+      tasks.push({ id: 'default:overview', label: 'Review portfolio',      sublabel: 'Check overview & charts',        icon: 'chart',  section: 'Daily Routine' });
+      tasks.push({ id: 'default:industry', label: 'Industry trending',     sublabel: 'Scan trending industry news',    icon: 'globe',  section: 'Daily Routine' });
+      tasks.push({ id: 'default:ratios',   label: 'Review key ratios',     sublabel: 'Debt/EBITDA, ICR, DSCR',         icon: 'review', section: 'Credit Work' });
+      tasks.push({ id: 'default:peers',    label: 'Peer group analysis',   sublabel: 'Compare with rated peers',       icon: 'chart',  section: 'Credit Work' });
+      tasks.push({ id: 'default:criteria', label: 'Read rating criteria',  sublabel: 'Strengthen methodology knowledge', icon: 'review', section: 'Learning' });
+      tasks.push({ id: 'default:notes',    label: 'Update rating notes',   sublabel: 'Draft or refine rating rationale', icon: 'mail',   section: 'Credit Work' });
     }
     return tasks;
   }
@@ -4234,6 +4480,7 @@ Write in professional, analytical language suitable for a financial or industry 
         }
       }
       updateTaskToggleBtn();
+      renderMiniCal();
     } catch(e) {}
   }
 
@@ -4396,6 +4643,151 @@ Write in professional, analytical language suitable for a financial or industry 
     return o;
   }
 
+  // ══════════════════════════════════════
+  // MINI CALENDAR
+  // ══════════════════════════════════════
+  var _calYear  = new Date().getFullYear();
+  var _calMonth = new Date().getMonth(); // 0-indexed
+  var _calOpenDate = null; // "YYYY-MM-DD"
+  var _calOriginYear  = new Date().getFullYear();
+  var _calOriginMonth = new Date().getMonth();
+
+  function getCalTasks() {
+    try { return JSON.parse(localStorage.getItem('irm_cal_tasks') || '{}'); } catch(e) { return {}; }
+  }
+  function saveCalTasks(data) {
+    localStorage.setItem('irm_cal_tasks', JSON.stringify(data));
+  }
+
+  function renderMiniCal() {
+    var titleEl = document.getElementById('qmp-cal-title');
+    var gridEl  = document.getElementById('qmp-cal-grid');
+    if (!titleEl || !gridEl) return;
+
+    var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    titleEl.textContent = monthNames[_calMonth] + ' ' + _calYear;
+
+    var calTasks = getCalTasks();
+    var today = new Date();
+    var todayStr = today.getFullYear() + '-' + pad2(today.getMonth()+1) + '-' + pad2(today.getDate());
+
+    var firstDay = new Date(_calYear, _calMonth, 1).getDay(); // 0=Sun
+    var daysInMonth = new Date(_calYear, _calMonth + 1, 0).getDate();
+
+    var html = '';
+    var dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+    dayNames.forEach(function(d) { html += '<div class="qmp-cal-dayname">' + d + '</div>'; });
+
+    // Empty cells before first day
+    for (var i = 0; i < firstDay; i++) html += '<div class="qmp-cal-day empty"></div>';
+
+    for (var d = 1; d <= daysInMonth; d++) {
+      var dateStr = _calYear + '-' + pad2(_calMonth+1) + '-' + pad2(d);
+      var isToday = dateStr === todayStr;
+      var hasTasks = calTasks[dateStr] && calTasks[dateStr].length > 0;
+      var cls = 'qmp-cal-day' + (isToday ? ' today' : '') + (hasTasks ? ' has-tasks' : '');
+      html += '<div class="' + cls + '" onclick="openCalDate(\'' + dateStr + '\')" title="' + dateStr + '">' + d + '</div>';
+    }
+
+    // Fill remaining cells
+    var filled = firstDay + daysInMonth;
+    var rem = filled % 7 === 0 ? 0 : 7 - (filled % 7);
+    for (var j = 0; j < rem; j++) html += '<div class="qmp-cal-day other-month"></div>';
+
+    gridEl.innerHTML = html;
+  }
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function prevCalMonth() {
+    // Don't go before origin month
+    if (_calYear === _calOriginYear && _calMonth === _calOriginMonth) return;
+    _calMonth--;
+    if (_calMonth < 0) { _calMonth = 11; _calYear--; }
+    renderMiniCal();
+  }
+
+  function nextCalMonth() {
+    // Limit to 3 months ahead
+    var maxMonth = _calOriginMonth + 2;
+    var maxYear  = _calOriginYear + Math.floor(maxMonth / 12);
+    maxMonth = maxMonth % 12;
+    if (_calYear > maxYear || (_calYear === maxYear && _calMonth >= maxMonth)) return;
+    _calMonth++;
+    if (_calMonth > 11) { _calMonth = 0; _calYear++; }
+    renderMiniCal();
+  }
+
+  function openCalDate(dateStr) {
+    _calOpenDate = dateStr;
+    var parts = dateStr.split('-');
+    var d = new Date(+parts[0], +parts[1]-1, +parts[2]);
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var label = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    document.getElementById('cal-modal-date').textContent = label;
+    renderCalModalTasks(dateStr);
+    document.getElementById('cal-modal-overlay').classList.add('visible');
+    setTimeout(function() { var inp = document.getElementById('cal-task-input'); if(inp) inp.focus(); }, 80);
+  }
+
+  function closeCalModal() {
+    document.getElementById('cal-modal-overlay').classList.remove('visible');
+    _calOpenDate = null;
+    renderMiniCal(); // refresh dots
+  }
+
+  function renderCalModalTasks(dateStr) {
+    var calTasks = getCalTasks();
+    var tasks = calTasks[dateStr] || [];
+    var el = document.getElementById('cal-modal-tasks');
+    if (!tasks.length) {
+      el.innerHTML = '<div class="cal-empty-msg">No tasks yet. Add one below!</div>';
+      return;
+    }
+    el.innerHTML = tasks.map(function(t, i) {
+      var doneCls = t.done ? ' done-row' : '';
+      var checkCls = t.done ? ' done' : '';
+      return '<div class="cal-task-row' + doneCls + '">'
+        + '<div class="cal-task-check' + checkCls + '" onclick="toggleCalTask(\'' + escStr(dateStr) + '\',' + i + ')">' + (t.done ? '✓' : '') + '</div>'
+        + '<div class="cal-task-text">' + escHtml(t.text) + '</div>'
+        + '<button class="cal-task-del" onclick="deleteCalTask(\'' + escStr(dateStr) + '\',' + i + ')" title="Remove">✕</button>'
+        + '</div>';
+    }).join('');
+  }
+
+  function addCalTask() {
+    var inp = document.getElementById('cal-task-input');
+    var text = inp ? inp.value.trim() : '';
+    if (!text || !_calOpenDate) return;
+    var calTasks = getCalTasks();
+    if (!calTasks[_calOpenDate]) calTasks[_calOpenDate] = [];
+    calTasks[_calOpenDate].push({ text: text, done: false });
+    saveCalTasks(calTasks);
+    inp.value = '';
+    renderCalModalTasks(_calOpenDate);
+    renderMiniCal();
+  }
+
+  function deleteCalTask(dateStr, idx) {
+    var calTasks = getCalTasks();
+    if (!calTasks[dateStr]) return;
+    calTasks[dateStr].splice(idx, 1);
+    if (!calTasks[dateStr].length) delete calTasks[dateStr];
+    saveCalTasks(calTasks);
+    renderCalModalTasks(dateStr);
+    renderMiniCal();
+  }
+
+  function toggleCalTask(dateStr, idx) {
+    var calTasks = getCalTasks();
+    if (!calTasks[dateStr] || !calTasks[dateStr][idx]) return;
+    calTasks[dateStr][idx].done = !calTasks[dateStr][idx].done;
+    saveCalTasks(calTasks);
+    renderCalModalTasks(dateStr);
+  }
+
+  function escStr(s) { return s.replace(/'/g, "\\'"); }
+
   function buildMazeSVG(done, total) {
     var wps = MAZE_WPS;
     var ratio = total > 0 ? done / total : 0;
@@ -4407,19 +4799,22 @@ Write in professional, analytical language suitable for a financial or industry 
     var home = wps[wps.length - 1];
     var out = '';
 
-    // Background path (dashed)
-    out += '<path d="' + fullPath + '" stroke="#1e3a4a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8,4"/>';
-    // Completed path (solid teal)
+    // Background path (dashed) — visible against dark panel
+    out += '<path d="' + fullPath + '" stroke="#1e4d6e" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8,4"/>';
+    out += '<path d="' + fullPath + '" stroke="#2d7ab5" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8,4" opacity="0.5"/>';
+    // Completed path (teal glow)
     if (compPath) {
-      out += '<path d="' + compPath + '" stroke="#06b6d4" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>';
+      out += '<path d="' + compPath + '" stroke="rgba(6,182,212,0.3)" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+      out += '<path d="' + compPath + '" stroke="#06b6d4" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
     }
     // Waypoint dots
     for (var i = 1; i < wps.length - 1; i++) {
       var p = wps[i];
       var wp_done = i <= figIdx;
-      out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="' + (wp_done ? 4.5 : 3.5) + '"';
-      out += ' fill="' + (wp_done ? '#06b6d4' : '#1e3a4a') + '"';
-      out += ' stroke="' + (wp_done ? '#67e8f9' : '#334155') + '" stroke-width="1.5" opacity="' + (wp_done ? 1 : 0.65) + '"/>';
+      out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="' + (wp_done ? 5 : 4) + '"';
+      out += ' fill="' + (wp_done ? '#0891b2' : '#1e3d5c') + '"';
+      out += ' stroke="' + (wp_done ? '#67e8f9' : '#4a7fa8') + '" stroke-width="1.5" opacity="' + (wp_done ? 1 : 0.8) + '"/>';
+      if (wp_done) out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="2" fill="#e0f9fe"/>';
     }
     // Start marker
     out += '<circle cx="' + wps[0].x + '" cy="' + wps[0].y + '" r="5" fill="#1e3a4a" stroke="#06b6d4" stroke-width="1.5"/>';
