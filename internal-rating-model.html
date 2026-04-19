@@ -1765,10 +1765,11 @@
     }
     .qmp-maze-wrap {
       flex: 1;
+      min-height: 160px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px 20px 10px;
+      padding: 16px 16px 8px;
       background: linear-gradient(180deg, #080f1e 0%, #0a1628 100%);
       position: relative;
       overflow: hidden;
@@ -1785,7 +1786,9 @@
       display: block;
       width: 100%;
       height: auto;
+      aspect-ratio: 560 / 210;
       max-height: 260px;
+      min-height: 120px;
       position: relative; z-index: 1;
     }
     .qmp-progress-wrap {
@@ -3994,11 +3997,11 @@ Write in professional, analytical language suitable for a financial or industry 
     var out = '';
 
     // Background glow
-    out += '<radialGradient id="mazeGlow" cx="85%" cy="20%" r="40%"><stop offset="0%" stop-color="rgba(6,182,212,0.12)"/><stop offset="100%" stop-color="transparent"/></radialGradient>';
+    out += '<defs><radialGradient id="mazeGlow" cx="85%" cy="20%" r="40%"><stop offset="0%" stop-color="rgba(6,182,212,0.18)"/><stop offset="100%" stop-color="rgba(0,0,0,0)"/></radialGradient></defs>';
     out += '<rect x="0" y="0" width="560" height="210" fill="url(#mazeGlow)"/>';
 
-    // Full path (dashed)
-    out += '<path d="' + fullPath + '" stroke="#1e3a4a" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10,5"/>';
+    // Full path (dashed) — lighter so it's visible against dark background
+    out += '<path d="' + fullPath + '" stroke="#254570" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10,5"/>';
     // Completed path (teal)
     if (compPath) {
       out += '<path d="' + compPath + '" stroke="#06b6d4" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>';
@@ -4014,8 +4017,8 @@ Write in professional, analytical language suitable for a financial or industry 
         out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="4" fill="#06b6d4"/>';
         out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="1.8" fill="#e0f9fe"/>';
       } else {
-        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="5" fill="#1e3a4a" stroke="#334155" stroke-width="1.5" opacity="0.8"/>';
-        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="2" fill="#334155" opacity="0.6"/>';
+        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="5" fill="#1e3a5a" stroke="#3b5a8a" stroke-width="1.5" opacity="0.9"/>';
+        out += '<circle cx="' + p.x + '" cy="' + p.y + '" r="2" fill="#3b5a8a" opacity="0.8"/>';
       }
     }
 
@@ -4029,13 +4032,13 @@ Write in professional, analytical language suitable for a financial or industry 
       out += '<circle cx="0" cy="-8" r="34" fill="rgba(6,182,212,0.12)" opacity="0.9"/>';
       out += '<circle cx="0" cy="-8" r="24" fill="rgba(6,182,212,0.08)" opacity="0.9"/>';
     }
-    out += '<polygon points="-22,-10 22,-10 0,-38" fill="' + (atHome ? '#06b6d4' : '#0c4a6e') + '" opacity="' + (atHome ? 1 : 0.7) + '"/>';
-    out += '<rect x="-6" y="-40" width="6" height="14" fill="#0284c7" opacity="0.8"/>';
-    out += '<rect x="-20" y="-10" width="40" height="30" rx="3" fill="' + (atHome ? '#0e7490' : '#0c3a4a') + '" opacity="' + (atHome ? 1 : 0.65) + '"/>';
-    out += '<rect x="-6" y="5" width="12" height="14" rx="2" fill="#67e8f9" opacity="' + (atHome ? 0.9 : 0.3) + '"/>';
-    out += '<rect x="-17" y="-6" width="9" height="9" rx="1.5" fill="#67e8f9" opacity="' + (atHome ? 0.65 : 0.2) + '"/>';
-    out += '<rect x="8" y="-6" width="9" height="9" rx="1.5" fill="#67e8f9" opacity="' + (atHome ? 0.65 : 0.2) + '"/>';
-    out += '<text x="0" y="32" text-anchor="middle" fill="' + (atHome ? '#67e8f9' : '#475569') + '" font-size="8.5" font-family="Inter,sans-serif" font-weight="700">HOME</text>';
+    out += '<polygon points="-22,-10 22,-10 0,-38" fill="' + (atHome ? '#06b6d4' : '#1a6a9a') + '" opacity="' + (atHome ? 1 : 0.9) + '"/>';
+    out += '<rect x="-6" y="-40" width="6" height="14" fill="#0284c7" opacity="0.9"/>';
+    out += '<rect x="-20" y="-10" width="40" height="30" rx="3" fill="' + (atHome ? '#0e7490' : '#1a4a6a') + '" opacity="' + (atHome ? 1 : 0.85) + '"/>';
+    out += '<rect x="-6" y="5" width="12" height="14" rx="2" fill="#67e8f9" opacity="' + (atHome ? 0.9 : 0.45) + '"/>';
+    out += '<rect x="-17" y="-6" width="9" height="9" rx="1.5" fill="#67e8f9" opacity="' + (atHome ? 0.65 : 0.35) + '"/>';
+    out += '<rect x="8" y="-6" width="9" height="9" rx="1.5" fill="#67e8f9" opacity="' + (atHome ? 0.65 : 0.35) + '"/>';
+    out += '<text x="0" y="32" text-anchor="middle" fill="' + (atHome ? '#67e8f9' : '#67c8f0') + '" font-size="8.5" font-family="Inter,sans-serif" font-weight="700">HOME</text>';
     out += '</g>';
     if (atHome) {
       out += '<text x="' + home.x + '" y="' + (home.y - 48) + '" text-anchor="middle" font-size="20">🎉</text>';
