@@ -1722,21 +1722,21 @@
     #oq-section {
       flex-shrink: 0;
       width: 100%;
-      border-top: 1px solid var(--border);
-      background: #2e5c14;
+      border-bottom: 1px solid var(--border);
+      background: #060c1a;
       display: flex;
       flex-direction: column;
     }
     #oq-section-bar {
       display: flex; align-items: center; justify-content: space-between;
       padding: 9px 18px;
-      background: #1a3a0a;
-      border-bottom: 1px solid #2a5a18;
+      background: #03060e;
+      border-bottom: 1px solid rgba(6,182,212,0.25);
       flex-shrink: 0;
     }
     #oq-section-bar span {
       font-size: 12px; font-weight: 700;
-      color: #66bb6a; letter-spacing: 0.5px;
+      color: #67e8f9; letter-spacing: 0.5px;
     }
     #oq-frame {
       width: 100%;
@@ -2166,6 +2166,62 @@
     }
     #cal-add-btn:hover { background: #0891b2; }
 
+    /* Light Day Popup */
+    #light-day-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      padding: 20px;
+    }
+    #light-day-overlay.visible { display: flex; }
+    #light-day-modal {
+      background: var(--bg2);
+      border: 1px solid rgba(6,182,212,0.3);
+      border-radius: 20px;
+      padding: 36px 32px;
+      max-width: 400px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(6,182,212,0.1);
+      text-align: center;
+    }
+    .ld-emoji { font-size: 48px; }
+    .ld-title { font-size: 20px; font-weight: 800; color: var(--text); }
+    .ld-sub { font-size: 13.5px; color: var(--muted); line-height: 1.6; max-width: 300px; }
+    .ld-btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+    .ld-btn {
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid rgba(6,182,212,0.35);
+      background: rgba(6,182,212,0.1);
+      color: #67e8f9;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .ld-btn:hover { background: rgba(6,182,212,0.22); transform: translateY(-1px); }
+    .ld-btn-close {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s;
+    }
+    .ld-btn-close:hover { background: rgba(255,255,255,0.05); }
+
   </style>
 </head>
 <body>
@@ -2295,27 +2351,41 @@
       <!-- LION -->
       <div class="avatar-card" id="acard-lion" onclick="selectAvatar('lion')">
         <svg class="av-anim-lion" viewBox="0 0 80 80" width="88" height="88">
-          <circle cx="40" cy="38" r="25" fill="#b45309" opacity="0.85"/>
-          <circle cx="40" cy="38" r="19" fill="#d97706"/>
-          <circle cx="40" cy="36" r="15" fill="#f59e0b"/>
-          <polygon points="27,23 24,13 34,21" fill="#f59e0b"/>
-          <polygon points="53,23 56,13 46,21" fill="#f59e0b"/>
-          <polygon points="27,23 25,16 32,21" fill="#fcd34d" opacity="0.6"/>
-          <polygon points="53,23 55,16 48,21" fill="#fcd34d" opacity="0.6"/>
-          <circle cx="34" cy="32" r="3.2" fill="#1c1917"/>
-          <circle cx="46" cy="32" r="3.2" fill="#1c1917"/>
-          <circle cx="35" cy="31" r="1.2" fill="white" opacity="0.9"/>
-          <circle cx="47" cy="31" r="1.2" fill="white" opacity="0.9"/>
-          <ellipse cx="40" cy="41" rx="7" ry="5" fill="#f59e0b"/>
-          <ellipse cx="40" cy="39" rx="3" ry="2" fill="#92400e"/>
-          <path d="M 36 43 Q 40 47 44 43" stroke="#78350f" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <line x1="22" y1="40" x2="33" y2="41" stroke="#92400e" stroke-width="1" opacity="0.55"/>
-          <line x1="58" y1="40" x2="47" y2="41" stroke="#92400e" stroke-width="1" opacity="0.55"/>
-          <ellipse cx="40" cy="65" rx="14" ry="10" fill="#d97706"/>
-          <ellipse cx="29" cy="72" rx="7" ry="4" fill="#b45309"/>
-          <ellipse cx="51" cy="72" rx="7" ry="4" fill="#b45309"/>
-          <path d="M 53 62 Q 68 66 65 74" stroke="#b45309" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-          <circle cx="64" cy="75" r="4" fill="#b45309"/>
+          <!-- Fluffy mane -->
+          <circle cx="40" cy="36" r="27" fill="#b45309" opacity="0.82"/>
+          <!-- Big chibi head -->
+          <circle cx="40" cy="34" r="22" fill="#fbbf24"/>
+          <!-- Cheek fluff -->
+          <ellipse cx="22" cy="38" rx="9" ry="7" fill="#fde68a" opacity="0.55"/>
+          <ellipse cx="58" cy="38" rx="9" ry="7" fill="#fde68a" opacity="0.55"/>
+          <!-- Blush -->
+          <ellipse cx="22" cy="39" rx="7" ry="4" fill="#fb923c" opacity="0.3"/>
+          <ellipse cx="58" cy="39" rx="7" ry="4" fill="#fb923c" opacity="0.3"/>
+          <!-- Ears -->
+          <polygon points="22,16 27,26 15,24" fill="#fbbf24"/>
+          <polygon points="58,16 53,26 65,24" fill="#fbbf24"/>
+          <polygon points="22,17 26,25 17,23" fill="#fde68a" opacity="0.6"/>
+          <polygon points="58,17 54,25 63,23" fill="#fde68a" opacity="0.6"/>
+          <!-- Big sparkly eyes -->
+          <circle cx="33" cy="30" r="6.5" fill="#1c1917"/>
+          <circle cx="47" cy="30" r="6.5" fill="#1c1917"/>
+          <circle cx="35" cy="27.5" r="3" fill="white" opacity="0.95"/>
+          <circle cx="49" cy="27.5" r="3" fill="white" opacity="0.95"/>
+          <circle cx="32" cy="32" r="1.2" fill="white" opacity="0.5"/>
+          <circle cx="46" cy="32" r="1.2" fill="white" opacity="0.5"/>
+          <!-- Nose -->
+          <ellipse cx="40" cy="40" rx="4.5" ry="3.5" fill="#92400e"/>
+          <!-- Smile -->
+          <path d="M 35 44 Q 40 49 45 44" stroke="#78350f" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <!-- Small cute body -->
+          <ellipse cx="40" cy="66" rx="15" ry="11" fill="#d97706"/>
+          <ellipse cx="40" cy="68" rx="9" ry="7" fill="#fde68a" opacity="0.5"/>
+          <!-- Feet -->
+          <ellipse cx="30" cy="74" rx="8" ry="5" fill="#b45309"/>
+          <ellipse cx="50" cy="74" rx="8" ry="5" fill="#b45309"/>
+          <!-- Tail -->
+          <path d="M 54 63 Q 69 67 66 75" stroke="#b45309" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <circle cx="65" cy="76" r="5" fill="#b45309"/>
         </svg>
         <div class="av-name">Lion</div>
       </div>
@@ -2323,29 +2393,42 @@
       <!-- CHEETAH -->
       <div class="avatar-card" id="acard-cheetah" onclick="selectAvatar('cheetah')">
         <svg class="av-anim-cheetah" viewBox="0 0 80 80" width="88" height="88">
-          <ellipse cx="44" cy="56" rx="18" ry="12" fill="#c2410c"/>
-          <circle cx="32" cy="37" r="14" fill="#ea580c"/>
-          <ellipse cx="27" cy="42" rx="6" ry="4" fill="#fed7aa"/>
-          <polygon points="38,25 44,17 46,26" fill="#ea580c"/>
-          <polygon points="25,26 22,17 30,24" fill="#ea580c"/>
-          <polygon points="38,26 43,20 44,26" fill="#fbbf24" opacity="0.45"/>
-          <circle cx="30" cy="34" r="3" fill="#1c1917"/>
-          <circle cx="38" cy="33" r="3" fill="#1c1917"/>
-          <circle cx="31" cy="33" r="1.2" fill="white" opacity="0.9"/>
-          <circle cx="39" cy="32" r="1.2" fill="white" opacity="0.9"/>
-          <path d="M 26 37 Q 22 43 21 50" stroke="#1c1917" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <path d="M 28 37 Q 25 43 24 50" stroke="#1c1917" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <ellipse cx="26" cy="42" rx="2.5" ry="1.5" fill="#7c2d12"/>
-          <circle cx="40" cy="50" r="2.5" fill="#7c2d12"/>
-          <circle cx="50" cy="55" r="2.5" fill="#7c2d12"/>
-          <circle cx="36" cy="58" r="2" fill="#7c2d12"/>
-          <circle cx="48" cy="62" r="2.5" fill="#7c2d12"/>
-          <circle cx="56" cy="50" r="2" fill="#7c2d12"/>
-          <circle cx="34" cy="42" r="1.5" fill="#7c2d12" opacity="0.6"/>
-          <rect x="28" y="64" width="7" height="12" rx="3" fill="#c2410c"/>
-          <rect x="43" y="64" width="7" height="12" rx="3" fill="#c2410c"/>
-          <path d="M 60 55 Q 72 52 74 62 Q 72 70 64 72" stroke="#c2410c" stroke-width="4" fill="none" stroke-linecap="round"/>
-          <circle cx="63" cy="73" r="4" fill="#1c1917"/>
+          <!-- Big chibi head -->
+          <circle cx="40" cy="34" r="22" fill="#ea580c"/>
+          <!-- Cheek fluff -->
+          <ellipse cx="22" cy="39" rx="8" ry="6" fill="#fed7aa" opacity="0.5"/>
+          <ellipse cx="58" cy="39" rx="8" ry="6" fill="#fed7aa" opacity="0.5"/>
+          <!-- Blush -->
+          <ellipse cx="22" cy="40" rx="6" ry="3.5" fill="#fbbf24" opacity="0.3"/>
+          <ellipse cx="58" cy="40" rx="6" ry="3.5" fill="#fbbf24" opacity="0.3"/>
+          <!-- Ears -->
+          <polygon points="22,14 27,25 14,23" fill="#ea580c"/>
+          <polygon points="58,14 53,25 66,23" fill="#ea580c"/>
+          <polygon points="22,15 26,24 16,22" fill="#fcd34d" opacity="0.4"/>
+          <polygon points="58,15 54,24 64,22" fill="#fcd34d" opacity="0.4"/>
+          <!-- Tear marks -->
+          <path d="M 34 38 Q 32 43 33 48" stroke="#7c2d12" stroke-width="1.5" fill="none" opacity="0.7"/>
+          <path d="M 46 38 Q 48 43 47 48" stroke="#7c2d12" stroke-width="1.5" fill="none" opacity="0.7"/>
+          <!-- Big sparkly eyes -->
+          <circle cx="33" cy="30" r="6.5" fill="#1c1917"/>
+          <circle cx="47" cy="30" r="6.5" fill="#1c1917"/>
+          <circle cx="35" cy="27.5" r="3" fill="white" opacity="0.95"/>
+          <circle cx="49" cy="27.5" r="3" fill="white" opacity="0.95"/>
+          <circle cx="32" cy="32" r="1.2" fill="white" opacity="0.5"/>
+          <circle cx="46" cy="32" r="1.2" fill="white" opacity="0.5"/>
+          <!-- Nose -->
+          <ellipse cx="40" cy="40" rx="3.5" ry="2.5" fill="#7c2d12"/>
+          <path d="M 35 43 Q 40 47 45 43" stroke="#7c2d12" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Body + spots -->
+          <ellipse cx="40" cy="66" rx="14" ry="11" fill="#c2410c"/>
+          <circle cx="34" cy="62" r="3" fill="#7c2d12"/>
+          <circle cx="46" cy="64" r="3" fill="#7c2d12"/>
+          <circle cx="38" cy="70" r="2.5" fill="#7c2d12"/>
+          <!-- Feet -->
+          <ellipse cx="30" cy="74" rx="8" ry="5" fill="#c2410c"/>
+          <ellipse cx="50" cy="74" rx="8" ry="5" fill="#c2410c"/>
+          <!-- Tail with rings -->
+          <path d="M 54 62 Q 69 65 67 74" stroke="#7c2d12" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="5,3"/>
         </svg>
         <div class="av-name">Cheetah</div>
       </div>
@@ -2353,29 +2436,43 @@
       <!-- LEOPARD -->
       <div class="avatar-card" id="acard-leopard" onclick="selectAvatar('leopard')">
         <svg class="av-anim-leopard" viewBox="0 0 80 80" width="88" height="88">
-          <ellipse cx="44" cy="57" rx="20" ry="14" fill="#d97706"/>
-          <circle cx="34" cy="38" r="15" fill="#f59e0b"/>
-          <ellipse cx="28" cy="43" rx="7" ry="5" fill="#fde68a"/>
-          <polygon points="36,24 42,16 46,26" fill="#f59e0b"/>
-          <polygon points="24,26 20,16 30,24" fill="#f59e0b"/>
-          <polygon points="37,25 41,19 44,26" fill="#000" opacity="0.25"/>
-          <circle cx="30" cy="35" r="3.5" fill="#166534"/>
-          <circle cx="40" cy="34" r="3.5" fill="#166534"/>
-          <circle cx="30" cy="35" r="2" fill="#1c1917"/>
-          <circle cx="40" cy="34" r="2" fill="#1c1917"/>
-          <circle cx="31" cy="34" r="1" fill="white" opacity="0.9"/>
-          <circle cx="41" cy="33" r="1" fill="white" opacity="0.9"/>
-          <ellipse cx="27" cy="43" rx="3" ry="2" fill="#92400e"/>
-          <circle cx="42" cy="50" r="4.5" fill="none" stroke="#7c2d12" stroke-width="2"/>
-          <circle cx="42" cy="50" r="1.5" fill="#7c2d12"/>
-          <circle cx="56" cy="55" r="4" fill="none" stroke="#7c2d12" stroke-width="2"/>
-          <circle cx="56" cy="55" r="1.5" fill="#7c2d12"/>
-          <circle cx="34" cy="61" r="3.5" fill="none" stroke="#7c2d12" stroke-width="1.8"/>
-          <circle cx="50" cy="64" r="3.5" fill="none" stroke="#7c2d12" stroke-width="1.8"/>
-          <circle cx="26" cy="38" r="1.5" fill="#92400e" opacity="0.6"/>
-          <rect x="29" y="67" width="8" height="11" rx="3" fill="#d97706"/>
-          <rect x="47" y="67" width="8" height="11" rx="3" fill="#d97706"/>
-          <path d="M 62 56 Q 72 51 74 61 Q 72 70 66 72" stroke="#d97706" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <!-- Big chibi head -->
+          <circle cx="40" cy="34" r="22" fill="#f59e0b"/>
+          <!-- Cheeks -->
+          <ellipse cx="22" cy="39" rx="8" ry="6" fill="#fde68a" opacity="0.55"/>
+          <ellipse cx="58" cy="39" rx="8" ry="6" fill="#fde68a" opacity="0.55"/>
+          <!-- Blush -->
+          <ellipse cx="22" cy="40" rx="6" ry="3.5" fill="#fb923c" opacity="0.3"/>
+          <ellipse cx="58" cy="40" rx="6" ry="3.5" fill="#fb923c" opacity="0.3"/>
+          <!-- Ears -->
+          <polygon points="22,14 27,25 14,23" fill="#f59e0b"/>
+          <polygon points="58,14 53,25 66,23" fill="#f59e0b"/>
+          <!-- Green eyes (leopard special) -->
+          <circle cx="33" cy="30" r="7" fill="#15803d"/>
+          <circle cx="47" cy="30" r="7" fill="#15803d"/>
+          <circle cx="33" cy="30" r="4.5" fill="#1c1917"/>
+          <circle cx="47" cy="30" r="4.5" fill="#1c1917"/>
+          <circle cx="35" cy="27.5" r="2.5" fill="white" opacity="0.95"/>
+          <circle cx="49" cy="27.5" r="2.5" fill="white" opacity="0.95"/>
+          <circle cx="32" cy="31.5" r="1" fill="white" opacity="0.5"/>
+          <circle cx="46" cy="31.5" r="1" fill="white" opacity="0.5"/>
+          <!-- Face rosette -->
+          <circle cx="28" cy="38" r="3.5" fill="none" stroke="#7c2d12" stroke-width="1.8"/>
+          <circle cx="28" cy="38" r="1.3" fill="#7c2d12"/>
+          <!-- Nose -->
+          <ellipse cx="40" cy="40" rx="4" ry="3" fill="#92400e"/>
+          <path d="M 35 43 Q 40 47 45 43" stroke="#92400e" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Body + rosettes -->
+          <ellipse cx="40" cy="66" rx="15" ry="11" fill="#d97706"/>
+          <circle cx="35" cy="64" r="4" fill="none" stroke="#7c2d12" stroke-width="2"/>
+          <circle cx="35" cy="64" r="1.5" fill="#7c2d12"/>
+          <circle cx="48" cy="67" r="3.5" fill="none" stroke="#7c2d12" stroke-width="1.8"/>
+          <circle cx="48" cy="67" r="1.2" fill="#7c2d12"/>
+          <!-- Feet -->
+          <ellipse cx="30" cy="74" rx="8" ry="5" fill="#d97706"/>
+          <ellipse cx="50" cy="74" rx="8" ry="5" fill="#d97706"/>
+          <!-- Tail -->
+          <path d="M 54 63 Q 70 67 67 76" stroke="#d97706" stroke-width="5" fill="none" stroke-linecap="round"/>
         </svg>
         <div class="av-name">Leopard</div>
       </div>
@@ -2383,17 +2480,29 @@
       <!-- WHALE -->
       <div class="avatar-card" id="acard-whale" onclick="selectAvatar('whale')">
         <svg class="av-anim-whale" viewBox="0 0 80 80" width="88" height="88">
-          <path d="M 40 9 Q 38 4 40 2 Q 42 4 40 9" stroke="#bae6fd" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.9"/>
-          <path d="M 40 9 Q 35 3 37 0 Q 42 2 40 9" stroke="#bae6fd" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.6"/>
-          <ellipse cx="40" cy="47" rx="22" ry="28" fill="#1e40af"/>
-          <ellipse cx="40" cy="53" rx="13" ry="18" fill="#bfdbfe"/>
-          <path d="M 30 73 Q 36 80 40 77 Q 44 80 50 73 Q 44 69 40 73 Q 36 69 30 73Z" fill="#1e40af"/>
-          <path d="M 20 45 Q 12 51 14 59 Q 22 51 22 47Z" fill="#1e3a8a"/>
-          <path d="M 60 45 Q 68 51 66 59 Q 58 51 58 47Z" fill="#1e3a8a"/>
-          <circle cx="33" cy="36" r="5" fill="white"/>
-          <circle cx="33" cy="36" r="3" fill="#1c1917"/>
-          <circle cx="34" cy="35" r="1.2" fill="white" opacity="0.9"/>
-          <path d="M 30 43 Q 36 47 42 43" stroke="#1e3a8a" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- Spout -->
+          <path d="M 37 8 Q 34 2 37 5" stroke="#bae6fd" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.9"/>
+          <path d="M 43 8 Q 46 2 43 5" stroke="#bae6fd" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.9"/>
+          <path d="M 40 7 Q 40 1 40 4" stroke="#bae6fd" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7"/>
+          <!-- Body (big round) -->
+          <ellipse cx="40" cy="52" rx="22" ry="24" fill="#1e40af"/>
+          <ellipse cx="40" cy="57" rx="14" ry="16" fill="#bfdbfe"/>
+          <!-- Tail fluke -->
+          <path d="M 27 72 Q 33 80 40 76 Q 47 80 53 72 Q 46 68 40 73 Q 34 68 27 72Z" fill="#1e40af"/>
+          <!-- Side fins -->
+          <path d="M 18 46 Q 8 53 11 62 Q 20 53 20 47Z" fill="#1e3a8a"/>
+          <path d="M 62 46 Q 72 53 69 62 Q 60 53 60 47Z" fill="#1e3a8a"/>
+          <!-- Big chibi head -->
+          <circle cx="40" cy="33" r="22" fill="#1e40af"/>
+          <!-- Big sparkly eye -->
+          <circle cx="31" cy="29" r="8" fill="white"/>
+          <circle cx="31" cy="29" r="5" fill="#1c1917"/>
+          <circle cx="33" cy="26.5" r="2.5" fill="white" opacity="0.95"/>
+          <circle cx="29" cy="31" r="1.2" fill="white" opacity="0.5"/>
+          <!-- Blush -->
+          <ellipse cx="47" cy="32" rx="6" ry="3.5" fill="#93c5fd" opacity="0.45"/>
+          <!-- Big smile -->
+          <path d="M 30 39 Q 40 46 50 39" stroke="#1e3a8a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
         </svg>
         <div class="av-name">Whale</div>
       </div>
@@ -2401,25 +2510,42 @@
       <!-- CROCODILE -->
       <div class="avatar-card" id="acard-croco" onclick="selectAvatar('croco')">
         <svg class="av-anim-croco" viewBox="0 0 80 80" width="88" height="88">
-          <path d="M 14 57 Q 8 65 12 73 Q 20 69 22 61Z" fill="#166534"/>
-          <ellipse cx="44" cy="53" rx="28" ry="14" fill="#16a34a"/>
-          <polygon points="24,41 26,51 28,41" fill="#166534"/>
-          <polygon points="32,39 34,50 36,39" fill="#166534"/>
-          <polygon points="40,38 42,50 44,38" fill="#166534"/>
-          <polygon points="48,39 50,50 52,39" fill="#166534"/>
-          <polygon points="56,41 58,51 60,41" fill="#166534"/>
-          <ellipse cx="64" cy="51" rx="14" ry="9" fill="#16a34a"/>
-          <ellipse cx="72" cy="53" rx="8" ry="5" fill="#15803d"/>
-          <circle cx="70" cy="51" r="1.5" fill="#166534"/>
-          <circle cx="74" cy="51" r="1.5" fill="#166534"/>
-          <circle cx="63" cy="44" r="5.5" fill="#fef08a"/>
-          <circle cx="63" cy="44" r="3" fill="#166534"/>
-          <circle cx="63" cy="44" r="1.5" fill="#1c1917"/>
-          <polygon points="66,56 68,63 70,56" fill="white"/>
-          <polygon points="58,56 60,63 62,56" fill="white"/>
-          <ellipse cx="32" cy="65" rx="6" ry="4" fill="#15803d"/>
-          <ellipse cx="52" cy="65" rx="6" ry="4" fill="#15803d"/>
-          <ellipse cx="44" cy="55" rx="20" ry="9" fill="#4ade80" opacity="0.4"/>
+          <!-- Chubby body -->
+          <ellipse cx="40" cy="60" rx="22" ry="16" fill="#16a34a"/>
+          <ellipse cx="40" cy="62" rx="14" ry="10" fill="#4ade80" opacity="0.38"/>
+          <!-- Back spines (cute small) -->
+          <polygon points="30,46 33,52 36,46" fill="#166534"/>
+          <polygon points="38,44 41,51 44,44" fill="#166534"/>
+          <polygon points="46,46 49,52 52,46" fill="#166534"/>
+          <!-- Tail -->
+          <path d="M 10 62 Q 4 70 9 77 Q 18 72 20 63Z" fill="#166534"/>
+          <!-- Snout (cute wide) -->
+          <ellipse cx="52" cy="56" rx="14" ry="8" fill="#16a34a"/>
+          <ellipse cx="59" cy="57" rx="8" ry="5" fill="#15803d"/>
+          <circle cx="56" cy="53.5" r="2" fill="#166534"/>
+          <circle cx="62" cy="53.5" r="2" fill="#166534"/>
+          <!-- Smile + teeth -->
+          <path d="M 45 60 Q 56 65 68 60" stroke="#1c1917" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <polygon points="50,60 52,65 54,60" fill="white"/>
+          <polygon points="58,60 60,65 62,60" fill="white"/>
+          <!-- Big chibi head -->
+          <circle cx="32" cy="42" r="20" fill="#16a34a"/>
+          <!-- Big yellow eyes -->
+          <circle cx="25" cy="35" r="8" fill="#fef08a"/>
+          <circle cx="39" cy="35" r="8" fill="#fef08a"/>
+          <circle cx="25" cy="35" r="5" fill="#166534"/>
+          <circle cx="39" cy="35" r="5" fill="#166534"/>
+          <circle cx="25" cy="35" r="2.5" fill="#1c1917"/>
+          <circle cx="39" cy="35" r="2.5" fill="#1c1917"/>
+          <circle cx="26.5" cy="33" r="1.3" fill="white" opacity="0.9"/>
+          <circle cx="40.5" cy="33" r="1.3" fill="white" opacity="0.9"/>
+          <!-- Blush -->
+          <ellipse cx="22" cy="44" rx="5" ry="3" fill="#4ade80" opacity="0.45"/>
+          <!-- Cute smile on head -->
+          <path d="M 24 48 Q 32 54 40 48" stroke="#166534" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Feet -->
+          <ellipse cx="28" cy="73" rx="8" ry="5" fill="#15803d"/>
+          <ellipse cx="50" cy="73" rx="8" ry="5" fill="#15803d"/>
         </svg>
         <div class="av-name">Croco</div>
       </div>
@@ -2443,7 +2569,7 @@
 
     <div class="nav-direct" id="nav-quest-home" onclick="selectQuestPanel(this)">
       <span class="icon">🏠</span>
-      <span>Daily Quest</span>
+      <span>Today's Tasks</span>
     </div>
 
     <div class="nav-section" data-section="portfolio-overview">
@@ -2497,21 +2623,27 @@
 <main id="main">
   <div id="main-header">
     <div id="breadcrumb">Project AAAI+ &nbsp;›&nbsp; <span id="breadcrumb-current">CARE Cares</span></div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+      <div class="qmp-avatar-pill" id="header-avatar-pill" style="cursor:pointer;" onclick="showAvatarPicker()" title="Change avatar">🦁 Lion</div>
+    </div>
   </div>
   <div id="content">
 
     <!-- Daily Quest Main Panel -->
     <div id="quest-main-panel">
+      <!-- Office Quest embedded game — featured at top -->
+      <div id="oq-section">
+        <div id="oq-section-bar">
+          <span>📋 Rules: In order to advance, click on the tasks completed on the right side!</span>
+        </div>
+        <iframe id="oq-frame" src="/maze-game.html" title="Office Quest"></iframe>
+      </div>
       <div class="qmp-header">
         <div class="qmp-header-left">
           <div>
-            <div class="qmp-header-title">🏠 Daily Quest</div>
+            <div class="qmp-header-title">🏠 Today's Tasks</div>
             <div class="qmp-header-sub" id="qmp-date-sub">Loading…</div>
           </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="qmp-avatar-pill" id="qmp-avatar-pill">🦁 Lion</div>
-          <button class="qmp-change-avatar" onclick="showAvatarPicker()" title="Change avatar">✦ Change Avatar</button>
         </div>
       </div>
       <div class="qmp-body">
@@ -2541,20 +2673,13 @@
           <!-- Mini Calendar -->
           <div class="qmp-cal-wrap">
             <div class="qmp-cal-nav">
-              <button class="qmp-cal-nav-btn" onclick="prevCalMonth()" title="Previous month">‹</button>
+              <button class="qmp-cal-nav-btn" id="cal-prev-btn" onclick="prevCalMonth()" title="Previous month">‹</button>
               <span class="qmp-cal-title" id="qmp-cal-title">April 2026</span>
               <button class="qmp-cal-nav-btn" onclick="nextCalMonth()" title="Next month">›</button>
             </div>
             <div class="qmp-cal-grid" id="qmp-cal-grid"></div>
           </div>
         </div>
-      </div>
-      <!-- Office Quest embedded game -->
-      <div id="oq-section">
-        <div id="oq-section-bar">
-          <span>🎮 Office Quest — Complete tasks to advance!</span>
-        </div>
-        <iframe id="oq-frame" src="/maze-game.html" title="Office Quest"></iframe>
       </div>
     </div>
 
@@ -2786,7 +2911,7 @@
 <!-- Daily Quest Panel -->
 <div id="task-panel">
   <div id="task-panel-header">
-    <div class="quest-title">🏠 Today's Quest</div>
+    <div class="quest-title">🏠 Today's Tasks</div>
     <button class="quest-close" onclick="hideTaskPanel()" title="Close">✕</button>
   </div>
   <div id="quest-maze-wrap">
@@ -2811,6 +2936,20 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- Light Day Popup -->
+<div id="light-day-overlay">
+  <div id="light-day-modal">
+    <div class="ld-emoji">☀️</div>
+    <div class="ld-title">Looks like a light day!</div>
+    <div class="ld-sub">You want to brush up on industry skills or write articles?</div>
+    <div class="ld-btn-row">
+      <button class="ld-btn" onclick="lightDaySkills()">🌐 Industry Skills</button>
+      <button class="ld-btn" onclick="lightDayArticles()">✍️ Write Articles</button>
+    </div>
+    <button class="ld-btn-close" onclick="closeLightDay()">Maybe later</button>
+  </div>
+</div>
 
 <script>
   // ══════════════════════════════════════
@@ -4155,7 +4294,7 @@ Write in professional, analytical language suitable for a financial or industry 
   function selectQuestPanel(el) {
     document.querySelectorAll('.nav-subitem,.nav-direct,.nav-section-header').forEach(function(e) { e.classList.remove('active'); });
     if (el) el.classList.add('active');
-    document.getElementById('breadcrumb-current').textContent = 'Daily Quest';
+    document.getElementById('breadcrumb-current').textContent = 'Today\'s Tasks';
     hideAllPanels();
     document.getElementById('quest-main-panel').classList.add('visible');
     renderQuestMainPanel();
@@ -4180,6 +4319,8 @@ Write in professional, analytical language suitable for a financial or industry 
       if (subEl) subEl.textContent = today;
       var pillEl = document.getElementById('qmp-avatar-pill');
       if (pillEl) pillEl.textContent = avEmoji + ' ' + avLabel;
+      var hdrPill = document.getElementById('header-avatar-pill');
+      if (hdrPill) hdrPill.textContent = avEmoji + ' ' + avLabel;
 
       // Main maze SVG
       var svgEl = document.getElementById('quest-main-svg');
@@ -4343,7 +4484,29 @@ Write in professional, analytical language suitable for a financial or industry 
       // Show quest as the main landing page
       var navEl = document.getElementById('nav-quest-home');
       if (navEl) selectQuestPanel(navEl);
+      // Show light day popup if no tasks today
+      var tasks = getDailyTasks();
+      if (tasks.length === 0) {
+        setTimeout(showLightDayPopup, 600);
+      }
     } catch(e) {}
+  }
+
+  function showLightDayPopup() {
+    document.getElementById('light-day-overlay').classList.add('visible');
+  }
+  function closeLightDay() {
+    document.getElementById('light-day-overlay').classList.remove('visible');
+  }
+  function lightDaySkills() {
+    closeLightDay();
+    var el = document.querySelector('[onclick*="selectIndustryTopics"]');
+    if (el) selectIndustryTopics(el);
+  }
+  function lightDayArticles() {
+    closeLightDay();
+    var el = document.querySelector('[onclick*="selectIndustryTopics"]');
+    if (el) selectIndustryTopics(el);
   }
 
   function loadDailyQuestState() {
@@ -4383,7 +4546,7 @@ Write in professional, analytical language suitable for a financial or industry 
       tasks.push({ id: 'default:criteria', label: 'Read rating criteria',  sublabel: 'Strengthen methodology knowledge', icon: 'review', section: 'Learning' });
       tasks.push({ id: 'default:notes',    label: 'Update rating notes',   sublabel: 'Draft or refine rating rationale', icon: 'mail',   section: 'Credit Work' });
     }
-    return tasks;
+    return tasks.slice(0, 10); // max 10 tasks
   }
 
   function toggleTaskPanel() {
@@ -4538,138 +4701,188 @@ Write in professional, analytical language suitable for a financial or industry 
     return d;
   }
 
-  // Returns SVG elements for the avatar character, relative to (0,0)
-  // head ~y=-12, body y=-1..12, legs to y=22, shadow at y=23
+  // Chibi/baby avatar characters for the maze
   function buildAvatarChar(avatar) {
     var o = '';
-    o += '<ellipse cx="0" cy="23" rx="8" ry="2.5" fill="rgba(0,0,0,0.2)"/>';
+    o += '<ellipse cx="0" cy="24" rx="9" ry="2.5" fill="rgba(0,0,0,0.18)"/>';
 
     if (avatar === 'lion') {
-      // Mane + head
-      o += '<circle cx="0" cy="-12" r="11" fill="#b45309"/>';
-      o += '<circle cx="0" cy="-12" r="8" fill="#f59e0b"/>';
+      // Fluffy mane (big)
+      o += '<circle cx="0" cy="-11" r="16" fill="#b45309" opacity="0.88"/>';
+      // Big chibi head
+      o += '<circle cx="0" cy="-13" r="13" fill="#fbbf24"/>';
+      // Cheek fluff
+      o += '<ellipse cx="-10" cy="-8" rx="6" ry="4.5" fill="#fde68a" opacity="0.5"/>';
+      o += '<ellipse cx="10" cy="-8" rx="6" ry="4.5" fill="#fde68a" opacity="0.5"/>';
+      // Blush
+      o += '<ellipse cx="-9" cy="-8" rx="4.5" ry="2.8" fill="#fb923c" opacity="0.32"/>';
+      o += '<ellipse cx="9" cy="-8" rx="4.5" ry="2.8" fill="#fb923c" opacity="0.32"/>';
       // Ears
-      o += '<polygon points="-7,-19 -4,-13 -11,-14" fill="#f59e0b"/>';
-      o += '<polygon points="7,-19 4,-13 11,-14" fill="#f59e0b"/>';
-      // Eyes
-      o += '<circle cx="-3.5" cy="-14" r="2.2" fill="#1c1917"/>';
-      o += '<circle cx="3.5" cy="-14" r="2.2" fill="#1c1917"/>';
-      o += '<circle cx="-3" cy="-15" r="0.9" fill="white" opacity="0.9"/>';
-      o += '<circle cx="4" cy="-15" r="0.9" fill="white" opacity="0.9"/>';
-      o += '<ellipse cx="0" cy="-9" rx="2" ry="1.2" fill="#92400e"/>';
-      // Body
-      o += '<rect x="-6" y="-1" width="12" height="13" rx="4" fill="#d97706"/>';
-      // Arms
-      o += '<line x1="-6" y1="4" x2="-13" y2="9" stroke="#b45309" stroke-width="2.5" stroke-linecap="round"/>';
-      o += '<line x1="6" y1="4" x2="13" y2="9" stroke="#b45309" stroke-width="2.5" stroke-linecap="round"/>';
-      // Legs
-      o += '<line x1="-3" y1="11" x2="-5" y2="22" stroke="#b45309" stroke-width="2.5" stroke-linecap="round"/>';
-      o += '<line x1="3" y1="11" x2="5" y2="22" stroke="#b45309" stroke-width="2.5" stroke-linecap="round"/>';
-      // Tail
-      o += '<path d="M 5 10 Q 14 14 12 22" stroke="#b45309" stroke-width="2" fill="none" stroke-linecap="round"/>';
+      o += '<polygon points="-9,-24 -6,-15 -15,-17" fill="#fbbf24"/>';
+      o += '<polygon points="9,-24 6,-15 15,-17" fill="#fbbf24"/>';
+      o += '<polygon points="-9,-23 -7,-16 -13,-18" fill="#fde68a" opacity="0.55"/>';
+      o += '<polygon points="9,-23 7,-16 13,-18" fill="#fde68a" opacity="0.55"/>';
+      // Big cute eyes
+      o += '<circle cx="-5" cy="-15" r="4" fill="#1c1917"/>';
+      o += '<circle cx="5" cy="-15" r="4" fill="#1c1917"/>';
+      o += '<circle cx="-3.8" cy="-16.5" r="1.8" fill="white" opacity="0.95"/>';
+      o += '<circle cx="6.2" cy="-16.5" r="1.8" fill="white" opacity="0.95"/>';
+      o += '<circle cx="-5.5" cy="-14" r="0.7" fill="white" opacity="0.5"/>';
+      o += '<circle cx="4.5" cy="-14" r="0.7" fill="white" opacity="0.5"/>';
+      // Nose + tiny smile
+      o += '<ellipse cx="0" cy="-8" rx="2.5" ry="1.8" fill="#92400e"/>';
+      o += '<path d="M -2.5 -6 Q 0 -3.5 2.5 -6" stroke="#78350f" stroke-width="1.2" fill="none" stroke-linecap="round"/>';
+      // Chubby body
+      o += '<ellipse cx="0" cy="8" rx="7.5" ry="9" fill="#d97706"/>';
+      o += '<ellipse cx="0" cy="10" rx="4.5" ry="6" fill="#fde68a" opacity="0.55"/>';
+      // Stubby arms
+      o += '<ellipse cx="-11" cy="4" rx="4.5" ry="3" fill="#b45309" transform="rotate(-25,-11,4)"/>';
+      o += '<ellipse cx="11" cy="4" rx="4.5" ry="3" fill="#b45309" transform="rotate(25,11,4)"/>';
+      // Stubby legs
+      o += '<ellipse cx="-4" cy="20" rx="3.5" ry="4.5" fill="#b45309"/>';
+      o += '<ellipse cx="4" cy="20" rx="3.5" ry="4.5" fill="#b45309"/>';
+      // Tiny tail
+      o += '<path d="M 7 12 Q 15 15 13 22" stroke="#b45309" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
+      o += '<circle cx="13" cy="22" r="2.5" fill="#b45309"/>';
 
     } else if (avatar === 'cheetah') {
-      // Head (orange)
-      o += '<circle cx="0" cy="-12" r="9" fill="#ea580c"/>';
-      o += '<polygon points="-6,-19 -4,-13 -10,-14" fill="#ea580c"/>';
-      o += '<polygon points="6,-19 4,-13 10,-14" fill="#ea580c"/>';
-      o += '<circle cx="-3.5" cy="-14" r="2.2" fill="#1c1917"/>';
-      o += '<circle cx="3.5" cy="-14" r="2.2" fill="#1c1917"/>';
-      o += '<circle cx="-3" cy="-15" r="0.9" fill="white" opacity="0.9"/>';
-      o += '<circle cx="4" cy="-15" r="0.9" fill="white" opacity="0.9"/>';
-      // Tear streaks (cheetah hallmark)
-      o += '<path d="M -4 -10 Q -5 -7 -4 -4" stroke="#7c2d12" stroke-width="1" fill="none" opacity="0.85"/>';
-      o += '<path d="M 4 -10 Q 5 -7 4 -4" stroke="#7c2d12" stroke-width="1" fill="none" opacity="0.85"/>';
-      o += '<ellipse cx="0" cy="-9" rx="2" ry="1.2" fill="#7c2d12"/>';
-      // Body with spots
-      o += '<rect x="-6" y="-1" width="12" height="13" rx="4" fill="#c2410c"/>';
-      o += '<circle cx="-2" cy="3" r="1.5" fill="#7c2d12"/>';
-      o += '<circle cx="3" cy="8" r="1.5" fill="#7c2d12"/>';
-      // Arms + legs
-      o += '<line x1="-6" y1="4" x2="-13" y2="9" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round"/>';
-      o += '<line x1="6" y1="4" x2="13" y2="9" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round"/>';
-      o += '<line x1="-3" y1="11" x2="-5" y2="22" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round"/>';
-      o += '<line x1="3" y1="11" x2="5" y2="22" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round"/>';
-      // Tail with dashed rings
-      o += '<path d="M 5 10 Q 14 14 12 22" stroke="#7c2d12" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-dasharray="3,2"/>';
+      // Big chibi head
+      o += '<circle cx="0" cy="-13" r="13" fill="#ea580c"/>';
+      // Cheek fur (pale)
+      o += '<ellipse cx="-10" cy="-8" rx="5.5" ry="4" fill="#fed7aa" opacity="0.5"/>';
+      o += '<ellipse cx="10" cy="-8" rx="5.5" ry="4" fill="#fed7aa" opacity="0.5"/>';
+      // Blush
+      o += '<ellipse cx="-9" cy="-8" rx="4" ry="2.5" fill="#fbbf24" opacity="0.3"/>';
+      o += '<ellipse cx="9" cy="-8" rx="4" ry="2.5" fill="#fbbf24" opacity="0.3"/>';
+      // Ears
+      o += '<polygon points="-8,-23 -6,-14 -14,-16" fill="#ea580c"/>';
+      o += '<polygon points="8,-23 6,-14 14,-16" fill="#ea580c"/>';
+      o += '<polygon points="-8,-22 -6.5,-15 -12,-17" fill="#fcd34d" opacity="0.4"/>';
+      o += '<polygon points="8,-22 6.5,-15 12,-17" fill="#fcd34d" opacity="0.4"/>';
+      // Cheetah tear streaks
+      o += '<path d="M -4.5 -10 Q -5.5 -7 -4.5 -4" stroke="#7c2d12" stroke-width="1.2" fill="none" opacity="0.7"/>';
+      o += '<path d="M 4.5 -10 Q 5.5 -7 4.5 -4" stroke="#7c2d12" stroke-width="1.2" fill="none" opacity="0.7"/>';
+      // Big cute eyes
+      o += '<circle cx="-5" cy="-15" r="4" fill="#1c1917"/>';
+      o += '<circle cx="5" cy="-15" r="4" fill="#1c1917"/>';
+      o += '<circle cx="-3.8" cy="-16.5" r="1.8" fill="white" opacity="0.95"/>';
+      o += '<circle cx="6.2" cy="-16.5" r="1.8" fill="white" opacity="0.95"/>';
+      // Nose
+      o += '<ellipse cx="0" cy="-8" rx="2" ry="1.5" fill="#7c2d12"/>';
+      o += '<path d="M -2 -6.2 Q 0 -4 2 -6.2" stroke="#7c2d12" stroke-width="1" fill="none" stroke-linecap="round"/>';
+      // Chubby body + spots
+      o += '<ellipse cx="0" cy="8" rx="7" ry="9" fill="#c2410c"/>';
+      o += '<circle cx="-3" cy="4" r="2" fill="#7c2d12"/>';
+      o += '<circle cx="3" cy="8" r="2" fill="#7c2d12"/>';
+      o += '<circle cx="-1" cy="13" r="1.5" fill="#7c2d12"/>';
+      // Stubby arms
+      o += '<ellipse cx="-11" cy="4" rx="4.5" ry="3" fill="#c2410c" transform="rotate(-25,-11,4)"/>';
+      o += '<ellipse cx="11" cy="4" rx="4.5" ry="3" fill="#c2410c" transform="rotate(25,11,4)"/>';
+      // Stubby legs
+      o += '<ellipse cx="-4" cy="20" rx="3.5" ry="4.5" fill="#c2410c"/>';
+      o += '<ellipse cx="4" cy="20" rx="3.5" ry="4.5" fill="#c2410c"/>';
+      // Tail with rings
+      o += '<path d="M 7 12 Q 15 15 13 22" stroke="#7c2d12" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-dasharray="3,2"/>';
 
     } else if (avatar === 'leopard') {
-      // Head (tawny gold, wider)
-      o += '<circle cx="0" cy="-12" r="9" fill="#f59e0b"/>';
-      o += '<polygon points="-7,-19 -4,-13 -11,-14" fill="#f59e0b"/>';
-      o += '<polygon points="7,-19 4,-13 11,-14" fill="#f59e0b"/>';
-      // Green eyes (distinctive!)
-      o += '<circle cx="-3.5" cy="-14" r="2.5" fill="#15803d"/>';
-      o += '<circle cx="3.5" cy="-14" r="2.5" fill="#15803d"/>';
-      o += '<circle cx="-3.5" cy="-14" r="1.3" fill="#1c1917"/>';
-      o += '<circle cx="3.5" cy="-14" r="1.3" fill="#1c1917"/>';
-      o += '<circle cx="-3" cy="-15" r="0.7" fill="white" opacity="0.9"/>';
-      o += '<circle cx="4" cy="-15" r="0.7" fill="white" opacity="0.9"/>';
+      // Big chibi head (gold)
+      o += '<circle cx="0" cy="-13" r="13" fill="#f59e0b"/>';
+      // Cheeks
+      o += '<ellipse cx="-10" cy="-8" rx="5.5" ry="4" fill="#fde68a" opacity="0.55"/>';
+      o += '<ellipse cx="10" cy="-8" rx="5.5" ry="4" fill="#fde68a" opacity="0.55"/>';
+      // Blush
+      o += '<ellipse cx="-9" cy="-8" rx="4" ry="2.5" fill="#fb923c" opacity="0.3"/>';
+      o += '<ellipse cx="9" cy="-8" rx="4" ry="2.5" fill="#fb923c" opacity="0.3"/>';
+      // Ears
+      o += '<polygon points="-8,-23 -5,-14 -14,-17" fill="#f59e0b"/>';
+      o += '<polygon points="8,-23 5,-14 14,-17" fill="#f59e0b"/>';
+      // Green eyes
+      o += '<circle cx="-5" cy="-15" r="4" fill="#15803d"/>';
+      o += '<circle cx="5" cy="-15" r="4" fill="#15803d"/>';
+      o += '<circle cx="-5" cy="-15" r="2.4" fill="#1c1917"/>';
+      o += '<circle cx="5" cy="-15" r="2.4" fill="#1c1917"/>';
+      o += '<circle cx="-3.8" cy="-16.5" r="1.2" fill="white" opacity="0.95"/>';
+      o += '<circle cx="6.2" cy="-16.5" r="1.2" fill="white" opacity="0.95"/>';
       // Rosette on face
-      o += '<circle cx="-3" cy="-9" r="2" fill="none" stroke="#7c2d12" stroke-width="1.2"/>';
-      o += '<circle cx="-3" cy="-9" r="0.7" fill="#7c2d12"/>';
-      o += '<ellipse cx="0" cy="-8" rx="2" ry="1.2" fill="#92400e"/>';
-      // Body (wider)
-      o += '<rect x="-7" y="-1" width="14" height="13" rx="4" fill="#d97706"/>';
+      o += '<circle cx="-4" cy="-8" r="2" fill="none" stroke="#7c2d12" stroke-width="1.2"/>';
+      o += '<circle cx="-4" cy="-8" r="0.7" fill="#7c2d12"/>';
+      // Nose
+      o += '<ellipse cx="0" cy="-7" rx="2.5" ry="1.8" fill="#92400e"/>';
+      o += '<path d="M -2.5 -5 Q 0 -3 2.5 -5" stroke="#92400e" stroke-width="1.1" fill="none" stroke-linecap="round"/>';
+      // Chubby body
+      o += '<ellipse cx="0" cy="8" rx="8" ry="9" fill="#d97706"/>';
       // Rosette on body
-      o += '<circle cx="0" cy="5" r="2.5" fill="none" stroke="#7c2d12" stroke-width="1.2"/>';
-      o += '<circle cx="0" cy="5" r="0.8" fill="#7c2d12"/>';
-      // Arms + legs (wider stance)
-      o += '<line x1="-7" y1="4" x2="-14" y2="9" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/>';
-      o += '<line x1="7" y1="4" x2="14" y2="9" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/>';
-      o += '<line x1="-3" y1="11" x2="-5" y2="22" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/>';
-      o += '<line x1="3" y1="11" x2="5" y2="22" stroke="#d97706" stroke-width="2.5" stroke-linecap="round"/>';
-      // Tail (thick)
-      o += '<path d="M 5 10 Q 15 14 13 22" stroke="#d97706" stroke-width="3" fill="none" stroke-linecap="round"/>';
+      o += '<circle cx="0" cy="6" r="2.8" fill="none" stroke="#7c2d12" stroke-width="1.3"/>';
+      o += '<circle cx="0" cy="6" r="1" fill="#7c2d12"/>';
+      // Arms
+      o += '<ellipse cx="-12" cy="4" rx="5" ry="3" fill="#d97706" transform="rotate(-25,-12,4)"/>';
+      o += '<ellipse cx="12" cy="4" rx="5" ry="3" fill="#d97706" transform="rotate(25,12,4)"/>';
+      // Stubby legs
+      o += '<ellipse cx="-4" cy="20" rx="3.5" ry="4.5" fill="#d97706"/>';
+      o += '<ellipse cx="4" cy="20" rx="3.5" ry="4.5" fill="#d97706"/>';
+      // Tail
+      o += '<path d="M 7 12 Q 16 15 14 22" stroke="#d97706" stroke-width="3" fill="none" stroke-linecap="round"/>';
 
     } else if (avatar === 'whale') {
-      // Upright friendly whale
-      o += '<ellipse cx="0" cy="6" rx="8" ry="14" fill="#1e40af"/>';
-      o += '<ellipse cx="0" cy="8" rx="4.5" ry="9" fill="#bfdbfe"/>';
+      // Big round whale — very chibi
+      o += '<ellipse cx="0" cy="7" rx="11" ry="13" fill="#1e40af"/>';
+      o += '<ellipse cx="0" cy="11" rx="7" ry="9" fill="#bfdbfe"/>';
       // Side fins
-      o += '<path d="M -8 2 Q -15 6 -12 13 Q -8 8 -8 2Z" fill="#1e3a8a"/>';
-      o += '<path d="M 8 2 Q 15 6 12 13 Q 8 8 8 2Z" fill="#1e3a8a"/>';
+      o += '<path d="M -11 0 Q -19 5 -15 14 Q -11 7 -11 0Z" fill="#1e3a8a"/>';
+      o += '<path d="M 11 0 Q 19 5 15 14 Q 11 7 11 0Z" fill="#1e3a8a"/>';
       // Tail fluke
-      o += '<path d="M -7 18 Q -3 23 0 20 Q 3 23 7 18 Q 3 16 0 19 Q -3 16 -7 18Z" fill="#1e40af"/>';
-      // Head
-      o += '<circle cx="0" cy="-10" r="9" fill="#1e40af"/>';
+      o += '<path d="M -9 18 Q -4 24 0 20 Q 4 24 9 18 Q 4 16 0 19 Q -4 16 -9 18Z" fill="#1e40af"/>';
+      // Big round head
+      o += '<circle cx="0" cy="-11" r="13" fill="#1e40af"/>';
       // Spout
-      o += '<path d="M 0 -19 Q -2 -23 0 -21" stroke="#bae6fd" stroke-width="1.5" fill="none" stroke-linecap="round"/>';
-      // Eye
-      o += '<circle cx="-4" cy="-11" r="3" fill="white"/>';
-      o += '<circle cx="-4" cy="-11" r="1.8" fill="#1c1917"/>';
-      o += '<circle cx="-3.5" cy="-12" r="0.8" fill="white" opacity="0.9"/>';
+      o += '<path d="M -2 -24 Q -4 -30 -2 -27" stroke="#bae6fd" stroke-width="2" fill="none" stroke-linecap="round"/>';
+      o += '<path d="M 2 -24 Q 4 -30 2 -27" stroke="#bae6fd" stroke-width="2" fill="none" stroke-linecap="round"/>';
+      // Big sparkly eye
+      o += '<circle cx="-5.5" cy="-12" r="5" fill="white"/>';
+      o += '<circle cx="-5.5" cy="-12" r="3" fill="#1c1917"/>';
+      o += '<circle cx="-4.5" cy="-13.5" r="1.4" fill="white" opacity="0.95"/>';
+      o += '<circle cx="-6.5" cy="-11" r="0.7" fill="white" opacity="0.5"/>';
+      // Blush
+      o += '<ellipse cx="5" cy="-10" rx="3.5" ry="2" fill="#93c5fd" opacity="0.4"/>';
       // Smile
-      o += '<path d="M -2 -7 Q 2 -5 5 -7" stroke="#1e3a8a" stroke-width="1.5" fill="none" stroke-linecap="round"/>';
+      o += '<path d="M -2.5 -6.5 Q 2 -4 5.5 -6.5" stroke="#1e3a8a" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
 
     } else if (avatar === 'croco') {
-      // Raptor-like standing croc
-      o += '<rect x="-6" y="-1" width="12" height="14" rx="3" fill="#16a34a"/>';
-      o += '<ellipse cx="0" cy="6" rx="4.5" ry="7" fill="#4ade80" opacity="0.45"/>';
-      // Back spines
-      o += '<polygon points="-2,-6 0,-1 2,-6" fill="#166534"/>';
-      o += '<polygon points="-2,-9 0,-4 2,-9" fill="#166534" opacity="0.7"/>';
+      // Round croc body
+      o += '<ellipse cx="0" cy="8" rx="8" ry="10" fill="#16a34a"/>';
+      o += '<ellipse cx="0" cy="9" rx="5" ry="7" fill="#4ade80" opacity="0.4"/>';
+      // Back spines (cute small)
+      o += '<polygon points="-2,-3 0,1 2,-3" fill="#166534"/>';
+      o += '<polygon points="-2,-7 0,-3 2,-7" fill="#166534" opacity="0.7"/>';
+      o += '<polygon points="-2,-11 0,-7 2,-11" fill="#166534" opacity="0.5"/>';
       // Tail
-      o += '<path d="M 5 10 Q 14 13 15 22" stroke="#166534" stroke-width="4" fill="none" stroke-linecap="round"/>';
-      // Head
-      o += '<ellipse cx="0" cy="-13" rx="9" ry="7" fill="#16a34a"/>';
+      o += '<path d="M 7 13 Q 16 16 15 23" stroke="#166534" stroke-width="4.5" fill="none" stroke-linecap="round"/>';
+      o += '<circle cx="15" cy="23" r="2.5" fill="#166534"/>';
+      // Big chibi head
+      o += '<ellipse cx="0" cy="-13" rx="13" ry="10" fill="#16a34a"/>';
       // Snout
-      o += '<ellipse cx="0" cy="-8" rx="6.5" ry="4" fill="#15803d"/>';
-      o += '<circle cx="-3" cy="-8" r="1.2" fill="#166534"/>';
-      o += '<circle cx="3" cy="-8" r="1.2" fill="#166534"/>';
-      // Teeth
-      o += '<polygon points="-4,-6 -3,-2 -2,-6" fill="white"/>';
-      o += '<polygon points="2,-6 3,-2 4,-6" fill="white"/>';
-      // Yellow eyes
-      o += '<circle cx="-4" cy="-18" r="3" fill="#fef08a"/>';
-      o += '<circle cx="4" cy="-18" r="3" fill="#fef08a"/>';
-      o += '<circle cx="-4" cy="-18" r="1.5" fill="#1c1917"/>';
-      o += '<circle cx="4" cy="-18" r="1.5" fill="#1c1917"/>';
-      // Arms + legs
-      o += '<line x1="-6" y1="4" x2="-13" y2="9" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>';
-      o += '<line x1="6" y1="4" x2="13" y2="9" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>';
-      o += '<line x1="-3" y1="12" x2="-5" y2="22" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>';
-      o += '<line x1="3" y1="12" x2="5" y2="22" stroke="#166534" stroke-width="2.5" stroke-linecap="round"/>';
+      o += '<ellipse cx="0" cy="-7" rx="9" ry="5.5" fill="#15803d"/>';
+      o += '<circle cx="-4" cy="-6.5" r="1.5" fill="#166534"/>';
+      o += '<circle cx="4" cy="-6.5" r="1.5" fill="#166534"/>';
+      // Cute smile + teeth
+      o += '<path d="M -5 -4 Q 0 -1 5 -4" stroke="#1c1917" stroke-width="1" fill="none" stroke-linecap="round"/>';
+      o += '<polygon points="-3,-4 -2,0 -1,-4" fill="white"/>';
+      o += '<polygon points="1,-4 2,0 3,-4" fill="white"/>';
+      // Big yellow eyes
+      o += '<circle cx="-5.5" cy="-19" r="5" fill="#fef08a"/>';
+      o += '<circle cx="5.5" cy="-19" r="5" fill="#fef08a"/>';
+      o += '<circle cx="-5.5" cy="-19" r="2.8" fill="#166534"/>';
+      o += '<circle cx="5.5" cy="-19" r="2.8" fill="#166534"/>';
+      o += '<circle cx="-5.5" cy="-19" r="1.4" fill="#1c1917"/>';
+      o += '<circle cx="5.5" cy="-19" r="1.4" fill="#1c1917"/>';
+      o += '<circle cx="-4.8" cy="-20.2" r="0.7" fill="white" opacity="0.9"/>';
+      o += '<circle cx="6.2" cy="-20.2" r="0.7" fill="white" opacity="0.9"/>';
+      // Short stubby arms
+      o += '<ellipse cx="-11" cy="5" rx="4.5" ry="3" fill="#16a34a" transform="rotate(-25,-11,5)"/>';
+      o += '<ellipse cx="11" cy="5" rx="4.5" ry="3" fill="#16a34a" transform="rotate(25,11,5)"/>';
+      // Short stubby legs
+      o += '<ellipse cx="-4" cy="21" rx="3.5" ry="4" fill="#16a34a"/>';
+      o += '<ellipse cx="4" cy="21" rx="3.5" ry="4" fill="#16a34a"/>';
     }
 
     return o;
@@ -4695,6 +4908,13 @@ Write in professional, analytical language suitable for a financial or industry 
     var titleEl = document.getElementById('qmp-cal-title');
     var gridEl  = document.getElementById('qmp-cal-grid');
     if (!titleEl || !gridEl) return;
+    // Disable/enable back button
+    var prevBtn = document.getElementById('cal-prev-btn');
+    if (prevBtn) {
+      var atOrigin = (_calYear === _calOriginYear && _calMonth === _calOriginMonth);
+      prevBtn.style.opacity = atOrigin ? '0.25' : '';
+      prevBtn.style.pointerEvents = atOrigin ? 'none' : '';
+    }
 
     var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     titleEl.textContent = monthNames[_calMonth] + ' ' + _calYear;
