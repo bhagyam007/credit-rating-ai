@@ -2272,7 +2272,9 @@
     document.getElementById('breadcrumb-current').textContent = 'Star Climber';
     hideAllPanels();
     document.getElementById('star-climber-panel').classList.add('visible');
-    scInitIfNeeded();
+    try { scInitIfNeeded(); } catch(e) { console.error('scInitIfNeeded error:', e); }
+    // direct fallback in case IIFE failed silently
+    setTimeout(function(){ if(typeof scBuildAvatarGrid==='function') scBuildAvatarGrid(); }, 50);
   }
 
   function doLogin() {
@@ -4384,7 +4386,8 @@ Write in professional, analytical language suitable for a financial or industry 
   function scGetDD(k){if(!scAllTasks[k])scAllTasks[k]={tasks:[],saved:false};return scAllTasks[k];}
 
   window.scInitIfNeeded=function(){
-    if(!scInited){scInited=true;scStartStarfield();scBuildAvatarGrid();}
+    if(!scInited){scInited=true;scStartStarfield();}
+    window.scBuildAvatarGrid();
     // if avatar already chosen, redraw scene
     if(scChosen){
       var gEl=document.getElementById('game');
@@ -4411,9 +4414,9 @@ Write in professional, analytical language suitable for a financial or industry 
     })();
   }
 
-  function scBuildAvatarGrid(){
+  window.scBuildAvatarGrid=function scBuildAvatarGrid(){
     var grid=document.getElementById('avgrid');if(!grid)return;
-    grid.innerHTML='';
+    if(grid.children.length>0)return; // already built
     SC_AVS.forEach(function(av){
       var c=document.createElement('div');c.className='avc';
       c.innerHTML='<div class="av-face">'+av.emoji+'</div><div class="av-nm">'+av.name+'</div>';
@@ -4424,7 +4427,7 @@ Write in professional, analytical language suitable for a financial or industry 
       };
       grid.appendChild(c);
     });
-  }
+  };
 
   window.scEnterGame=function(){
     if(!scChosen)return;
