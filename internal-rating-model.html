@@ -2133,7 +2133,13 @@
         <div id="sel">
           <div class="logo">⭐ STAR CLIMBER ⭐</div>
           <div class="logo-sub">Pick your climbing buddy!</div>
-          <div class="av-grid" id="avgrid"></div>
+          <div class="av-grid" id="avgrid">
+            <div class="avc" onclick="scPickAv(this,'croco')"><div class="av-face">🐊</div><div class="av-nm">Croco</div></div>
+            <div class="avc" onclick="scPickAv(this,'leo')"><div class="av-face">🦁</div><div class="av-nm">Leo</div></div>
+            <div class="avc" onclick="scPickAv(this,'simba')"><div class="av-face">🐯</div><div class="av-nm">Simba</div></div>
+            <div class="avc" onclick="scPickAv(this,'cheeka')"><div class="av-face">🐱</div><div class="av-nm">Cheeka</div></div>
+            <div class="avc" onclick="scPickAv(this,'pupster')"><div class="av-face">🐶</div><div class="av-nm">Pupster</div></div>
+          </div>
           <button class="go-btn" id="gobtn" onclick="scEnterGame()">✨ Let's Climb!</button>
         </div>
         <div id="game">
@@ -2273,8 +2279,6 @@
     hideAllPanels();
     document.getElementById('star-climber-panel').classList.add('visible');
     try { scInitIfNeeded(); } catch(e) { console.error('scInitIfNeeded error:', e); }
-    // direct fallback in case IIFE failed silently
-    setTimeout(function(){ if(typeof scBuildAvatarGrid==='function') scBuildAvatarGrid(); }, 50);
   }
 
   function doLogin() {
@@ -4385,9 +4389,15 @@ Write in professional, analytical language suitable for a financial or industry 
   function scTodayKey(){return scDk(scToday.getFullYear(),scToday.getMonth(),scToday.getDate());}
   function scGetDD(k){if(!scAllTasks[k])scAllTasks[k]={tasks:[],saved:false};return scAllTasks[k];}
 
+  window.scPickAv=function(el,id){
+    document.querySelectorAll('#avgrid .avc').forEach(function(x){x.classList.remove('sel');});
+    el.classList.add('sel');
+    scChosen=SC_AVS.find(function(a){return a.id===id;})||SC_AVS[0];
+    document.getElementById('gobtn').classList.add('rdy');
+  };
+
   window.scInitIfNeeded=function(){
     if(!scInited){scInited=true;scStartStarfield();}
-    window.scBuildAvatarGrid();
     // if avatar already chosen, redraw scene
     if(scChosen){
       var gEl=document.getElementById('game');
@@ -4414,20 +4424,6 @@ Write in professional, analytical language suitable for a financial or industry 
     })();
   }
 
-  window.scBuildAvatarGrid=function scBuildAvatarGrid(){
-    var grid=document.getElementById('avgrid');if(!grid)return;
-    if(grid.children.length>0)return; // already built
-    SC_AVS.forEach(function(av){
-      var c=document.createElement('div');c.className='avc';
-      c.innerHTML='<div class="av-face">'+av.emoji+'</div><div class="av-nm">'+av.name+'</div>';
-      c.onclick=function(){
-        document.querySelectorAll('#star-climber-panel .avc').forEach(function(x){x.classList.remove('sel');});
-        c.classList.add('sel');scChosen=av;
-        document.getElementById('gobtn').classList.add('rdy');
-      };
-      grid.appendChild(c);
-    });
-  };
 
   window.scEnterGame=function(){
     if(!scChosen)return;
@@ -4674,7 +4670,7 @@ Write in professional, analytical language suitable for a financial or industry 
     document.getElementById('sel').style.display='flex';
     scChosen=null;scCurrentStep=0;scScore=0;
     document.getElementById('gobtn').classList.remove('rdy');
-    document.querySelectorAll('#star-climber-panel .avc').forEach(function(c){c.classList.remove('sel');});
+    document.querySelectorAll('#avgrid .avc').forEach(function(c){c.classList.remove('sel');});
   };
 
   function scEsc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
