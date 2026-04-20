@@ -1413,14 +1413,14 @@
     }
     #star-climber-panel.visible { display: flex; }
     #star-climber-panel canvas#sc { position:absolute;inset:0;pointer-events:none;z-index:0;width:100%;height:100%; }
-    #star-climber-panel .sc-app { position:relative;z-index:1;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;overflow-y:auto; }
+    #star-climber-panel .sc-app { position:relative;z-index:1;flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;overflow:hidden; }
 
     /* avatar select */
-    #star-climber-panel #sel { display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;width:100%;gap:24px;padding:40px 20px; }
+    #star-climber-panel #sel { display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;min-height:0;overflow-y:auto;gap:24px;padding:40px 20px; }
     #star-climber-panel .logo { font-family:'Baloo 2',cursive;font-size:2.8rem;font-weight:800;color:var(--sc-gold);text-shadow:0 0 40px rgba(255,215,0,.55),0 4px 0 var(--sc-gold2);letter-spacing:2px;animation:sc-lf 3.5s ease-in-out infinite; }
     @keyframes sc-lf{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
     #star-climber-panel .logo-sub { color:var(--sc-muted);font-size:.85rem;font-weight:800;letter-spacing:4px;text-transform:uppercase;margin-top:-12px; }
-    #star-climber-panel .av-grid { display:flex;flex-wrap:wrap;justify-content:center;gap:14px;max-width:700px; }
+    #star-climber-panel .av-grid { display:flex;flex-wrap:wrap;justify-content:center;gap:14px;max-width:700px;width:100%; }
     #star-climber-panel .avc { background:var(--sc-panel);border:2px solid var(--sc-border);border-radius:20px;padding:18px 12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:9px;width:116px;transition:transform .22s,border-color .22s,box-shadow .22s;position:relative; }
     #star-climber-panel .avc:hover { transform:translateY(-8px) scale(1.06);border-color:var(--sc-gold);box-shadow:0 0 28px rgba(255,215,0,.35); }
     #star-climber-panel .avc.sel { border-color:var(--sc-gold);background:rgba(255,215,0,.11);box-shadow:0 0 32px rgba(255,215,0,.5); }
@@ -1432,8 +1432,8 @@
     #star-climber-panel .go-btn.rdy:active { transform:translateY(4px);box-shadow:0 2px 0 #5a0000; }
 
     /* game layout */
-    #star-climber-panel #game { display:none;width:100%;height:100%;flex-direction:row;align-items:stretch; }
-    #star-climber-panel .cl-side { flex:1 1 52%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px 14px 14px;border-right:1px solid var(--sc-border);min-height:100%;overflow-y:auto; }
+    #star-climber-panel #game { display:none;flex:1;min-height:0;flex-direction:row;align-items:stretch; }
+    #star-climber-panel .cl-side { flex:1 1 52%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px 14px 14px;border-right:1px solid var(--sc-border);overflow-y:auto; }
     #star-climber-panel .g-title { font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;color:var(--sc-gold);text-shadow:0 0 20px rgba(255,215,0,.45);letter-spacing:2px;margin-bottom:12px;text-align:center; }
     #star-climber-panel .scene { position:relative;width:100%;flex:1;min-height:280px;max-width:460px; }
     #star-climber-panel .h-rope { position:absolute;top:0;width:6px;border-radius:3px;background:repeating-linear-gradient(180deg,#8B6914 0 10px,#c49a1e 10px 20px);box-shadow:inset 0 0 4px rgba(0,0,0,.4);transform-origin:top center; }
