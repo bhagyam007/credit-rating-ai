@@ -1427,9 +1427,8 @@
     #star-climber-panel .avc.sel::after { content:'✓';position:absolute;top:-11px;right:-11px;background:var(--sc-gold);color:#000;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem; }
     #star-climber-panel .av-face { font-size:3.5rem;line-height:1;filter:drop-shadow(0 3px 8px rgba(0,0,0,.5)); }
     #star-climber-panel .av-nm { font-family:'Baloo 2',cursive;font-size:1rem;font-weight:700;color:var(--sc-gold);letter-spacing:1px; }
-    #star-climber-panel .go-btn { font-family:'Baloo 2',cursive;font-size:1.15rem;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,#e52222,#9b0000);color:#fff;border:none;padding:16px 52px;border-radius:50px;cursor:pointer;box-shadow:0 6px 0 #5a0000,0 0 24px rgba(229,34,34,.45);transition:transform .12s,box-shadow .12s,opacity .2s;opacity:.4;pointer-events:none; }
-    #star-climber-panel .go-btn.rdy { opacity:1;pointer-events:all; }
-    #star-climber-panel .go-btn.rdy:active { transform:translateY(4px);box-shadow:0 2px 0 #5a0000; }
+    #star-climber-panel .go-btn { font-family:'Baloo 2',cursive;font-size:1.15rem;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,#e52222,#9b0000);color:#fff;border:none;padding:16px 52px;border-radius:50px;cursor:pointer;box-shadow:0 6px 0 #5a0000,0 0 24px rgba(229,34,34,.45);transition:transform .12s,box-shadow .12s,opacity .2s;opacity:1;pointer-events:all; }
+    #star-climber-panel .go-btn:active { transform:translateY(4px);box-shadow:0 2px 0 #5a0000; }
 
     /* game layout */
     #star-climber-panel #game { display:none;flex:1;min-height:0;flex-direction:row;align-items:stretch; }
@@ -4374,6 +4373,7 @@ Write in professional, analytical language suitable for a financial or industry 
   var SC_MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
   var scChosen=null;
+  var scChosenId=null;
   var scAllTasks={};
   var scSelDate=null;
   var scCurrentStep=0;
@@ -4393,7 +4393,7 @@ Write in professional, analytical language suitable for a financial or industry 
     document.querySelectorAll('#avgrid .avc').forEach(function(x){x.classList.remove('sel');});
     el.classList.add('sel');
     scChosen=SC_AVS.find(function(a){return a.id===id;})||SC_AVS[0];
-    document.getElementById('gobtn').classList.add('rdy');
+    scChosenId=id;
   };
 
   window.scInitIfNeeded=function(){
@@ -4426,7 +4426,12 @@ Write in professional, analytical language suitable for a financial or industry 
 
 
   window.scEnterGame=function(){
-    if(!scChosen)return;
+    // auto-pick first avatar if none chosen
+    if(!scChosen){
+      var firstCard=document.querySelector('#avgrid .avc');
+      if(firstCard) window.scPickAv(firstCard,'croco');
+      if(!scChosen) scChosen=SC_AVS[0];
+    }
     document.getElementById('sel').style.display='none';
     var g=document.getElementById('game');g.style.display='flex';
     scRenderCal();
