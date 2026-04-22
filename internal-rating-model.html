@@ -1461,6 +1461,8 @@
     #star-climber-panel .task-inp { flex:1;background:rgba(255,255,255,.06);border:2px solid var(--sc-border);border-radius:10px;color:var(--sc-text);font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:700;padding:9px 12px;outline:none;transition:border-color .2s; }
     #star-climber-panel .task-inp:focus { border-color:var(--sc-cyan); }
     #star-climber-panel .task-inp::placeholder { color:var(--sc-muted); }
+    @keyframes sc-inp-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,0);border-color:var(--sc-gold)}50%{box-shadow:0 0 0 8px rgba(255,215,0,.35);border-color:var(--sc-gold)}}
+    #star-climber-panel .task-inp.sc-pulse{animation:sc-inp-pulse 1s ease-in-out 4;}
     #star-climber-panel .iadd { width:38px;height:38px;border:none;border-radius:10px;cursor:pointer;font-size:1.2rem;font-weight:900;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--sc-cyan),var(--sc-cyan2));color:#000;transition:transform .13s; }
     #star-climber-panel .iadd:active { transform:scale(.88); }
     #star-climber-panel .task-list { display:flex;flex-direction:column;gap:8px;list-style:none;max-height:220px;overflow-y:auto;padding-right:2px; }
@@ -3143,7 +3145,7 @@ Regards`
     if (prev !== '' && sel.querySelector(`option[value="${prev}"]`)) sel.value = prev;
     if (!portfolioCases.length) {
       document.getElementById('news-feed-tbody').innerHTML =
-        '<tr><td colspan="6" class="empty-state">No companies in portfolio. Add companies first.</td></tr>';
+        '<tr><td colspan="6" class="empty-state">No companies in your portfolio yet.<br><strong>Go to Portfolio Overview → Edit Portfolio</strong> in the sidebar to add companies, then come back here to load their news.</td></tr>';
     }
   }
 
@@ -3311,7 +3313,7 @@ Regards`
     const industries = getUniqueIndustries();
     const tbody = document.getElementById('industry-tbody');
     if (!industries.length) {
-      tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Add companies with an Industry tag in Portfolio Overview to see trending topics here.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No portfolio companies found.<br><strong>Go to Portfolio Overview → Edit Portfolio</strong> in the sidebar to add companies — industry topics load automatically from your portfolio.</td></tr>`;
       return;
     }
     const query = industries.slice(0, 5).join(' OR ');
@@ -4436,6 +4438,11 @@ Write in professional, analytical language suitable for a financial or industry 
     var g=document.getElementById('game');g.style.display='flex';
     scRenderCal();
     var tk=scTodayKey();scSelDate=tk;scLoadDay(tk);scBuildScene();
+    var dd=scGetDD(tk);
+    if(dd.tasks.length===0){
+      var inp=document.getElementById('tinp');
+      if(inp){inp.classList.add('sc-pulse');inp.focus();inp.addEventListener('animationend',function(){inp.classList.remove('sc-pulse');},{once:true});}
+    }
   };
 
   /* calendar */
@@ -4572,7 +4579,7 @@ Write in professional, analytical language suitable for a financial or industry 
     if(n===0){
       var ph=document.createElement('div');
       ph.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:rgba(255,255,255,.18);font-family:Baloo 2,cursive;font-size:1rem;text-align:center;padding:20px;';
-      ph.innerHTML='<span style="font-size:2.5rem">📅</span>Select a day & add quests<br>to start climbing!';
+      ph.innerHTML='<span style="font-size:2.5rem">👉</span>Type a quest in the panel on the right,<br>then hit <strong style="color:var(--sc-gold)">Save &amp; Climb!</strong> to start!';
       sc2.appendChild(ph);
     } else {
       var SW=sc2.offsetWidth||420,SH=sc2.offsetHeight||280;
