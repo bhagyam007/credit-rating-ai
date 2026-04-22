@@ -4471,7 +4471,10 @@ Write in professional, analytical language suitable for a financial or industry 
       if(firstCard) window.scPickAv(firstCard,'croco');
       if(!scChosen) scChosen=SC_AVS[0];
     }
-    document.getElementById('star-climber-panel').classList.add('sc-in-game');
+    var scPanel=document.getElementById('star-climber-panel');
+    scPanel.classList.add('sc-in-game');
+    document.getElementById('sel').style.display='none';
+    document.getElementById('game').style.display='flex';
     scRenderCal();
     var tk=scTodayKey();scSelDate=tk;
     var dd=scGetDD(tk);
@@ -4718,6 +4721,8 @@ Write in professional, analytical language suitable for a financial or industry 
   window.scChangeAv=function(){
     document.getElementById('sc-winb').classList.remove('show');
     document.getElementById('star-climber-panel').classList.remove('sc-in-game');
+    document.getElementById('sel').style.display='';
+    document.getElementById('game').style.display='';
     scChosen=null;scCurrentStep=0;scScore=0;
     document.getElementById('gobtn').classList.remove('rdy');
     document.querySelectorAll('#avgrid .avc').forEach(function(c){c.classList.remove('sel');});
