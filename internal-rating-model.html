@@ -1432,6 +1432,8 @@
 
     /* game layout */
     #star-climber-panel #game { display:none;flex:1;min-height:0;flex-direction:row;align-items:stretch; }
+    #star-climber-panel.sc-in-game #sel { display:none !important; }
+    #star-climber-panel.sc-in-game #game { display:flex !important; }
     #star-climber-panel .cl-side { flex:1 1 52%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px 14px 14px;border-right:1px solid var(--sc-border);overflow-y:auto; }
     #star-climber-panel .g-title { font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;color:var(--sc-gold);text-shadow:0 0 20px rgba(255,215,0,.45);letter-spacing:2px;margin-bottom:12px;text-align:center; }
     #star-climber-panel .scene { position:relative;width:100%;flex:1;min-height:280px;max-width:460px; }
@@ -3162,9 +3164,11 @@ Regards`
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const xmlText = await resp.text();
       const items = parseRSS(xmlText);
-      const filtered = filterByTimeWindow(items, filterVal, company);
+      let filtered = filterByTimeWindow(items, filterVal, company);
+      let fallback = false;
+      if (!filtered.length && items.length) { filtered = items; fallback = true; }
       currentNewsFeedItems = filtered;
-      renderNewsFeedTable(filtered, company.name, filterVal);
+      renderNewsFeedTable(filtered, company.name, filterVal, fallback);
     } catch (err) {
       tbody.innerHTML = `<tr><td colspan="6" class="empty-state">Failed to load news: ${escHtml(err.message)}</td></tr>`;
     }
@@ -3217,14 +3221,20 @@ Regards`
     return m + 'm ago';
   }
 
-  function renderNewsFeedTable(items, companyName, filterVal) {
+  function renderNewsFeedTable(items, companyName, filterVal, fallback) {
     const tbody = document.getElementById('news-feed-tbody');
     const filterLabel = filterVal === '24' ? 'last 24 hours' : filterVal === '48' ? 'last 48 hours' : filterVal === 'week' ? 'past week' : 'since last press release';
     if (!items.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No news found for the ${filterLabel} for <strong>${escHtml(companyName)}</strong>. Try refreshing or adjust the time filter.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No news found for <strong>${escHtml(companyName)}</strong>. Try refreshing.</td></tr>`;
       return;
     }
-    tbody.innerHTML = items.map((item, i) => {
+    if (fallback) {
+      const note = document.createElement('tr');
+      note.innerHTML = `<td colspan="6" style="background:rgba(255,193,7,.08);color:#f59e0b;font-size:12px;padding:8px 14px;border-bottom:1px solid var(--border);">⚠ No news in the ${filterLabel} — showing all available items instead.</td>`;
+      tbody.innerHTML = '';
+      tbody.appendChild(note);
+    } else { tbody.innerHTML = ''; }
+    tbody.insertAdjacentHTML('beforeend', items.map((item, i) => {
       const isSaved = savedNewsItems.some(s => s.link === item.link);
       return `<tr>
         <td style="font-size:12px;color:var(--muted);white-space:nowrap;">${escHtml(companyName)}</td>
@@ -3242,7 +3252,7 @@ Regards`
           <button class="btn-action" onclick="draftClarificationMail(${i})">✉️ Draft Mail</button>
         </td>
       </tr>`;
-    }).join('');
+    }).join(''));
   }
 
   function saveNewsItem(rowIdx) {
@@ -4434,8 +4444,7 @@ Write in professional, analytical language suitable for a financial or industry 
       if(firstCard) window.scPickAv(firstCard,'croco');
       if(!scChosen) scChosen=SC_AVS[0];
     }
-    document.getElementById('sel').style.display='none';
-    var g=document.getElementById('game');g.style.display='flex';
+    document.getElementById('star-climber-panel').classList.add('sc-in-game');
     scRenderCal();
     var tk=scTodayKey();scSelDate=tk;scLoadDay(tk);scBuildScene();
     var dd=scGetDD(tk);
@@ -4678,8 +4687,7 @@ Write in professional, analytical language suitable for a financial or industry 
   };
   window.scChangeAv=function(){
     document.getElementById('sc-winb').classList.remove('show');
-    document.getElementById('game').style.display='none';
-    document.getElementById('sel').style.display='flex';
+    document.getElementById('star-climber-panel').classList.remove('sc-in-game');
     scChosen=null;scCurrentStep=0;scScore=0;
     document.getElementById('gobtn').classList.remove('rdy');
     document.querySelectorAll('#avgrid .avc').forEach(function(c){c.classList.remove('sel');});
