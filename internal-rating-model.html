@@ -2109,7 +2109,7 @@
         <button class="sub-tab active" id="tab-india" onclick="switchIndustryTab('india', this)">🇮🇳 Indian</button>
       </div>
       <div class="industry-info-bar">
-        Trending topics for industries: <strong id="industry-list-display">—</strong>
+        Last 24 hours · Industries: <strong id="industry-list-display">—</strong>
       </div>
       <div class="industry-scroll">
         <table class="cases-table" id="industry-table" style="width:100%;">
@@ -2119,7 +2119,7 @@
               <th style="width:140px;">Source</th>
               <th style="width:72px;">Time</th>
               <th style="width:68px;">Link</th>
-              <th style="width:180px;">Write</th>
+              <th style="width:90px;">Write</th>
             </tr>
           </thead>
           <tbody id="industry-tbody">
@@ -3333,18 +3333,25 @@ Regards`
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const xmlText = await resp.text();
       const items = parseRSS(xmlText);
-      currentIndustryItems = items.slice(0, 50);
-      renderIndustryTable(currentIndustryItems);
+      const cutoff24h = Date.now() - 24 * 60 * 60 * 1000;
+      const recent = items.filter(it => it.pubDate && !isNaN(it.pubDate) && it.pubDate.getTime() >= cutoff24h);
+      currentIndustryItems = (recent.length ? recent : items).slice(0, 50);
+      const fallbackNote = recent.length === 0 ? ' (no articles in last 24h — showing latest available)' : '';
+      renderIndustryTable(currentIndustryItems, fallbackNote);
     } catch (err) {
       tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Failed to load industry news: ${escHtml(err.message)}</td></tr>`;
     }
   }
 
-  function renderIndustryTable(items) {
+  function renderIndustryTable(items, fallbackNote) {
     const tbody = document.getElementById('industry-tbody');
     if (!items.length) {
-      tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No trending topics found for your portfolio industries right now.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No news found for your portfolio industries in the last 24 hours.</td></tr>`;
       return;
+    }
+    if (fallbackNote) {
+      const noteRow = document.getElementById('industry-fallback-note');
+      if (noteRow) noteRow.textContent = fallbackNote;
     }
     tbody.innerHTML = items.map((item, i) => `<tr>
       <td class="news-headline-cell" style="max-width:340px;" title="${escHtml(item.title)}">${escHtml(item.title)}</td>
@@ -3354,8 +3361,7 @@ Regards`
         <a href="${escHtml(item.link)}" target="_blank" class="btn-action news-link" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px;padding:4px 9px;font-size:11px;">🔗 Link</a>
       </td>
       <td style="white-space:nowrap;">
-        <button class="btn-write" onclick="openContentWizard('opinion',${i})">✍️ Opinion</button>
-        <button class="btn-write article" onclick="openContentWizard('article',${i})">📄 Article</button>
+        <button class="btn-write" onclick="openContentWizard(${i})">✍️ Write</button>
       </td>
     </tr>`).join('');
   }
@@ -3368,21 +3374,15 @@ Regards`
   let cmStance = null;
   let cmStanceNote = '';
 
-  function openContentWizard(mode, itemIdx) {
-    cmMode = mode;
+  function openContentWizard(itemIdx) {
+    cmMode = null;
     cmItemIdx = itemIdx;
     cmStance = null;
     cmStanceNote = '';
     const item = currentIndustryItems[itemIdx];
-    document.getElementById('content-modal-title').textContent =
-      mode === 'opinion' ? '✍️ Write Opinion Piece' : '📄 Generate Article';
+    document.getElementById('content-modal-title').textContent = '✍️ Write About This Article';
     document.getElementById('content-modal-headline').textContent = item.title;
-    if (mode === 'opinion') {
-      showCMStep1();
-    } else {
-      showCMGenerating('Writing your article…');
-      generateArticle(item.title, item.link);
-    }
+    showCMStep1();
     document.getElementById('content-modal-overlay').classList.add('visible');
   }
 
@@ -3399,12 +3399,12 @@ Regards`
   function showCMStep1() {
     document.getElementById('content-modal-body').innerHTML = `
       <div class="cm-step-label">Step 1 of 2</div>
-      <div class="cm-question">Do you align with or differ from the conclusion in this article?</div>
+      <div class="cm-question">Do you align with or oppose the article's conclusion?</div>
       <div class="cm-btn-row">
-        <button class="cm-btn" id="stance-align" onclick="selectStance('align')">👍 Align with article</button>
-        <button class="cm-btn" id="stance-differ" onclick="selectStance('differ')">🤔 Differ from article</button>
+        <button class="cm-btn" id="stance-align" onclick="selectStance('align')">👍 Align</button>
+        <button class="cm-btn" id="stance-differ" onclick="selectStance('differ')">🤔 Oppose</button>
       </div>
-      <textarea class="cm-textarea" id="cm-stance-text" placeholder="Add your thoughts on the article's conclusion (optional)…"></textarea>
+      <textarea class="cm-textarea" id="cm-stance-text" placeholder="Add your thoughts on the article's position (optional)…"></textarea>
       <div class="cm-btn-row">
         <button class="cm-btn primary" id="cm-next-btn" onclick="goToCMStep2()" disabled>Next →</button>
       </div>`;
@@ -3423,34 +3423,51 @@ Regards`
     cmStanceNote = document.getElementById('cm-stance-text')?.value?.trim() || '';
     document.getElementById('content-modal-body').innerHTML = `
       <div class="cm-step-label">Step 2 of 2</div>
-      <div class="cm-question">Is there anything specific you'd like changed or included in the opinion piece?</div>
-      <textarea class="cm-textarea" id="cm-changes-text" style="min-height:100px;"
-        placeholder="e.g. Focus on Indian market impact, include export data, reference RBI policy implications…"></textarea>
-      <div class="cm-btn-row">
+      <div class="cm-question">Any other points you'd like covered?</div>
+      <textarea class="cm-textarea" id="cm-changes-text" style="min-height:90px;"
+        placeholder="e.g. Focus on Indian market impact, include export data, reference SEBI / RBI policy…"></textarea>
+      <div class="cm-question" style="margin-top:20px;font-size:13px;">Choose your format:</div>
+      <div class="cm-btn-row" style="gap:14px;margin-top:8px;">
+        <button class="cm-btn" style="flex:1;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;" onclick="submitWriteRequest('opinion')">
+          ✍️ <strong>Opinion Piece</strong>
+          <span style="font-size:11px;font-weight:400;color:var(--muted);">400–500 words · your perspective</span>
+        </button>
+        <button class="cm-btn" style="flex:1;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;border-color:rgba(37,99,235,0.4);background:rgba(37,99,235,0.08);color:#93c5fd;" onclick="submitWriteRequest('article')">
+          📄 <strong>Full Article</strong>
+          <span style="font-size:11px;font-weight:400;color:var(--muted);">~1000 words · 2 pages · structured</span>
+        </button>
+      </div>
+      <div class="cm-btn-row" style="margin-top:10px;">
         <button class="cm-btn" onclick="showCMStep1()">← Back</button>
-        <button class="cm-btn primary" onclick="submitOpinionRequest()">✍️ Generate Opinion Piece</button>
       </div>`;
   }
 
-  async function submitOpinionRequest() {
+  async function submitWriteRequest(mode) {
+    cmMode = mode;
     const changes = document.getElementById('cm-changes-text')?.value?.trim() || '';
     const item = currentIndustryItems[cmItemIdx];
-    showCMGenerating('Writing your opinion piece…');
-    await generateOpinionPiece(item.title, item.link, cmStance, cmStanceNote, changes);
+    document.getElementById('content-modal-title').textContent =
+      mode === 'opinion' ? '✍️ Opinion Piece' : '📄 Full Article';
+    showCMGenerating(mode === 'opinion' ? 'Writing your opinion piece…' : 'Writing your article…');
+    if (mode === 'opinion') {
+      await generateOpinionPiece(item.title, item.link, cmStance, cmStanceNote, changes);
+    } else {
+      await generateArticle(item.title, item.link, cmStance, cmStanceNote, changes);
+    }
   }
 
   async function generateOpinionPiece(headline, link, stance, stanceNote, changes) {
-    const stanceLabel = stance === 'align' ? 'aligns with' : 'differs from';
-    const prompt = `Write a concise, plagiarism-free opinion piece of exactly 10 sentences on the following news article:
+    const stanceLabel = stance === 'align' ? 'aligns with' : 'opposes';
+    const prompt = `Write a plagiarism-free opinion piece of 400–500 words on the following news topic:
 
 Headline: "${headline}"
 Reference: ${link}
 
-The writer ${stanceLabel} the conclusion of this article.${stanceNote ? `\nWriter's perspective: ${stanceNote}` : ''}${changes ? `\nSpecific requirements: ${changes}` : ''}
+The writer ${stanceLabel} the article's conclusion.${stanceNote ? `\nWriter's perspective: ${stanceNote}` : ''}${changes ? `\nAdditional points to cover: ${changes}` : ''}
 
-Write exactly 10 well-crafted, original sentences as a flowing opinion piece. The piece should have a clear opening stance, analytical mid-section, and a definitive conclusion. Use professional language suitable for a financial/credit analyst audience. Do not copy phrases from the article — express ideas in completely original language.
+Write 3–4 flowing paragraphs as a single cohesive opinion piece. Open with a clear statement of the writer's stance, develop the argument analytically in the middle paragraphs, and close with a definitive forward-looking conclusion. Use professional language appropriate for a financial or industry publication. Do not copy phrases from the source article — express all ideas in original language. Target exactly 400–500 words.
 
-Return only the opinion piece text — no title, no headers, no meta-commentary.`;
+Return only the opinion piece text — no title, no headers, no word count, no meta-commentary.`;
     try {
       const resp = await fetch('/api/chat', {
         method: 'POST',
@@ -3463,35 +3480,35 @@ Return only the opinion piece text — no title, no headers, no meta-commentary.
     } catch (err) { showCMError(err.message); }
   }
 
-  async function generateArticle(headline, link) {
-    const prompt = `Write a comprehensive, well-structured article (~850 words) on the following topic:
+  async function generateArticle(headline, link, stance, stanceNote, changes) {
+    const stanceLabel = stance === 'align' ? 'aligns with' : 'opposes';
+    const prompt = `Write a comprehensive, plagiarism-free article of approximately 1000 words (two full pages) on the following topic:
 
 Headline: "${headline}"
 Source: ${link}
 
-Structure the article exactly as follows (use **bold** for section headings):
+The author's perspective ${stanceLabel} the article's conclusion.${stanceNote ? `\nAuthor's viewpoint: ${stanceNote}` : ''}${changes ? `\nAdditional points to include: ${changes}` : ''}
+
+Structure the article exactly as follows (use **bold** for each section heading):
 
 **[Compelling Article Title]**
 
 **Introduction**
-[2–3 paragraphs setting the context and significance]
+[2–3 paragraphs: set context, state why this topic matters now, introduce the core issue]
 
-**Market Overview & Size**
-[Current state of the market, key statistics and scale]
+**Basic Concepts**
+[Explain the fundamental ideas, terminology, and background a reader needs to understand the topic — keep it accessible but analytical]
 
-**Growth Drivers**
-[Key factors and trends driving growth in this space]
-
-**Threats & Challenges**
-[Headwinds, risks, competitive pressures, and structural challenges]
-
-**Opportunities**
-[Strategic opportunities for investors, businesses, and policymakers]
+**Current Topic in Detail**
+[In-depth analysis of the specific development or issue raised in the headline — data, implications, stakeholder perspectives, industry dynamics]
 
 **Conclusion**
-[Summary, outlook, and forward-looking perspective]
+[Synthesis of the key points, forward-looking outlook, and what this means for the industry]
 
-Write in professional, analytical language suitable for a financial or industry publication. Use original content — do not reproduce verbatim phrases from the source article.`;
+**Your View**
+[1 paragraph in the author's voice stating their opinion on the matter — clearly aligned with or opposing the original article's conclusion, as specified above]
+
+Write in professional, analytical language suitable for a financial or industry publication. Aim for ~1000 words total. Do not copy phrases from the source — all content must be original.`;
     try {
       const resp = await fetch('/api/chat', {
         method: 'POST',
@@ -3510,7 +3527,7 @@ Write in professional, analytical language suitable for a financial or industry 
       <div class="cm-result-box" id="cm-result-content">${formatText(text)}</div>
       <div class="cm-btn-row">
         <button class="cm-copy-btn" onclick="copyCMResult()">📋 Copy to Clipboard</button>
-        ${cmMode === 'opinion' ? `<button class="cm-btn" onclick="showCMStep1()">🔄 Regenerate</button>` : ''}
+        <button class="cm-btn" onclick="showCMStep1()">🔄 Regenerate</button>
       </div>`;
   }
 
