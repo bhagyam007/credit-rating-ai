@@ -1416,7 +1416,9 @@
     #star-climber-panel .sc-app { position:relative;z-index:1;flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;overflow:hidden; }
 
     /* avatar select */
-    #star-climber-panel #sel { display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;min-height:0;overflow-y:auto;gap:24px;padding:40px 20px; }
+    #star-climber-panel #sel { display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;min-height:0;overflow-y:auto;gap:24px;padding:40px 20px; }
+    #star-climber-panel.sc-picking #sel { display:flex !important; }
+    #star-climber-panel.sc-picking #game { display:none !important; }
     #star-climber-panel .logo { font-family:'Baloo 2',cursive;font-size:2.8rem;font-weight:800;color:var(--sc-gold);text-shadow:0 0 40px rgba(255,215,0,.55),0 4px 0 var(--sc-gold2);letter-spacing:2px;animation:sc-lf 3.5s ease-in-out infinite; }
     @keyframes sc-lf{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
     #star-climber-panel .logo-sub { color:var(--sc-muted);font-size:.85rem;font-weight:800;letter-spacing:4px;text-transform:uppercase;margin-top:-12px; }
@@ -1431,9 +1433,7 @@
     #star-climber-panel .go-btn:active { transform:translateY(4px);box-shadow:0 2px 0 #5a0000; }
 
     /* game layout */
-    #star-climber-panel #game { display:none;flex:1;min-height:0;flex-direction:row;align-items:stretch; }
-    #star-climber-panel.sc-in-game #sel { display:none !important; }
-    #star-climber-panel.sc-in-game #game { display:flex !important; }
+    #star-climber-panel #game { display:flex;flex:1;min-height:0;flex-direction:row;align-items:stretch; }
     #star-climber-panel .cl-side { flex:1 1 52%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px 14px 14px;border-right:1px solid var(--sc-border);overflow-y:auto; }
     #star-climber-panel .g-title { font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;color:var(--sc-gold);text-shadow:0 0 20px rgba(255,215,0,.45);letter-spacing:2px;margin-bottom:12px;text-align:center; }
     #star-climber-panel .scene { position:relative;width:100%;flex:1;min-height:280px;max-width:460px; }
@@ -2155,6 +2155,7 @@
         <div id="game">
           <div class="cl-side">
             <div class="g-title" id="gtitle">⭐ STAR CLIMBER ⭐</div>
+            <button onclick="scChangeAv()" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:rgba(255,255,255,.6);font-size:11px;padding:4px 10px;cursor:pointer;">↺ Change Buddy</button>
             <div class="scene" id="scene"></div>
             <div class="sbadge">Progress: <span id="snum">0</span> / <span id="stot">?</span></div>
           </div>
@@ -2288,7 +2289,7 @@
     document.getElementById('breadcrumb-current').textContent = 'Star Climber';
     hideAllPanels();
     document.getElementById('star-climber-panel').classList.add('visible');
-    try { scInitIfNeeded(); } catch(e) { console.error('scInitIfNeeded error:', e); }
+    try { scInitIfNeeded(); scEnterGame(); } catch(e) { console.error('SC init error:', e); }
   }
 
   function doLogin() {
@@ -4471,7 +4472,7 @@ Write in professional, analytical language suitable for a financial or industry 
       if(firstCard) window.scPickAv(firstCard,'croco');
       if(!scChosen) scChosen=SC_AVS[0];
     }
-    document.getElementById('star-climber-panel').classList.add('sc-in-game');
+    document.getElementById('star-climber-panel').classList.remove('sc-picking');
     scRenderCal();
     var tk=scTodayKey();scSelDate=tk;scLoadDay(tk);scBuildScene();
     var dd=scGetDD(tk);
@@ -4714,7 +4715,7 @@ Write in professional, analytical language suitable for a financial or industry 
   };
   window.scChangeAv=function(){
     document.getElementById('sc-winb').classList.remove('show');
-    document.getElementById('star-climber-panel').classList.remove('sc-in-game');
+    document.getElementById('star-climber-panel').classList.add('sc-picking');
     scChosen=null;scCurrentStep=0;scScore=0;
     document.getElementById('gobtn').classList.remove('rdy');
     document.querySelectorAll('#avgrid .avc').forEach(function(c){c.classList.remove('sel');});
