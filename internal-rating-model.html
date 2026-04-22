@@ -4465,26 +4465,22 @@ Write in professional, analytical language suitable for a financial or industry 
 
 
   window.scEnterGame=function(){
-    // auto-pick first avatar if none chosen
-    if(!scChosen){
-      var firstCard=document.querySelector('#avgrid .avc');
-      if(firstCard) window.scPickAv(firstCard,'croco');
+    try {
       if(!scChosen) scChosen=SC_AVS[0];
-    }
-    var scPanel=document.getElementById('star-climber-panel');
-    scPanel.classList.add('sc-in-game');
-    document.getElementById('sel').style.display='none';
-    document.getElementById('game').style.display='flex';
-    scRenderCal();
-    var tk=scTodayKey();scSelDate=tk;
-    var dd=scGetDD(tk);
-    if(dd.tasks.length===0&&!dd.saved){
-      var cols=['#38d9c0','#ff6eb4','#FFD700'];
-      ['📰 Check company news feed','📊 Review portfolio','🌐 Scan industry trends'].forEach(function(t,i){dd.tasks.push({text:t,done:false,color:cols[i]});});
-      dd.saved=true;
-      scAllTasks[tk]=dd;
-    }
-    scLoadDay(tk);scBuildScene();
+      var sel=document.getElementById('sel');
+      var game=document.getElementById('game');
+      if(sel) sel.setAttribute('style','display:none!important');
+      if(game) game.setAttribute('style','display:flex!important');
+      scRenderCal();
+      var tk=scTodayKey();scSelDate=tk;
+      var dd=scGetDD(tk);
+      if(dd.tasks.length===0&&!dd.saved){
+        var cols=['#38d9c0','#ff6eb4','#FFD700'];
+        ['📰 Check company news feed','📊 Review portfolio','🌐 Scan industry trends'].forEach(function(t,i){dd.tasks.push({text:t,done:false,color:cols[i]});});
+        dd.saved=true;scAllTasks[tk]=dd;
+      }
+      scLoadDay(tk);scBuildScene();
+    } catch(e) { alert('Star Climber error: '+e.message); }
   };
 
   /* calendar */
@@ -4736,6 +4732,8 @@ Write in professional, analytical language suitable for a financial or industry 
   window.addEventListener('resize',function(){
     if(scChosen&&document.getElementById('star-climber-panel').classList.contains('visible'))scBuildScene();
   });
+  var gobtnEl=document.getElementById('gobtn');
+  if(gobtnEl) gobtnEl.addEventListener('click',function(){ window.scEnterGame(); });
 })();
 </script>
 </body>
