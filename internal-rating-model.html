@@ -2108,8 +2108,15 @@
         <button class="sub-tab" id="tab-global" onclick="switchIndustryTab('global', this)">🌍 Global</button>
         <button class="sub-tab active" id="tab-india" onclick="switchIndustryTab('india', this)">🇮🇳 Indian</button>
       </div>
-      <div class="industry-info-bar">
-        Last 24 hours · Industries: <strong id="industry-list-display">—</strong>
+      <div class="industry-info-bar" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span>Last 24 hours · Auto: <strong id="industry-list-display">—</strong></span>
+        <div style="display:flex;gap:6px;align-items:center;margin-left:auto;">
+          <input id="industry-search-input" type="text" placeholder="Search industry…"
+            style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;outline:none;width:180px;"
+            onkeydown="if(event.key==='Enter')loadIndustryTopics(currentIndustryGeo)">
+          <button onclick="loadIndustryTopics(currentIndustryGeo)"
+            style="padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer;font-family:'Inter',sans-serif;">🔄 Load</button>
+        </div>
       </div>
       <div class="industry-scroll">
         <table class="cases-table" id="industry-table" style="width:100%;">
@@ -3297,19 +3304,25 @@ Regards`
   let currentIndustryItems = [];
 
   function getUniqueIndustries() {
-    return [...new Set(
+    const fromPortfolio = [...new Set(
       portfolioCases
         .map(c => (c.industry && c.industry.trim()) || detectIndustry(c.name))
         .filter(i => i && i !== 'General')
     )];
+    return fromPortfolio.length ? fromPortfolio : ['Pharma'];
   }
 
   function updateIndustryDisplay() {
-    const industries = getUniqueIndustries();
+    const fromPortfolio = [...new Set(
+      portfolioCases
+        .map(c => (c.industry && c.industry.trim()) || detectIndustry(c.name))
+        .filter(i => i && i !== 'General')
+    )];
     const el = document.getElementById('industry-list-display');
-    if (el) el.textContent = industries.length
-      ? industries.join(', ')
-      : 'No industries found — add companies with Industry to your portfolio';
+    const inp = document.getElementById('industry-search-input');
+    const label = fromPortfolio.length ? fromPortfolio.join(', ') : 'Pharma (default)';
+    if (el) el.textContent = label;
+    if (inp && !inp.value) inp.placeholder = label;
   }
 
   function switchIndustryTab(geo, btn) {
@@ -3320,14 +3333,11 @@ Regards`
   }
 
   async function loadIndustryTopics(geo) {
-    const industries = getUniqueIndustries();
-    const tbody = document.getElementById('industry-tbody');
-    if (!industries.length) {
-      tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No portfolio companies found.<br><strong>Go to Portfolio Overview → Edit Portfolio</strong> in the sidebar to add companies — industry topics load automatically from your portfolio.</td></tr>`;
-      return;
-    }
+    const manualInput = document.getElementById('industry-search-input')?.value?.trim();
+    const industries = manualInput ? [manualInput] : getUniqueIndustries();
     const query = industries.slice(0, 5).join(' OR ');
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--muted);"><span class="spinner"></span>Loading ${geo === 'india' ? 'Indian' : 'Global'} industry news…</td></tr>`;
+    const tbody = document.getElementById('industry-tbody');
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:28px;color:var(--muted);"><span class="spinner"></span>Loading ${geo === 'india' ? 'Indian' : 'Global'} ${industries.join(', ')} news…</td></tr>`;
     try {
       const resp = await fetch(`/api/news?industry=${encodeURIComponent(query)}&geo=${geo}`);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
